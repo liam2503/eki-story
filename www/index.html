@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Train Tracker</title>
+    <title>Eki Story</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -26,8 +26,47 @@
     </div>
 
     <div id="list-container" class="hidden fixed inset-0 z-10 bg-white/90 backdrop-blur-sm overflow-y-auto pt-32 pb-32">
-    <turbo-frame id="list-frame" src="list.html" class="block max-w-sm mx-auto"></turbo-frame>
-</div>
+      <turbo-frame id="list-frame" src="list.html" class="block max-w-sm mx-auto"></turbo-frame>
+    </div>
+
+    <!-- Stamps Panel -->
+    <div id="stamps-container" class="hidden fixed inset-0 z-10 bg-white/90 backdrop-blur-sm overflow-y-auto pt-32 pb-32">
+      <turbo-frame id="stamps-frame" src="stamps.html" class="block max-w-sm mx-auto"></turbo-frame>
+    </div>
+
+    <!-- Trains Panel -->
+    <div id="trains-container" class="hidden fixed inset-0 z-10 bg-white/90 backdrop-blur-sm overflow-y-auto pt-32 pb-32">
+      <turbo-frame id="trains-frame" src="trains.html" class="block max-w-sm mx-auto"></turbo-frame>
+    </div>
+
+    <!-- Station Visit Modal (bottom sheet) -->
+    <div id="station-modal" class="hidden fixed inset-x-0 bottom-0 z-30 pb-28">
+      <div class="bg-white border-t-4 border-[#ed2079] rounded-t-3xl shadow-2xl p-6 max-w-sm mx-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold text-[#ed2079]" id="modal-station-name">Station Name</h3>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Visit Date</label>
+            <input type="date" id="modal-date" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-[#ed2079] transition" />
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Note</label>
+            <textarea id="modal-note" placeholder="How was it?" rows="2" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-[#ed2079] transition resize-none"></textarea>
+          </div>
+          <div class="flex items-center space-x-2">
+            <input type="checkbox" id="modal-public" class="w-4 h-4 accent-[#ed2079]" />
+            <label for="modal-public" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Post to Social Feed</label>
+          </div>
+          <button onclick="submitVisit()" class="w-full bg-[#ed2079] text-white font-bold py-3 rounded-xl hover:brightness-110 transition text-sm">Log Visit</button>
+        </div>
+      </div>
+    </div>
 
     <div class="w-[90%] sm:w-3/4 h-25 bg-white flex items-center justify-between px-5 shadow-md fixed top-5 left-1/2 transform -translate-x-1/2 rounded-full py-2 z-20">
       <span class="text-gray-600 text-sm">Version v0.1</span>
@@ -36,7 +75,7 @@
         <span class="text-2xl font-bold text-white rounded-full px-5 py-2 inline-block bg-green-500">Notifications: 3</span>
       </div>
       <div class="flex items-center space-x-4">
-        <button class="bg-[#3b82f6] text-white font-bold text-sm sm:text-lg rounded-xl px-4 py-1 hover:brightness-110 transition duration-150">Log Out</button>
+        <button onclick="window.location.href='auth.html'" class="bg-[#3b82f6] text-white font-bold text-sm sm:text-lg rounded-xl px-4 py-1 hover:brightness-110 transition duration-150">Log Out</button>
       </div>
     </div>
 
@@ -51,7 +90,8 @@
         <p class="text-[2vh] text-gray-600 px-5 select-none hidden lg:block">February 19, 2026</p>
       </div>
 
-      <div class="flex flex-grow items-center space-x-5 justify-center">
+      <div class="flex flex-grow items-center space-x-3 justify-center">
+        <!-- Feed -->
         <div id="icon-shell-0" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#2BAAE2] transition select-none cursor-pointer">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[4vh] text-[#2BAAE2] group-hover:text-white duration-150 stroke-current">
             <path d="M3 10C3 6.22876 3 4.34315 4.17157 3.17157C5.34315 2 7.22876 2 11 2H13C16.7712 2 18.6569 2 19.8284 3.17157C21 4.34315 21 6.22876 21 10V14C21 17.7712 21 19.6569 19.8284 20.8284C18.6569 22 16.7712 22 13 22H11C7.22876 22 5.34315 22 4.17157 20.8284C3 19.6569 3 17.7712 3 14V10Z" stroke-width="1.5"/>
@@ -60,12 +100,30 @@
           </svg>
         </div>
 
+        <!-- Stamps -->
+        <div id="icon-shell-3" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#f59e0b] transition select-none cursor-pointer">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[3.5vh] text-[#f59e0b] group-hover:text-white duration-150 stroke-current" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a5 5 0 015 5v1h1a2 2 0 012 2v1a2 2 0 01-2 2H6a2 2 0 01-2-2v-1a2 2 0 012-2h1V7a5 5 0 015-5z"/>
+            <path d="M6 19h12M9 15v4M15 15v4"/>
+          </svg>
+        </div>
+
+        <!-- Log Station (center, big) -->
         <div id="icon-shell-1" class="group w-[7vh] h-[7vh] rounded-full bg-[#ed2079] flex items-center justify-center hover:bg-[#EEEEEE] transition select-none cursor-pointer">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[4.5vh] text-white group-hover:text-[#ed2079] duration-150 stroke-current">
             <path d="M5.7 15C4.03377 15.6353 3 16.5205 3 17.4997C3 19.4329 7.02944 21 12 21C16.9706 21 21 19.4329 21 17.4997C21 16.5205 19.9662 15.6353 18.3 15M12 9H12.01M18 9C18 13.0637 13.5 15 12 18C10.5 15 6 13.0637 6 9C6 5.68629 8.68629 3 12 3C15.3137 3 18 5.68629 18 9ZM13 9C13 9.55228 12.5523 10 12 10C11.4477 10 11 9.55228 11 9C11 8.44772 11.4477 8 12 8C12.5523 8 13 8.44772 13 9Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
 
+        <!-- Trains -->
+        <div id="icon-shell-4" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#8b5cf6] transition select-none cursor-pointer">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[3.5vh] text-[#8b5cf6] group-hover:text-white duration-150 stroke-current" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="8" width="20" height="11" rx="3"/>
+            <path d="M7 8V6a2 2 0 012-2h6a2 2 0 012 2v2M12 13v2M8 21l-1 1M16 21l1 1M5 19h14"/>
+          </svg>
+        </div>
+
+        <!-- Line List -->
         <div id="icon-shell-2" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#fbb03c] transition select-none cursor-pointer">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[3.5vh] text-[#fbb03c] group-hover:text-white duration-150 stroke-current">
             <path d="M8 6.00067L21 6.00139M8 12.0007L21 12.0015M8 18.0007L21 18.0015M3.5 6H3.51M3.5 12H3.51M3.5 18H3.51M4 6C4 6.27614 3.77614 6.5 3.5 6.5C3.22386 6.5 3 6.27614 3 6C3 5.72386 3.22386 5.5 3.5 5.5C3.77614 5.5 4 5.72386 4 6ZM4 12C4 12.2761 3.77614 12.5 3.5 12.5C3.22386 12.5 3 12.2761 3 12C3 11.7239 3.22386 11.5 3.5 11.5C3.77614 11.5 4 11.7239 4 12ZM4 18C4 18.2761 3.77614 18.5 3.5 18.5C3.22386 18.5 3 18.2761 3 18C3 17.7239 3.22386 17.5 3.5 17.5C3.77614 17.5 4 17.7239 4 18Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -130,7 +188,7 @@
         ];
 
         stations.forEach(station => {
-          new google.maps.Marker({
+          const marker = new google.maps.Marker({
             position: station.pos,
             map: map,
             title: station.name,
@@ -143,9 +201,12 @@
               strokeColor: "#009B73",
             }
           });
+          marker.addListener("click", function() {
+            openStationModal(station.name);
+          });
         });
       }
     </script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=%GOOGLE_MAPS_KEY%&callback=initMap"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=%VITE_GOOGLE_MAPS_KEY%&callback=initMap"></script>
   </body>
 </html>

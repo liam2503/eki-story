@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <turbo-frame id="stamps-frame" class="w-full space-y-6 block">
+
+    <div class="bg-white border-4 border-[#f59e0b] p-6 shadow-xl rounded-2xl">
+      <h2 class="text-2xl font-bold text-[#f59e0b] mb-4" style="font-family:'Cherry Bomb One',cursive;">Stamp Collection</h2>
+
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-center">
+          <p class="text-xs text-amber-700 uppercase font-bold">Collected</p>
+          <p class="text-2xl font-black text-amber-600">2</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 text-center">
+          <p class="text-xs text-gray-500 uppercase font-bold">Remaining</p>
+          <p class="text-2xl font-black text-gray-400">4</p>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="font-bold text-sm text-gray-500 uppercase tracking-widest">Stamp Stations</h3>
+
+        <div class="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-[#f59e0b] rounded-full flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-white stroke-current" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-amber-800 text-sm">Tokyo Station</p>
+              <p class="text-xs text-gray-400">Collected Feb 15</p>
+            </div>
+          </div>
+          <span class="text-[10px] bg-[#f59e0b] text-white px-2 py-1 rounded-full font-bold">COLLECTED</span>
+        </div>
+
+        <div class="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-[#f59e0b] rounded-full flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-white stroke-current" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-amber-800 text-sm">Shinjuku Station</p>
+              <p class="text-xs text-gray-400">Collected Feb 10</p>
+            </div>
+          </div>
+          <span class="text-[10px] bg-[#f59e0b] text-white px-2 py-1 rounded-full font-bold">COLLECTED</span>
+        </div>
+
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 opacity-60">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-gray-400 stroke-current" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-600 text-sm">Shibuya Station</p>
+              <p class="text-xs text-gray-400">Not yet collected</p>
+            </div>
+          </div>
+          <span class="text-[10px] border border-gray-300 text-gray-400 px-2 py-1 rounded-full">LOCKED</span>
+        </div>
+
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 opacity-60">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-gray-400 stroke-current" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-600 text-sm">Ikebukuro Station</p>
+              <p class="text-xs text-gray-400">Not yet collected</p>
+            </div>
+          </div>
+          <span class="text-[10px] border border-gray-300 text-gray-400 px-2 py-1 rounded-full">LOCKED</span>
+        </div>
+
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 opacity-60">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-gray-400 stroke-current" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-600 text-sm">Ueno Station</p>
+              <p class="text-xs text-gray-400">Not yet collected</p>
+            </div>
+          </div>
+          <span class="text-[10px] border border-gray-300 text-gray-400 px-2 py-1 rounded-full">LOCKED</span>
+        </div>
+
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 opacity-60">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-gray-400 stroke-current" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-600 text-sm">Akihabara Station</p>
+              <p class="text-xs text-gray-400">Not yet collected</p>
+            </div>
+          </div>
+          <span class="text-[10px] border border-gray-300 text-gray-400 px-2 py-1 rounded-full">LOCKED</span>
+        </div>
+
+      </div>
+    </div>
+
+  </turbo-frame>
+</body>
+</html>
