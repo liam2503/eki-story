@@ -1,3 +1,4 @@
+
 # Eki Story
 
 ## 🛠 Developer Setup Guide (Vite + Capacitor)
@@ -23,17 +24,17 @@ Since API keys are kept out of GitHub for security, you must create a local envi
 
 1.  Create a file named `.env` in the root directory.
     
-2.  Add your Google Maps API key:
+2.  Add your Google Maps API key using the **Vite prefix**:
     
     Plaintext
     
     ```
-    GOOGLE_MAPS_KEY=your_actual_key_here
+    VITE_GOOGLE_MAPS_KEY=your_actual_key_here
     
     ```
     
 
-_Vite will automatically inject this into your HTML wherever `%GOOGLE_MAPS_KEY%` is used._
+_Vite will automatically inject this into your HTML wherever `%VITE_GOOGLE_MAPS_KEY%` is used._
 
 ----------
 
@@ -57,8 +58,6 @@ npm run dev
 
 ### B. iOS App Development (Simulator)
 
-To test the app inside the iPhone simulator with Live Reload:
-
 1.  Find your Mac's IP (Option + Click Wi-Fi icon).
     
 2.  Ensure `capacitor.config.json` points to your IP and port `5173`.
@@ -73,30 +72,37 @@ npx cap run ios --live-reload --host=YOUR_MAC_IP
 
 ```
 
+### C. Android App Development (Emulator)
+
+Testing on Android requires **Android Studio** to be installed.
+
+1.  Ensure your Mac's IP is correctly set in `capacitor.config.json`.
+    
+2.  If the Android folder is missing, run: `npx cap add android`.
+    
+3.  Launch the app with Live Reload:
+    
+
+Bash
+
+```
+npx cap run android --live-reload --host=YOUR_MAC_IP
+
+```
+
 ----------
 
 ## 🏗 Building for Production
 
-When you are ready to deploy to GitHub Pages or ship a final version of the app:
+When you are ready to deploy a final version (not using Live Reload):
 
-1.  **Build the Web Assets:**
+1.  **Build Web Assets:** `npm run build`.
     
-    Bash
+2.  **Sync to Native:** `npx cap sync`.
     
-    ```
-    npm run build
+3.  **Open Native IDE:** * For iOS: `npx cap open ios` (Opens Xcode).
     
-    ```
-    
-    _This creates a `dist/` folder containing optimized, minified code with your API keys injected._
-    
-2.  **Sync to iOS:**
-    
-    Bash
-    
-    ```
-    npx cap sync
-    
-    ```
-    
-    _This copies the contents of `dist/` into the native iOS project._
+    -   For Android: `npx cap open android` (Opens Android Studio).
+
+----------
+*This text was generated using Google Gemini. AI can make mistakes.*
