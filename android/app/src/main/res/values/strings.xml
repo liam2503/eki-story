@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Eki Story</string>
+    <string name="title_activity_main">Eki Story</string>
+    <string name="package_name">com.lpcmse.ekistory</string>
+    <string name="custom_url_scheme">com.lpcmse.ekistory</string>
+</resources>

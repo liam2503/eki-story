@@ -16,33 +16,24 @@ npm install
 
 ```
 
-_This installs Vite, Capacitor, and all project dependencies into your local `node_modules`._
-
 ### 2. Environment Configuration
 
-Since API keys are kept out of GitHub for security, you must create a local environment file:
+Create a file named `.env` in the root directory and add your Google Maps API key using the **Vite prefix**:
 
-1.  Create a file named `.env` in the root directory.
-    
-2.  Add your Google Maps API key using the **Vite prefix**:
-    
-    Plaintext
-    
-    ```
-    VITE_GOOGLE_MAPS_KEY=your_actual_key_here
-    
-    ```
-    
+Plaintext
 
-_Vite will automatically inject this into your HTML wherever `%VITE_GOOGLE_MAPS_KEY%` is used._
+```
+VITE_GOOGLE_MAPS_KEY=your_actual_key_here
+
+```
 
 ----------
 
-## 💻 Running the Project
+## 💻 Local Development & Testing
 
-### A. Web Development (VS Code)
+### Web Development
 
-To start the high-performance Vite development server with **Hot Module Replacement (HMR)**:
+To start the Vite development server:
 
 Bash
 
@@ -51,58 +42,70 @@ npm run dev
 
 ```
 
--   **Local URL:** `http://localhost:5173`.
+-   **URL:** `http://localhost:5173`
     
--   **Live Updates:** Changes to your code are reflected instantly in the browser without a full page reload.
+-   **Features:** Fast builds and Hot Module Replacement (HMR).
     
 
-### B. iOS App Development (Simulator)
+### Running Tests
 
-1.  Find your Mac's IP (Option + Click Wi-Fi icon).
-    
-2.  Ensure `capacitor.config.json` points to your IP and port `5173`.
-    
-3.  Run:
-    
+To run your local test suite (ensure dependencies are installed first):
 
 Bash
 
 ```
-npx cap run ios --live-reload --host=YOUR_MAC_IP
+npm test
 
 ```
 
-### C. Android App Development (Emulator)
+_Use `npm test -- --watch` if you want the tests to re-run automatically as you make changes._
 
-Testing on Android requires **Android Studio** to be installed.
+----------
 
-1.  Ensure your Mac's IP is correctly set in `capacitor.config.json`.
-    
-2.  If the Android folder is missing, run: `npx cap add android`.
-    
-3.  Launch the app with Live Reload:
-    
+## 📱 Mobile App Development
+
+Before running on mobile, always ensure your web assets are compiled and synced:
 
 Bash
 
 ```
-npx cap run android --live-reload --host=YOUR_MAC_IP
+npm run build
+npx cap sync
 
 ```
 
+### iOS (Simulator/Device)
+
+Bash
+
+```
+npx cap run ios
+
+```
+
+_Note: Requires macOS and Xcode._
+
+### Android (Emulator/Device)
+
+Bash
+
+```
+npx cap run android
+
+```
+
+_Note: Requires Android Studio and a configured Android SDK._
+
 ----------
 
-## 🏗 Building for Production
+## 🏗 Production Build Process
 
-When you are ready to deploy a final version (not using Live Reload):
+When you are ready to generate a final version of the app:
 
-1.  **Build Web Assets:** `npm run build`.
+1.  **Build Web Assets:** `npm run build`
     
-2.  **Sync to Native:** `npx cap sync`.
+2.  **Sync to Native:** `npx cap sync`
     
-3.  **Open Native IDE:** * For iOS: `npx cap open ios` (Opens Xcode).
+3.  **Open Native IDE:** * **iOS:** `npx cap open ios` (Opens Xcode for signing and archiving)
     
-    -   For Android: `npx cap open android` (Opens Android Studio).
-
-----------
-*This text was generated using Google Gemini. AI can make mistakes.*
+    -   **Android:** `npx cap open android` (Opens Android Studio for APK/Bundle generation)
