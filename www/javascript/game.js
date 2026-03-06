@@ -1,5 +1,8 @@
-const mapsApiKey = import.meta.env.GOOGLE_MAPS_KEY;
-console.log("Loaded Google Maps API Key")
+const script = document.createElement('script');
+script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}&callback=initMap`;
+script.async = true;
+script.defer = true;
+document.head.appendChild(script);
 
 function initButtons() {
     const feedBtn = document.getElementById("icon-shell-0");

@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Train Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Eki Story</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,11 +14,12 @@
     
     <style>
       #map { height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 0; }
+      body { overscroll-behavior-y: contain; } 
     </style>
   </head>
 
   <body class="min-h-screen relative bg-gray-100 font-sans overflow-hidden">
-    
+
     <div id="map"></div>
 
     <div id="feed-container" class="hidden fixed inset-0 z-10 bg-white/90 backdrop-blur-sm overflow-y-auto pt-32 pb-32">
@@ -26,75 +27,63 @@
     </div>
 
     <div id="list-container" class="hidden fixed inset-0 z-10 bg-white/90 backdrop-blur-sm overflow-y-auto pt-32 pb-32">
-    <turbo-frame id="list-frame" src="list.html" class="block max-w-sm mx-auto"></turbo-frame>
-</div>
+        <turbo-frame id="list-frame" src="list.html" class="block max-w-sm mx-auto"></turbo-frame>
+    </div>
 
-    <div class="w-[90%] sm:w-3/4 h-25 bg-white flex items-center justify-between px-5 shadow-md fixed top-5 left-1/2 transform -translate-x-1/2 rounded-full py-2 z-20">
-      <span class="text-gray-600 text-sm">Version v0.1</span>
-      <div class="flex items-center space-x-4">
-        <span class="text-2xl font-bold text-white rounded-full px-5 py-2 bg-[#ff6f00] inline-block">Streak: 5 days</span>
-        <span class="text-2xl font-bold text-white rounded-full px-5 py-2 inline-block bg-green-500">Notifications: 3</span>
+    <div class="w-[90%] sm:w-3/4 bg-white flex items-center justify-between px-5 shadow-md fixed top-5 left-1/2 transform -translate-x-1/2 rounded-full py-2 z-20">
+      <span class="text-gray-600 text-[10px] sm:text-sm">v0.1</span>
+      <div class="flex items-center space-x-2 sm:space-x-4">
+        <span class="text-sm sm:text-xl font-bold text-white rounded-full px-3 sm:px-5 py-1 sm:py-2 bg-[#ff6f00]">Streak: 5d</span>
+        <span class="text-sm sm:text-xl font-bold text-white rounded-full px-3 sm:px-5 py-1 sm:py-2 bg-green-500">Alerts: 3</span>
       </div>
-      <div class="flex items-center space-x-4">
-        <button class="bg-[#3b82f6] text-white font-bold text-sm sm:text-lg rounded-xl px-4 py-1 hover:brightness-110 transition duration-150">Log Out</button>
-      </div>
+      <button class="bg-[#3b82f6] text-white font-bold text-xs sm:text-lg rounded-xl px-3 py-1 hover:brightness-110">Exit</button>
     </div>
 
     <div class="w-4/5 h-[8vh] sm:h-[6vh] bg-white flex items-center justify-center px-8 py-5 shadow-md fixed bottom-5 left-1/2 transform -translate-x-1/2 rounded-full z-20">
       <div class="absolute flex items-center left-4">
         <div id="icon-shell-s" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#444444] transition cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-[4vh] text-[#444444] group-hover:text-[#FFFFFF] duration-150">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-[3.5vh] text-[#444444] group-hover:text-[#FFFFFF]">
             <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
         </div>
-        <p class="text-[2vh] text-gray-600 px-5 select-none hidden lg:block">February 19, 2026</p>
+        <p class="text-[1.5vh] text-gray-600 px-3 hidden lg:block">March 7, 2026</p>
       </div>
 
       <div class="flex flex-grow items-center space-x-5 justify-center">
-        <div id="icon-shell-0" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#2BAAE2] transition select-none cursor-pointer">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[4vh] text-[#2BAAE2] group-hover:text-white duration-150 stroke-current">
+        <div id="icon-shell-0" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#2BAAE2] transition cursor-pointer">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[3.5vh] text-[#2BAAE2] group-hover:text-white stroke-current">
             <path d="M3 10C3 6.22876 3 4.34315 4.17157 3.17157C5.34315 2 7.22876 2 11 2H13C16.7712 2 18.6569 2 19.8284 3.17157C21 4.34315 21 6.22876 21 10V14C21 17.7712 21 19.6569 19.8284 20.8284C18.6569 22 16.7712 22 13 22H11C7.22876 22 5.34315 22 4.17157 20.8284C3 19.6569 3 17.7712 3 14V10Z" stroke-width="1.5"/>
             <path d="M6 12C6 10.5858 6 9.87868 6.43934 9.43934C6.87868 9 7.58579 9 9 9H15C16.4142 9 17.1213 9 17.5607 9.43934C18 9.87868 18 10.5858 18 12V16C18 17.4142 18 18.1213 17.5607 18.5607C17.1213 19 16.4142 19 15 19H9C7.58579 19 6.87868 19 6.43934 18.5607C6 18.1213 6 17.4142 6 16V12Z" stroke-width="1.5"/>
             <path d="M7 6H12" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </div>
 
-        <div id="icon-shell-1" class="group w-[7vh] h-[7vh] rounded-full bg-[#ed2079] flex items-center justify-center hover:bg-[#EEEEEE] transition select-none cursor-pointer">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[4.5vh] text-white group-hover:text-[#ed2079] duration-150 stroke-current">
+        <div id="icon-shell-1" class="group w-[6vh] h-[6vh] rounded-full bg-[#ed2079] flex items-center justify-center hover:bg-[#EEEEEE] transition cursor-pointer">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[4vh] text-white group-hover:text-[#ed2079] stroke-current">
             <path d="M5.7 15C4.03377 15.6353 3 16.5205 3 17.4997C3 19.4329 7.02944 21 12 21C16.9706 21 21 19.4329 21 17.4997C21 16.5205 19.9662 15.6353 18.3 15M12 9H12.01M18 9C18 13.0637 13.5 15 12 18C10.5 15 6 13.0637 6 9C6 5.68629 8.68629 3 12 3C15.3137 3 18 5.68629 18 9ZM13 9C13 9.55228 12.5523 10 12 10C11.4477 10 11 9.55228 11 9C11 8.44772 11.4477 8 12 8C12.5523 8 13 8.44772 13 9Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
 
-        <div id="icon-shell-2" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#fbb03c] transition select-none cursor-pointer">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[3.5vh] text-[#fbb03c] group-hover:text-white duration-150 stroke-current">
-            <path d="M8 6.00067L21 6.00139M8 12.0007L21 12.0015M8 18.0007L21 18.0015M3.5 6H3.51M3.5 12H3.51M3.5 18H3.51M4 6C4 6.27614 3.77614 6.5 3.5 6.5C3.22386 6.5 3 6.27614 3 6C3 5.72386 3.22386 5.5 3.5 5.5C3.77614 5.5 4 5.72386 4 6ZM4 12C4 12.2761 3.77614 12.5 3.5 12.5C3.22386 12.5 3 12.2761 3 12C3 11.7239 3.22386 11.5 3.5 11.5C3.77614 11.5 4 11.7239 4 12ZM4 18C4 18.2761 3.77614 18.5 3.5 18.5C3.22386 18.5 3 18.2761 3 18C3 17.7239 3.22386 17.5 3.5 17.5C3.77614 17.5 4 17.7239 4 18Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <div id="icon-shell-2" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#fbb03c] transition cursor-pointer">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[3vh] text-[#fbb03c] group-hover:text-white stroke-current">
+            <path d="M8 6.00067L21 6.00139M8 12.0007L21 12.0015M8 18.0007L21 18.0015M3.5 6H3.51M3.5 12H3.51M3.5 18H3.51" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
       </div>
 
       <div class="absolute flex items-center right-4">
-        <div id="volume-icon" class="w-[4vh] h-[4vh] mx-5 flex items-center justify-center select-none hidden sm:block cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-[4vh] text-[#000000]">
-            <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" />
-            <path d="M16 9a5 5 0 0 1 0 6" />
-            <path d="M19.364 18.364a9 9 0 0 0 0-12.728" />
-          </svg>
-        </div>
-        <div id="user-shell" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#444444] transition select-none cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-[4vh] text-[#000000] group-hover:text-[#FFFFFF] duration-150">
+        <div id="user-shell" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#444444] transition cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-[3.5vh] text-[#000000] group-hover:text-[#FFFFFF]">
             <path d="M18 20a6 6 0 0 0-12 0" />
             <circle cx="12" cy="10" r="4" />
-            <circle cx="12" cy="12" r="10" />
           </svg>
         </div>
       </div>
     </div>
     
-    <script src="javascript/game.js"></script>
-
     <script>
-      function initMap() {
+      window.initMap = function() {
         const centerView = { lat: 35.6325, lng: 139.6525 };
         const map = new google.maps.Map(document.getElementById("map"), {
           zoom: 14.8, 
@@ -104,12 +93,9 @@
         });
 
         const denEnToshiPath = [
-          { lat: 35.6506, lng: 139.6841 }, // Ikejiri-Ohashi
-          { lat: 35.6436, lng: 139.6714 }, // Sangen-Jaya
-          { lat: 35.6335, lng: 139.6601 }, // Komazawa-daigaku
-          { lat: 35.6311, lng: 139.6456 }, // Sakura-shinmachi
-          { lat: 35.6265, lng: 139.6352 }, // Yoga
-          { lat: 35.6118, lng: 139.6268 }  // Futako-Tamagawa
+          { lat: 35.6506, lng: 139.6841 }, { lat: 35.6436, lng: 139.6714 },
+          { lat: 35.6335, lng: 139.6601 }, { lat: 35.6311, lng: 139.6456 },
+          { lat: 35.6265, lng: 139.6352 }, { lat: 35.6118, lng: 139.6268 }
         ];
 
         new google.maps.Polyline({
@@ -146,6 +132,7 @@
         });
       }
     </script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=%VITE_GOOGLE_MAPS_KEY%&callback=initMap"></script>
+
+    <script type="module" src="javascript/game.js"></script>
   </body>
 </html>
