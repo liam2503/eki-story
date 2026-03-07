@@ -1,12 +1,12 @@
 import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-    root: 'www',
-    envDir: '../', 
-    base: './',
-    build: {
-        outDir: '../dist',
-        emptyOutDir: true,
-    },
-    envPrefix: 'VITE_',
+  plugins: [react(), tailwindcss()],
+  envPrefix: "VITE_",
+  build: {
+    outDir: "dist",
+    emptyOutDir: true,
+  },
 });

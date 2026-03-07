@@ -4,14 +4,24 @@
     "@capacitor/cli": "^8.1.0",
     "@capacitor/core": "^8.1.0",
     "@capacitor/ios": "^8.1.0",
-    "firebase": "^12.10.0"
+    "@vitejs/plugin-react": "^5.1.4",
+    "firebase": "^12.10.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.1",
+    "wanakana": "^5.3.1"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.2.1",
+    "firebase-admin": "^13.7.0",
+    "tailwindcss": "^4.2.1",
     "vite": "^7.3.1"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
-  }
+    "preview": "vite preview",
+    "import-ekidata": "node scripts/import-ekidata.js"
+  },
+  "type": "module"
 }
