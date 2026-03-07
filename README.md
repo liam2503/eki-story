@@ -13,17 +13,19 @@ Bash
 git clone https://github.com/liam2503/eki-story.git
 cd eki-story
 npm install
+npm install firebase
 
 ```
 
 ### 2. Environment Configuration
 
-Create a file named `.env` in the root directory and add your Google Maps API key using the **Vite prefix**:
+Create a file named `.env` in the root directory and add  API keys that are given to you:
 
 Plaintext
 
 ```
 VITE_GOOGLE_MAPS_KEY=your_actual_key_here
+... etc ...
 
 ```
 
