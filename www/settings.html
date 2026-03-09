@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Settings – Eki Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet" />
+  <script>if (localStorage.getItem('eki-theme') === 'dark') document.documentElement.classList.add('dark');</script>
+  <script>if (!window.tailwind) window.tailwind = {}; window.tailwind.config = { darkMode: 'class' };</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { overscroll-behavior-y: contain; }
+    .cherry { font-family: 'Cherry Bomb One', cursive; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #ed2079; cursor: pointer; }
+    input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: #e5e7eb; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-100 dark:bg-gray-900 font-sans">
+
+  <!-- TOP BAR -->
+  <div class="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b-2 border-black dark:border-gray-700 px-5 py-4 flex items-center">
+    <a href="index.html" class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-[#ed2079] transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M19 12H5M12 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="text-sm font-bold">戻る</span>
+    </a>
+    <h1 class="cherry text-xl text-[#ed2079] absolute left-1/2 -translate-x-1/2">Settings</h1>
+  </div>
+
+  <div class="max-w-sm mx-auto px-4 py-5 space-y-5 pb-12">
+
+    <!-- ── APP SETTINGS ── -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden divide-y divide-gray-100 dark:divide-gray-700">
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-5 pt-4 pb-2">App</p>
+
+      <!-- Dark Mode -->
+      <div class="flex items-center justify-between px-5 py-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-gray-600 dark:text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-gray-800 dark:text-white">ダークモード</p>
+            <p class="text-xs text-gray-400">ライト / ダーク切替</p>
+          </div>
+        </div>
+        <!-- Toggle switch -->
+        <button id="theme-toggle" onclick="toggleTheme()"
+          class="relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none"
+          style="background-color: #d1d5db;">
+          <div id="theme-thumb" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300"></div>
+        </button>
+      </div>
+
+      <!-- SFX Volume -->
+      <div class="px-5 py-4">
+        <div class="flex items-center space-x-3 mb-3">
+          <div class="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between items-center">
+              <p class="text-sm font-bold text-gray-800 dark:text-white">効果音</p>
+              <span id="sfx-val" class="text-xs font-bold text-[#ed2079]">70%</span>
+            </div>
+            <p class="text-xs text-gray-400">スタンプ・訪問サウンド</p>
+          </div>
+        </div>
+        <input type="range" min="0" max="100" value="70"
+          class="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#ed2079] bg-gray-200 dark:bg-gray-600"
+          oninput="document.getElementById('sfx-val').textContent = this.value + '%'" />
+      </div>
+
+      <!-- BGM Volume -->
+      <div class="px-5 py-4">
+        <div class="flex items-center space-x-3 mb-3">
+          <div class="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between items-center">
+              <p class="text-sm font-bold text-gray-800 dark:text-white">BGM</p>
+              <span id="bgm-val" class="text-xs font-bold text-[#ed2079]">40%</span>
+            </div>
+            <p class="text-xs text-gray-400">環境音楽</p>
+          </div>
+        </div>
+        <input type="range" min="0" max="100" value="40"
+          class="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#ed2079] bg-gray-200 dark:bg-gray-600"
+          oninput="document.getElementById('bgm-val').textContent = this.value + '%'" />
+      </div>
+
+      <!-- Notifications -->
+      <div class="flex items-center justify-between px-5 py-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-gray-800 dark:text-white">通知</p>
+            <p class="text-xs text-gray-400">フレンド・実績</p>
+          </div>
+        </div>
+        <button id="notif-toggle" onclick="toggleNotif()"
+          class="relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none"
+          style="background-color: #ed2079;">
+          <div id="notif-thumb" class="absolute top-0.5 right-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300"></div>
+        </button>
+      </div>
+
+      <!-- Location -->
+      <div class="flex items-center justify-between px-5 py-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 14 8 14s8-8.6 8-14a8 8 0 0 0-8-8z" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-gray-800 dark:text-white">位置情報</p>
+            <p class="text-xs text-gray-400">近くの駅を自動検出</p>
+          </div>
+        </div>
+        <button id="loc-toggle" onclick="toggleLoc()"
+          class="relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none"
+          style="background-color: #d1d5db;">
+          <div id="loc-thumb" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300"></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── SIGN OUT ── -->
+    <button onclick="handleSignOut()"
+      class="w-full bg-white dark:bg-gray-800 border-2 border-red-400 text-red-500 font-bold py-4 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 transition text-sm flex items-center justify-center space-x-2 shadow-md">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>サインアウト</span>
+    </button>
+
+  </div>
+
+  <script>
+    // Dark mode
+    const isDark = () => document.documentElement.classList.contains('dark');
+    const btn = document.getElementById('theme-toggle');
+    const thumb = document.getElementById('theme-thumb');
+
+    function applyThemeUI() {
+      if (isDark()) {
+        btn.style.backgroundColor = '#ed2079';
+        thumb.style.transform = 'translateX(24px)';
+      } else {
+        btn.style.backgroundColor = '#d1d5db';
+        thumb.style.transform = 'translateX(0)';
+      }
+    }
+    applyThemeUI();
+
+    function toggleTheme() {
+      const dark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('eki-theme', dark ? 'dark' : 'light');
+      applyThemeUI();
+    }
+
+    // Notification toggle
+    let notifOn = true;
+    function toggleNotif() {
+      notifOn = !notifOn;
+      const t = document.getElementById('notif-toggle');
+      const th = document.getElementById('notif-thumb');
+      if (notifOn) {
+        t.style.backgroundColor = '#ed2079';
+        th.style.right = '2px'; th.style.left = 'auto'; th.style.transform = 'none';
+      } else {
+        t.style.backgroundColor = '#d1d5db';
+        th.style.left = '2px'; th.style.right = 'auto'; th.style.transform = 'none';
+      }
+    }
+
+    // Location toggle
+    let locOn = false;
+    function toggleLoc() {
+      locOn = !locOn;
+      const t = document.getElementById('loc-toggle');
+      const th = document.getElementById('loc-thumb');
+      if (locOn) {
+        t.style.backgroundColor = '#ed2079';
+        th.style.transform = 'translateX(24px)';
+      } else {
+        t.style.backgroundColor = '#d1d5db';
+        th.style.transform = 'translateX(0)';
+      }
+    }
+
+    function handleSignOut() {
+      if (confirm('サインアウトしますか？')) {
+        window.location.href = 'auth.html';
+      }
+    }
+  </script>
+</body>
+</html>

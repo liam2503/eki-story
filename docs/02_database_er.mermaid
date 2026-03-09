@@ -1,0 +1,98 @@
+erDiagram
+
+    %% ===== Master Data (Imported from EkiData CSV - Read Only) =====
+
+    LINES {
+        string line_cd PK "EkiData line_cd"
+        string line_name "Line Name (Japanese)"
+        string line_name_en "Line Name (English) - from ODPT"
+        string company_cd FK
+        string line_color_c "Line Color"
+        int total_stations
+    }
+
+    COMPANIES {
+        string company_cd PK "EkiData company_cd"
+        string company_name "Company Name (Japanese)"
+        string company_name_en "Company Name (English)"
+        string company_url
+    }
+
+    STATIONS {
+        string station_cd PK "EkiData station_cd"
+        string station_g_cd "Group CD (Transfer Stations)"
+        string station_name "Station Name (Japanese)"
+        string station_name_en "Station Name (English) - from ODPT"
+        string line_cd FK
+        string pref_cd "Prefecture Code"
+        string address
+        float lat
+        float lon
+        bool has_stamp
+    }
+
+    TRAIN_MODELS {
+        string model_id PK
+        string name "Fetched from Wikipedia API"
+        string description
+        string wikipedia_url
+        timestamp cached_at
+    }
+
+    %% ===== User Data (Firebase Auth + Firestore) =====
+
+    USERS {
+        string uid PK "Firebase Auth UID"
+        string display_name
+        string email
+        string avatar_url
+        timestamp created_at
+        array friend_ids
+    }
+
+    VISITS {
+        string visit_id PK
+        string user_id FK
+        string station_cd FK
+        timestamp visited_at
+        string note
+        bool is_public
+    }
+
+    STAMPS {
+        string stamp_id PK
+        string user_id FK
+        string station_cd FK
+        timestamp collected_at
+    }
+
+    TRAIN_SIGHTINGS {
+        string sighting_id PK
+        string user_id FK
+        string station_cd FK
+        string model_id FK
+        timestamp spotted_at
+        string note
+    }
+
+    SOCIAL_POSTS {
+        string post_id PK
+        string user_id FK
+        string ref_type "visit / stamp / sighting"
+        string ref_id FK
+        timestamp posted_at
+        int like_count
+    }
+
+    %% ===== Relationships =====
+
+    COMPANIES ||--o{ LINES : "operates"
+    LINES ||--o{ STATIONS : "contains"
+    USERS ||--o{ VISITS : "logs"
+    USERS ||--o{ STAMPS : "collects"
+    USERS ||--o{ TRAIN_SIGHTINGS : "spots"
+    USERS ||--o{ SOCIAL_POSTS : "posts"
+    STATIONS ||--o{ VISITS : "visited at"
+    STATIONS ||--o{ STAMPS : "has stamp"
+    STATIONS ||--o{ TRAIN_SIGHTINGS : "sighted at"
+    TRAIN_MODELS ||--o{ TRAIN_SIGHTINGS : "referenced by"

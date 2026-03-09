@@ -1,139 +1,776 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Eki Story</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet" />
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Eki Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet" />
+  <script>if (localStorage.getItem('eki-theme') === 'dark') document.documentElement.classList.add('dark');</script>
+  <script>if (!window.tailwind) window.tailwind = {}; window.tailwind.config = { darkMode: 'class' };</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
+  <style>
+    #map { height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 0; }
+    body { overscroll-behavior-y: contain; }
+    .cherry { font-family: 'Cherry Bomb One', cursive; }
+    #search-results::-webkit-scrollbar { width: 4px; }
+    #search-results::-webkit-scrollbar-thumb { background: #ed2079; border-radius: 4px; }
+    input[type=range] { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px; background: #e5e7eb; outline: none; cursor: pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #ed2079; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 6px rgba(237,32,121,0.5); }
+    input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #ed2079; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 6px rgba(237,32,121,0.5); }
+    .dark input[type=range] { background: #4b5563; }
+    .dark input[type=range]::-webkit-slider-thumb { border-color: #1f2937; }
+  </style>
+</head>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
-    
-    <style>
-      #map { height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 0; }
-      body { overscroll-behavior-y: contain; } 
-    </style>
-  </head>
+<body class="min-h-screen relative bg-gray-100 dark:bg-gray-900 font-sans overflow-hidden">
 
-  <body class="min-h-screen relative bg-gray-100 font-sans overflow-hidden">
-
-    <div id="map"></div>
-
-    <div id="feed-container" class="hidden fixed inset-0 z-10 bg-white/90 backdrop-blur-sm overflow-y-auto pt-32 pb-32">
-        <turbo-frame id="feed-frame" src="feed.html" class="block max-w-sm mx-auto"></turbo-frame>
-    </div>
-
-    <div id="list-container" class="hidden fixed inset-0 z-10 bg-white/90 backdrop-blur-sm overflow-y-auto pt-32 pb-32">
-        <turbo-frame id="list-frame" src="list.html" class="block max-w-sm mx-auto"></turbo-frame>
-    </div>
-
-    <div class="w-[90%] sm:w-3/4 bg-white flex items-center justify-between px-5 shadow-md fixed top-5 left-1/2 transform -translate-x-1/2 rounded-full py-2 z-20">
-      <span class="text-gray-600 text-[10px] sm:text-sm">v0.1</span>
-      <div class="flex items-center space-x-2 sm:space-x-4">
-        <span class="text-sm sm:text-xl font-bold text-white rounded-full px-3 sm:px-5 py-1 sm:py-2 bg-[#ff6f00]">Streak: 5d</span>
-        <span class="text-sm sm:text-xl font-bold text-white rounded-full px-3 sm:px-5 py-1 sm:py-2 bg-green-500">Alerts: 3</span>
+  <!-- MAP -->
+  <div id="map"></div>
+  <!-- Maps fallback (shown when API key is invalid or Maps fails) -->
+  <div id="map-fallback" class="hidden fixed inset-0 z-0 bg-gradient-to-br from-slate-100 to-blue-50 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center">
+    <div class="text-center px-8">
+      <div class="w-24 h-24 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg border-2 border-gray-200 dark:border-gray-600">
+        <svg class="w-12 h-12 text-[#ed2079]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6-3m0 13l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
-      <button class="bg-[#3b82f6] text-white font-bold text-xs sm:text-lg rounded-xl px-3 py-1 hover:brightness-110">Exit</button>
-    </div>
-
-    <div class="w-4/5 h-[8vh] sm:h-[6vh] bg-white flex items-center justify-center px-8 py-5 shadow-md fixed bottom-5 left-1/2 transform -translate-x-1/2 rounded-full z-20">
-      <div class="absolute flex items-center left-4">
-        <div id="icon-shell-s" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#444444] transition cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-[3.5vh] text-[#444444] group-hover:text-[#FFFFFF]">
-            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-        </div>
-        <p class="text-[1.5vh] text-gray-600 px-3 hidden lg:block">March 7, 2026</p>
-      </div>
-
-      <div class="flex flex-grow items-center space-x-5 justify-center">
-        <div id="icon-shell-0" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#2BAAE2] transition cursor-pointer">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[3.5vh] text-[#2BAAE2] group-hover:text-white stroke-current">
-            <path d="M3 10C3 6.22876 3 4.34315 4.17157 3.17157C5.34315 2 7.22876 2 11 2H13C16.7712 2 18.6569 2 19.8284 3.17157C21 4.34315 21 6.22876 21 10V14C21 17.7712 21 19.6569 19.8284 20.8284C18.6569 22 16.7712 22 13 22H11C7.22876 22 5.34315 22 4.17157 20.8284C3 19.6569 3 17.7712 3 14V10Z" stroke-width="1.5"/>
-            <path d="M6 12C6 10.5858 6 9.87868 6.43934 9.43934C6.87868 9 7.58579 9 9 9H15C16.4142 9 17.1213 9 17.5607 9.43934C18 9.87868 18 10.5858 18 12V16C18 17.4142 18 18.1213 17.5607 18.5607C17.1213 19 16.4142 19 15 19H9C7.58579 19 6.87868 19 6.43934 18.5607C6 18.1213 6 17.4142 6 16V12Z" stroke-width="1.5"/>
-            <path d="M7 6H12" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-
-        <div id="icon-shell-1" class="group w-[6vh] h-[6vh] rounded-full bg-[#ed2079] flex items-center justify-center hover:bg-[#EEEEEE] transition cursor-pointer">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[4vh] text-white group-hover:text-[#ed2079] stroke-current">
-            <path d="M5.7 15C4.03377 15.6353 3 16.5205 3 17.4997C3 19.4329 7.02944 21 12 21C16.9706 21 21 19.4329 21 17.4997C21 16.5205 19.9662 15.6353 18.3 15M12 9H12.01M18 9C18 13.0637 13.5 15 12 18C10.5 15 6 13.0637 6 9C6 5.68629 8.68629 3 12 3C15.3137 3 18 5.68629 18 9ZM13 9C13 9.55228 12.5523 10 12 10C11.4477 10 11 9.55228 11 9C11 8.44772 11.4477 8 12 8C12.5523 8 13 8.44772 13 9Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-
-        <div id="icon-shell-2" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#fbb03c] transition cursor-pointer">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-[3vh] text-[#fbb03c] group-hover:text-white stroke-current">
-            <path d="M8 6.00067L21 6.00139M8 12.0007L21 12.0015M8 18.0007L21 18.0015M3.5 6H3.51M3.5 12H3.51M3.5 18H3.51" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="absolute flex items-center right-4">
-        <div id="user-shell" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#444444] transition cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-[3.5vh] text-[#000000] group-hover:text-[#FFFFFF]">
-            <path d="M18 20a6 6 0 0 0-12 0" />
-            <circle cx="12" cy="10" r="4" />
-          </svg>
-        </div>
+      <p class="font-bold text-gray-700 dark:text-gray-200 mb-1">地図を読み込めませんでした</p>
+      <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">Google Cloud ConsoleでMaps JavaScript APIを有効化してください</p>
+      <div class="bg-white dark:bg-gray-700 rounded-xl px-4 py-3 text-left border border-gray-200 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400 max-w-xs">
+        <p class="font-bold text-gray-700 dark:text-gray-300 mb-1">有効化する手順:</p>
+        <p>1. Google Cloud Console を開く</p>
+        <p>2. APIs &amp; Services → Library</p>
+        <p>3. "Maps JavaScript API" を検索・有効化</p>
       </div>
     </div>
-    
-    <script>
-      window.initMap = function() {
-        const centerView = { lat: 35.6325, lng: 139.6525 };
-        const map = new google.maps.Map(document.getElementById("map"), {
-          zoom: 14.8, 
-          center: centerView,
-          disableDefaultUI: true,
-          styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }]
+  </div>
+
+  <!-- ───── TOP SEARCH BAR (map view only) ───── -->
+  <div id="search-bar" class="fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-lg z-20">
+    <div class="bg-white dark:bg-gray-800 rounded-full shadow-lg px-4 py-2.5 flex items-center space-x-2 border-2 border-black dark:border-gray-600">
+      <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="search-input" placeholder="駅名・路線名を検索..."
+        class="flex-1 text-sm outline-none bg-transparent text-gray-700 dark:text-gray-100 placeholder-gray-400 min-w-0" />
+    </div>
+    <!-- Search Results Dropdown -->
+    <div id="search-results"
+      class="hidden mt-2 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border-2 border-black dark:border-gray-600 max-h-64 overflow-y-auto">
+    </div>
+  </div>
+
+  <!-- ───── PANELS ───── -->
+
+  <!-- Feed Panel -->
+  <div id="feed-container" class="hidden fixed inset-0 z-10 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm overflow-y-auto pt-20 pb-28">
+    <turbo-frame id="feed-frame" src="feed.html" class="block max-w-sm mx-auto px-4"></turbo-frame>
+  </div>
+
+  <!-- Stamps Panel -->
+  <div id="stamps-container" class="hidden fixed inset-0 z-10 bg-white dark:bg-gray-900 overflow-y-auto pt-20 pb-28">
+    <turbo-frame id="stamps-frame" src="stamps.html" class="block max-w-sm mx-auto px-4"></turbo-frame>
+  </div>
+
+  <!-- List / Progress Panel -->
+  <div id="list-container" class="hidden fixed inset-0 z-10 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm overflow-y-auto pt-20 pb-28">
+    <turbo-frame id="list-frame" src="progress.html" class="block max-w-sm mx-auto px-4"></turbo-frame>
+  </div>
+
+  <!-- Trains Panel -->
+  <div id="trains-container" class="hidden fixed inset-0 z-10 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm overflow-y-auto pt-20 pb-28">
+    <turbo-frame id="trains-frame" src="trains.html" class="block max-w-sm mx-auto px-4"></turbo-frame>
+  </div>
+
+  <!-- Settings Panel (full screen overlay, inline content) -->
+  <div id="settings-container" class="hidden fixed inset-0 z-30 bg-white dark:bg-gray-900 overflow-y-auto pb-28">
+    <div class="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b-2 border-black dark:border-gray-700 px-5 py-4 flex items-center">
+      <button onclick="closeAllPanels()" class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-[#ed2079] transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="text-sm font-bold">戻る</span>
+      </button>
+      <span class="cherry text-xl text-[#ed2079] absolute left-1/2 -translate-x-1/2">Settings</span>
+    </div>
+    <div class="max-w-sm mx-auto px-4 py-5 space-y-5">
+      <!-- App Settings -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden divide-y divide-gray-100 dark:divide-gray-700">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-5 pt-4 pb-2">App</p>
+        <!-- Dark Mode -->
+        <div class="flex items-center justify-between px-5 py-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-gray-600 dark:text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-800 dark:text-white">ダークモード</p>
+              <p class="text-xs text-gray-400">ライト / ダーク切替</p>
+            </div>
+          </div>
+          <button id="s-theme-toggle" onclick="toggleTheme()" class="relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none" style="background-color:#d1d5db;">
+            <div id="s-theme-thumb" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300"></div>
+          </button>
+        </div>
+        <!-- SFX -->
+        <div class="px-5 py-4">
+          <div class="flex items-center space-x-3 mb-3">
+            <div class="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" stroke-linecap="round"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="flex justify-between"><p class="text-sm font-bold text-gray-800 dark:text-white">効果音</p><span id="s-sfx-val" class="text-xs font-bold text-[#ed2079]">70%</span></div>
+              <p class="text-xs text-gray-400">スタンプ・訪問サウンド</p>
+            </div>
+          </div>
+          <input type="range" min="0" max="100" value="70" class="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#ed2079] bg-gray-200 dark:bg-gray-600" oninput="document.getElementById('s-sfx-val').textContent=this.value+'%'"/>
+        </div>
+        <!-- BGM -->
+        <div class="px-5 py-4">
+          <div class="flex items-center space-x-3 mb-3">
+            <div class="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" stroke-linecap="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="flex justify-between"><p class="text-sm font-bold text-gray-800 dark:text-white">BGM</p><span id="s-bgm-val" class="text-xs font-bold text-[#ed2079]">40%</span></div>
+              <p class="text-xs text-gray-400">環境音楽</p>
+            </div>
+          </div>
+          <input type="range" min="0" max="100" value="40" class="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#ed2079] bg-gray-200 dark:bg-gray-600" oninput="document.getElementById('s-bgm-val').textContent=this.value+'%'"/>
+        </div>
+        <!-- Location -->
+        <div class="flex items-center justify-between px-5 py-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 14 8 14s8-8.6 8-14a8 8 0 0 0-8-8z" stroke-linecap="round"/></svg>
+            </div>
+            <div><p class="text-sm font-bold text-gray-800 dark:text-white">位置情報</p><p class="text-xs text-gray-400">近くの駅を自動検出</p></div>
+          </div>
+          <button id="s-loc-toggle" onclick="toggleLoc()" class="relative w-12 h-6 rounded-full focus:outline-none" style="background-color:#d1d5db;">
+            <div id="s-loc-thumb" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300"></div>
+          </button>
+        </div>
+      </div>
+      <!-- Sign Out -->
+      <button onclick="handleSignOut()" class="w-full bg-white dark:bg-gray-800 border-2 border-red-400 text-red-500 font-bold py-4 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 transition text-sm flex items-center justify-center space-x-2 shadow-md">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>サインアウト</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Profile Panel (full screen overlay, inline content) -->
+  <div id="profile-container" class="hidden fixed inset-0 z-30 bg-gray-100 overflow-y-auto pb-28" style="position:fixed;">
+    <div class="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b-2 border-black dark:border-gray-700 px-5 py-4 flex items-center">
+      <button onclick="closeAllPanels()" class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-[#ed2079] transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="text-sm font-bold">戻る</span>
+      </button>
+      <span class="cherry text-xl text-[#ed2079] absolute left-1/2 -translate-x-1/2">Profile</span>
+    </div>
+    <div class="max-w-sm mx-auto px-4 py-5 space-y-5">
+      <!-- Hero Card -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden">
+        <div class="h-24 bg-gradient-to-br from-[#ed2079] to-[#ff6f00] relative">
+          <div class="absolute inset-0 opacity-20" style="background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:10px 10px;"></div>
+        </div>
+        <div class="px-5 pb-5">
+          <div class="flex items-end justify-between -mt-10 mb-3">
+            <div class="relative">
+              <div class="w-20 h-20 bg-[#ed2079] rounded-full border-4 border-white dark:border-gray-800 flex items-center justify-center text-white text-3xl font-bold cherry shadow-lg">T</div>
+              <button id="p-avatar-btn" class="hidden absolute -bottom-1 -right-1 w-7 h-7 bg-gray-800 dark:bg-white rounded-full flex items-center justify-center shadow">
+                <svg class="w-3.5 h-3.5 text-white dark:text-gray-800" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M2 17l1.5-5L15.5 5.5l3.5 3.5L7 21H2v-4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <div class="flex space-x-2">
+              <button id="p-edit-btn" onclick="toggleProfileEdit()" class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold px-3 py-2 rounded-xl hover:bg-gray-200 transition border border-gray-200 dark:border-gray-600">編集</button>
+              <button id="p-save-btn" onclick="saveProfileEdit()" class="hidden bg-[#ed2079] text-white text-xs font-bold px-3 py-2 rounded-xl hover:brightness-110 transition">保存</button>
+            </div>
+          </div>
+          <div id="p-view-mode">
+            <h2 id="p-name-display" class="text-xl font-black text-gray-800 dark:text-white">TrainFan123</h2>
+            <p class="text-xs text-gray-400 mb-1">@trainfan123</p>
+            <p id="p-bio-display" class="text-sm text-gray-600 dark:text-gray-300">鉄道大好き🚃 全駅制覇が目標！</p>
+            <div class="flex items-center space-x-3 mt-2 text-xs text-gray-400">
+              <span id="p-loc-display">📍 東京</span><span>・</span><span>参加 2025年10月</span>
+            </div>
+          </div>
+          <div id="p-edit-mode" class="hidden space-y-2 mt-1">
+            <div><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">表示名</label><input id="p-name-input" type="text" value="TrainFan123" class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-[#ed2079] transition"/></div>
+            <div><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">ひとこと</label><input id="p-bio-input" type="text" value="鉄道大好き🚃 全駅制覇が目標！" class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-[#ed2079] transition"/></div>
+            <div><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">場所</label><input id="p-loc-input" type="text" value="東京" class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-[#ed2079] transition"/></div>
+          </div>
+        </div>
+      </div>
+      <!-- Stats -->
+      <div class="grid grid-cols-4 gap-2">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow p-3 text-center"><p class="text-xl font-black text-[#ed2079]">47</p><p class="text-[9px] font-bold text-gray-400 uppercase">訪問駅</p></div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow p-3 text-center"><p class="text-xl font-black text-[#fbb03c]">12</p><p class="text-[9px] font-bold text-gray-400 uppercase">スタンプ</p></div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow p-3 text-center"><p class="text-xl font-black text-purple-500">8</p><p class="text-[9px] font-bold text-gray-400 uppercase">目撃電車</p></div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow p-3 text-center"><p class="text-xl font-black text-[#ff6f00]">5d</p><p class="text-[9px] font-bold text-gray-400 uppercase">連続</p></div>
+      </div>
+      <!-- Progress link -->
+      <button onclick="togglePanel('list')" class="w-full block bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition group text-left">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-[#ed2079] rounded-xl flex items-center justify-center"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <p class="font-bold text-gray-800 dark:text-white text-sm">全体の進捗を見る</p>
+          </div>
+          <svg class="w-5 h-5 text-gray-400 group-hover:text-[#ed2079] transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs text-gray-500"><span>47 / 10,937 駅訪問</span><span class="font-bold text-[#ed2079]">0.4%</span></div>
+          <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2"><div class="bg-[#ed2079] h-2 rounded-full" style="width:0.4%"></div></div>
+        </div>
+      </button>
+      <!-- Achievements -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden">
+        <div class="px-5 pt-4 pb-2 flex items-center justify-between">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">実績バッジ</p>
+          <button onclick="openProfileSubview('achievements')" class="text-[10px] font-bold text-[#ed2079] hover:underline">全て見る →</button>
+        </div>
+        <div class="px-5 pb-5 grid grid-cols-4 gap-3">
+          <div class="flex flex-col items-center space-y-1"><div class="w-14 h-14 bg-[#ed2079] rounded-2xl flex items-center justify-center shadow-md"><span class="text-2xl">🚉</span></div><p class="text-[9px] font-bold text-gray-600 dark:text-gray-300 text-center leading-tight">初訪問</p></div>
+          <div class="flex flex-col items-center space-y-1"><div class="w-14 h-14 bg-[#fbb03c] rounded-2xl flex items-center justify-center shadow-md"><span class="text-2xl">⭐</span></div><p class="text-[9px] font-bold text-gray-600 dark:text-gray-300 text-center leading-tight">スタンプ王</p></div>
+          <div class="flex flex-col items-center space-y-1"><div class="w-14 h-14 bg-[#2BAAE2] rounded-2xl flex items-center justify-center shadow-md"><span class="text-2xl">🚆</span></div><p class="text-[9px] font-bold text-gray-600 dark:text-gray-300 text-center leading-tight">電車博士</p></div>
+          <div class="flex flex-col items-center space-y-1"><div class="w-14 h-14 bg-[#ff6f00] rounded-2xl flex items-center justify-center shadow-md"><span class="text-2xl">🔥</span></div><p class="text-[9px] font-bold text-gray-600 dark:text-gray-300 text-center leading-tight">5日連続</p></div>
+          <div class="flex flex-col items-center space-y-1 opacity-40"><div class="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center shadow-md border-2 border-dashed border-gray-300 dark:border-gray-600"><svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><p class="text-[9px] font-bold text-gray-400 text-center leading-tight">東京制覇</p></div>
+          <div class="flex flex-col items-center space-y-1 opacity-40"><div class="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center shadow-md border-2 border-dashed border-gray-300 dark:border-gray-600"><svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><p class="text-[9px] font-bold text-gray-400 text-center leading-tight">100駅突破</p></div>
+          <div class="flex flex-col items-center space-y-1 opacity-40"><div class="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center shadow-md border-2 border-dashed border-gray-300 dark:border-gray-600"><svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><p class="text-[9px] font-bold text-gray-400 text-center leading-tight">30日連続</p></div>
+          <div class="flex flex-col items-center space-y-1 opacity-40"><div class="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center shadow-md border-2 border-dashed border-gray-300 dark:border-gray-600"><svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><p class="text-[9px] font-bold text-gray-400 text-center leading-tight">全線制覇</p></div>
+        </div>
+      </div>
+      <!-- Recent Activity -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden">
+        <div class="px-5 pt-4 pb-2 flex items-center justify-between">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">最近の活動</p>
+          <button onclick="openProfileSubview('activity')" class="text-[10px] font-bold text-[#ed2079] hover:underline">もっとみる →</button>
+        </div>
+        <div class="divide-y divide-gray-100 dark:divide-gray-700">
+          <div class="flex items-start px-5 py-3 space-x-3"><div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 14 8 14s8-8.6 8-14a8 8 0 0 0-8-8z"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">三軒茶屋 を訪問</p><p class="text-xs text-gray-400">田園都市線 • 2時間前</p></div><span class="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">訪問</span></div>
+          <div class="flex items-start px-5 py-3 space-x-3"><div class="w-8 h-8 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-[#ed2079]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">東京駅スタンプを記録</p><p class="text-xs text-gray-400">JR東日本 • 昨日</p></div><span class="text-[10px] bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">スタンプ</span></div>
+          <div class="flex items-start px-5 py-3 space-x-3"><div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="13" rx="3"/><path d="M4 8h16M9 8V2M15 8V2"/><path d="M6 15l-2 4h16l-2-4"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">Skyliner AE1000 を目撃</p><p class="text-xs text-gray-400">京成スカイライナー • 2日前</p></div><span class="text-[10px] bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">目撃</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements Sub-view -->
+    <div id="profile-achievements-view" class="hidden fixed inset-0 z-40 bg-gray-100 overflow-y-auto pb-12">
+      <div class="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b-2 border-black dark:border-gray-700 px-5 py-4 flex items-center">
+        <button onclick="closeProfileSubview()" class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-[#ed2079] transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="text-sm font-bold">戻る</span>
+        </button>
+        <span class="cherry text-xl text-[#ed2079] absolute left-1/2 -translate-x-1/2">実績バッジ</span>
+      </div>
+      <div class="max-w-sm mx-auto px-4 py-5 space-y-4">
+        <!-- Unlocked -->
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">獲得済み (4)</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 p-4 flex items-center space-x-3 shadow">
+            <div class="w-12 h-12 bg-[#ed2079] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 14 8 14s8-8.6 8-14a8 8 0 0 0-8-8z"/></svg>
+            </div>
+            <div><p class="text-xs font-black text-gray-800 dark:text-white">初訪問</p><p class="text-[10px] text-gray-400 leading-tight">最初の駅を訪問</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 p-4 flex items-center space-x-3 shadow">
+            <div class="w-12 h-12 bg-[#fbb03c] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div><p class="text-xs font-black text-gray-800 dark:text-white">スタンプ王</p><p class="text-[10px] text-gray-400 leading-tight">スタンプ10個収集</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 p-4 flex items-center space-x-3 shadow">
+            <div class="w-12 h-12 bg-[#2BAAE2] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="13" rx="3"/><path d="M4 8h16M9 8V2M15 8V2"/><path d="M6 15l-2 4h16l-2-4"/></svg>
+            </div>
+            <div><p class="text-xs font-black text-gray-800 dark:text-white">電車博士</p><p class="text-[10px] text-gray-400 leading-tight">電車を5本目撃</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 p-4 flex items-center space-x-3 shadow">
+            <div class="w-12 h-12 bg-[#ff6f00] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 0.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg>
+            </div>
+            <div><p class="text-xs font-black text-gray-800 dark:text-white">5日連続</p><p class="text-[10px] text-gray-400 leading-tight">5日連続ログイン</p></div>
+          </div>
+        </div>
+        <!-- Locked -->
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-2">未獲得 (12)</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">東京制覇</p><p class="text-[10px] text-gray-400 leading-tight">東京都の全駅を訪問</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">100駅突破</p><p class="text-[10px] text-gray-400 leading-tight">100駅以上を訪問</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">30日連続</p><p class="text-[10px] text-gray-400 leading-tight">30日連続ログイン</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">全線制覇</p><p class="text-[10px] text-gray-400 leading-tight">1路線を全て完了</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">鉄道マニア</p><p class="text-[10px] text-gray-400 leading-tight">電車を50本目撃</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">コレクター</p><p class="text-[10px] text-gray-400 leading-tight">スタンプ50個収集</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">スカイライナー</p><p class="text-[10px] text-gray-400 leading-tight">スカイライナーを5回目撃</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">新幹線博士</p><p class="text-[10px] text-gray-400 leading-tight">新幹線を10回目撃</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">早起き鳥</p><p class="text-[10px] text-gray-400 leading-tight">午前6時前に訪問</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">夜行列車</p><p class="text-[10px] text-gray-400 leading-tight">深夜0時以降に訪問</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">関東制覇</p><p class="text-[10px] text-gray-400 leading-tight">関東全域の駅を訪問</p></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4 flex items-center space-x-3 opacity-60">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div><p class="text-xs font-black text-gray-600 dark:text-gray-400">日本制覇</p><p class="text-[10px] text-gray-400 leading-tight">全国の全駅を訪問</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Sub-view -->
+    <div id="profile-activity-view" class="hidden fixed inset-0 z-40 bg-gray-100 overflow-y-auto pb-12">
+      <div class="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b-2 border-black dark:border-gray-700 px-5 py-4 flex items-center">
+        <button onclick="closeProfileSubview()" class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-[#ed2079] transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="text-sm font-bold">戻る</span>
+        </button>
+        <span class="cherry text-xl text-[#ed2079] absolute left-1/2 -translate-x-1/2">最近の活動</span>
+      </div>
+      <div class="max-w-sm mx-auto px-4 py-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden divide-y divide-gray-100 dark:divide-gray-700">
+          <div class="flex items-start px-5 py-4 space-x-3"><div class="w-9 h-9 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 14 8 14s8-8.6 8-14a8 8 0 0 0-8-8z"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">三軒茶屋 を訪問</p><p class="text-xs text-gray-400">田園都市線 • 2時間前</p></div><span class="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">訪問</span></div>
+          <div class="flex items-start px-5 py-4 space-x-3"><div class="w-9 h-9 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-[#ed2079]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">東京駅スタンプを記録</p><p class="text-xs text-gray-400">JR東日本 • 昨日</p></div><span class="text-[10px] bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">スタンプ</span></div>
+          <div class="flex items-start px-5 py-4 space-x-3"><div class="w-9 h-9 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="13" rx="3"/><path d="M4 8h16M9 8V2M15 8V2"/><path d="M6 15l-2 4h16l-2-4"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">Skyliner AE1000 を目撃</p><p class="text-xs text-gray-400">京成スカイライナー • 2日前</p></div><span class="text-[10px] bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">目撃</span></div>
+          <div class="flex items-start px-5 py-4 space-x-3"><div class="w-9 h-9 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 14 8 14s8-8.6 8-14a8 8 0 0 0-8-8z"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">駒沢大学 を訪問</p><p class="text-xs text-gray-400">田園都市線 • 3日前</p></div><span class="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">訪問</span></div>
+          <div class="flex items-start px-5 py-4 space-x-3"><div class="w-9 h-9 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 14 8 14s8-8.6 8-14a8 8 0 0 0-8-8z"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">桜新町 を訪問</p><p class="text-xs text-gray-400">田園都市線 • 3日前</p></div><span class="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">訪問</span></div>
+          <div class="flex items-start px-5 py-4 space-x-3"><div class="w-9 h-9 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-[#ed2079]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">新橋スタンプを記録</p><p class="text-xs text-gray-400">JR東日本 • 4日前</p></div><span class="text-[10px] bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">スタンプ</span></div>
+          <div class="flex items-start px-5 py-4 space-x-3"><div class="w-9 h-9 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="13" rx="3"/><path d="M4 8h16M9 8V2M15 8V2"/><path d="M6 15l-2 4h16l-2-4"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">N700S 新幹線 を目撃</p><p class="text-xs text-gray-400">JR東海 • 4日前</p></div><span class="text-[10px] bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">目撃</span></div>
+          <div class="flex items-start px-5 py-4 space-x-3"><div class="w-9 h-9 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 14 8 14s8-8.6 8-14a8 8 0 0 0-8-8z"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">池尻大橋 を訪問</p><p class="text-xs text-gray-400">田園都市線 • 5日前</p></div><span class="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">訪問</span></div>
+          <div class="flex items-start px-5 py-4 space-x-3"><div class="w-9 h-9 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">実績「5日連続」解除！</p><p class="text-xs text-gray-400">5日間連続でログイン • 5日前</p></div><span class="text-[10px] bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">実績</span></div>
+          <div class="flex items-start px-5 py-4 space-x-3"><div class="w-9 h-9 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-4 h-4 text-[#ed2079]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 dark:text-white">渋谷スタンプを記録</p><p class="text-xs text-gray-400">東急電鉄 • 6日前</p></div><span class="text-[10px] bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">スタンプ</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── STATION VISIT MODAL (bottom sheet) ───── -->
+  <div id="station-modal" class="hidden fixed inset-x-0 bottom-0 z-30 pb-28">
+    <div class="bg-white dark:bg-gray-800 border-t-4 border-[#ed2079] rounded-t-3xl shadow-2xl p-6 max-w-sm mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-[#ed2079] cherry" id="modal-station-name">Station Name</h3>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Visit Date</label>
+          <input type="date" id="modal-date"
+            class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-[#ed2079] transition" />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Note</label>
+          <textarea id="modal-note" placeholder="How was it?" rows="2"
+            class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-[#ed2079] transition resize-none"></textarea>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="checkbox" id="modal-public" class="w-4 h-4 accent-[#ed2079]" />
+          <label for="modal-public" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Post to Social Feed</label>
+        </div>
+        <button onclick="submitVisit()"
+          class="w-full bg-[#ed2079] text-white font-bold py-3 rounded-xl hover:brightness-110 transition text-sm">
+          Log Visit ✓
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── BOTTOM NAVIGATION ───── -->
+  <div class="w-[88%] sm:w-4/5 h-[8vh] sm:h-[7vh] bg-white dark:bg-gray-800 flex items-center justify-center shadow-xl fixed bottom-5 left-1/2 -translate-x-1/2 rounded-full z-20 border-2 border-black dark:border-gray-600">
+
+    <!-- Settings icon (left) -->
+    <div class="absolute left-3">
+      <div onclick="togglePanel('settings')" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-[3.2vh] text-gray-500 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-white transition">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Center icons -->
+    <div class="flex items-center space-x-2 sm:space-x-4">
+      <!-- Feed -->
+      <div id="icon-feed" onclick="togglePanel('feed')"
+        class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#2BAAE2] transition cursor-pointer">
+        <svg viewBox="0 0 24 24" fill="none" class="h-[3.2vh] text-[#2BAAE2] group-hover:text-white transition stroke-current" stroke-width="1.5">
+          <path d="M3 10C3 6.229 3 4.343 4.172 3.172C5.343 2 7.229 2 11 2h2c3.771 0 5.657 0 6.828 1.172C21 4.343 21 6.229 21 10v4c0 3.771 0 5.657-1.172 6.828C18.657 22 16.771 22 13 22h-2c-3.771 0-5.657 0-6.828-1.172C3 19.657 3 17.771 3 14v-4z"/>
+          <path d="M6 12c0-1.414 0-2.121.44-2.56C6.878 9 7.586 9 9 9h6c1.414 0 2.121 0 2.56.44C18 9.878 18 10.586 18 12v4c0 1.414 0 2.121-.44 2.56C17.122 19 16.414 19 15 19H9c-1.414 0-2.121 0-2.56-.44C6 18.122 6 17.414 6 16v-4z"/>
+          <path d="M7 6h5" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- Stamps -->
+      <div id="icon-stamps" onclick="togglePanel('stamps')"
+        class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#ed2079] transition cursor-pointer">
+        <svg viewBox="0 0 24 24" fill="none" class="h-[3.2vh] text-[#ed2079] group-hover:text-white transition stroke-current" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+        </svg>
+      </div>
+
+      <!-- Map / Home (center, larger) -->
+      <div id="icon-map" onclick="showMap()"
+        class="w-[6.5vh] h-[6.5vh] rounded-full bg-[#ed2079] flex items-center justify-center hover:brightness-110 transition cursor-pointer shadow-lg">
+        <svg viewBox="0 0 24 24" fill="none" class="h-[4vh] text-white stroke-current" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5.7 15C4.034 15.635 3 16.52 3 17.5 3 19.433 7.029 21 12 21s9-1.567 9-3.5c0-.98-1.034-1.865-2.7-2.5M12 9h.01M18 9c0 4.064-4.5 6-6 9-1.5-3-6-4.936-6-9a6 6 0 0112 0zm-5 0a1 1 0 11-2 0 1 1 0 012 0z"/>
+        </svg>
+      </div>
+
+      <!-- List -->
+      <div id="icon-list" onclick="togglePanel('list')"
+        class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-[#fbb03c] transition cursor-pointer">
+        <svg viewBox="0 0 24 24" fill="none" class="h-[3vh] text-[#fbb03c] group-hover:text-white transition stroke-current" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>
+        </svg>
+      </div>
+
+      <!-- Trains -->
+      <div id="icon-trains" onclick="togglePanel('trains')"
+        class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-purple-500 transition cursor-pointer">
+        <svg viewBox="0 0 24 24" fill="none" class="h-[3.2vh] text-purple-500 group-hover:text-white transition stroke-current" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="13" rx="3"/>
+          <path d="M4 8h16M9 8V2M15 8V2"/>
+          <path d="M6 15l-2 4h16l-2-4M10 19l-.5 3h5l-.5-3"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Profile icon (right) -->
+    <div class="absolute right-3">
+      <div onclick="togglePanel('profile')" class="group w-[5vh] h-[5vh] rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-[3.2vh] text-gray-700 dark:text-gray-300 group-hover:text-black dark:group-hover:text-white transition">
+          <path d="M18 20a6 6 0 0 0-12 0" />
+          <circle cx="12" cy="10" r="4" />
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── SCRIPTS ───── -->
+  <script>
+    // ── Panel management ──
+    const panelIds = ['feed', 'stamps', 'list', 'trains', 'settings', 'profile'];
+    const panelColors = { feed: '#2BAAE2', stamps: '#ed2079', list: '#fbb03c', trains: '#8b5cf6', settings: '#444444', profile: '#000000' };
+    let activePanel = null;
+
+    function togglePanel(name) {
+      if (activePanel === name) { closeAllPanels(); return; }
+      closeAllPanels();
+      document.getElementById(name + '-container').classList.remove('hidden');
+      document.getElementById('search-bar').classList.add('hidden');
+      activePanel = name;
+      const icon = document.getElementById('icon-' + name);
+      if (icon) {
+        icon.style.backgroundColor = panelColors[name];
+        const svg = icon.querySelector('svg');
+        if (svg) { svg.style.color = 'white'; svg.style.stroke = 'white'; }
+      }
+      if (name === 'settings') applyThemeUI();
+    }
+
+    function closeAllPanels() {
+      panelIds.forEach(name => {
+        document.getElementById(name + '-container').classList.add('hidden');
+        const icon = document.getElementById('icon-' + name);
+        if (icon) {
+          icon.style.backgroundColor = '';
+          const svg = icon.querySelector('svg');
+          if (svg) { svg.style.color = ''; svg.style.stroke = ''; }
+        }
+      });
+      document.getElementById('search-bar').classList.remove('hidden');
+      activePanel = null;
+    }
+
+    function showMap() { closeAllPanels(); }
+
+    // ── Station modal ──
+    function openModal(name, lat, lng) {
+      document.getElementById('modal-station-name').textContent = name || '駅';
+      document.getElementById('modal-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('modal-note').value = '';
+      document.getElementById('station-modal').classList.remove('hidden');
+    }
+    function closeModal() {
+      document.getElementById('station-modal').classList.add('hidden');
+    }
+    function submitVisit() {
+      closeModal();
+      // Prototype: would show toast & update map marker
+    }
+
+    // ── Search ──
+    let stationsData = [], linesData = [];
+
+    async function parseCSV(url) {
+      try {
+        const r = await fetch(url);
+        const t = await r.text();
+        const rows = t.trim().split('\n');
+        const headers = rows[0].split(',').map(h => h.trim());
+        return rows.slice(1).map(row => {
+          const vals = row.split(',');
+          const obj = {};
+          headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim(); });
+          return obj;
         });
+      } catch { return []; }
+    }
 
-        const denEnToshiPath = [
+    // Load CSV data (for search)
+    let companiesData = [];
+    Promise.all([
+      parseCSV('/docs/station20260206free.csv'),
+      parseCSV('/docs/line20250604free.csv'),
+      parseCSV('/docs/company20251015.csv')
+    ]).then(([s, l, c]) => { stationsData = s; linesData = l; companiesData = c; });
+
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    let mapInstance = null;
+
+    searchInput.addEventListener('input', function () {
+      const q = this.value.trim();
+      if (!q) { searchResults.classList.add('hidden'); return; }
+      const ql = q.toLowerCase();
+
+      const sm = stationsData.filter(s =>
+        (s.station_name && s.station_name.includes(q)) ||
+        (s.station_name_r && s.station_name_r.toLowerCase().includes(ql))
+      ).slice(0, 5);
+
+      const lm = linesData.filter(l =>
+        l.line_name && l.line_name.includes(q)
+      ).slice(0, 3);
+
+      const cm = companiesData.filter(c =>
+        (c.company_name && c.company_name.includes(q)) ||
+        (c.company_name_r && c.company_name_r.toLowerCase().includes(ql)) ||
+        (c.company_name_h && c.company_name_h.includes(q))
+      ).slice(0, 2);
+
+      if (!sm.length && !lm.length && !cm.length) {
+        searchResults.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">見つかりませんでした</p>';
+      } else {
+        const compHTML = cm.map(c => `
+          <div onclick="selectCompany('${c.company_name.replace(/'/g,"\\'")}','${c.company_cd}')"
+            class="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700">
+            <div class="w-8 h-8 rounded-xl bg-[#fbb03c] flex items-center justify-center mr-3 flex-shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="13" rx="3"/><path d="M4 8h16"/></svg>
+            </div>
+            <div>
+              <p class="font-bold text-sm dark:text-white">${c.company_name}</p>
+              <p class="text-xs text-gray-400">${c.company_name_h || '鉄道会社'}</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-300 ml-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>`).join('');
+
+        const lineHTML = lm.map(l => `
+          <div onclick="selectLine('${l.line_name.replace(/'/g,"\\'")}','${l.line_cd}')"
+            class="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700">
+            <div class="w-2 h-8 rounded-full mr-3 flex-shrink-0"
+              style="background:${l.line_color_c ? '#'+l.line_color_c : '#ed2079'}"></div>
+            <div>
+              <p class="font-bold text-sm dark:text-white">${l.line_name}</p>
+              <p class="text-xs text-gray-400">路線</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-300 ml-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>`).join('');
+
+        const stHTML = sm.map(s => `
+          <div onclick="selectStation('${s.station_name.replace(/'/g,"\\'")}',${s.lat||0},${s.lon||0})"
+            class="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-0">
+            <div class="w-8 h-8 rounded-full bg-[#ed2079] flex items-center justify-center mr-3 flex-shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 14 8 14s8-8.6 8-14a8 8 0 0 0-8-8z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-sm dark:text-white">${s.station_name}</p>
+              <p class="text-xs text-gray-400">${s.station_name_r || ''}</p>
+            </div>
+            <svg class="w-4 h-4 text-gray-300 ml-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>`).join('');
+
+        searchResults.innerHTML = compHTML + lineHTML + stHTML;
+      }
+      searchResults.classList.remove('hidden');
+    });
+
+    searchInput.addEventListener('blur', () => setTimeout(() => searchResults.classList.add('hidden'), 200));
+
+    function selectStation(name, lat, lng) {
+      searchResults.classList.add('hidden');
+      searchInput.value = name;
+      if (mapInstance && lat && lng) {
+        mapInstance.setCenter({ lat: parseFloat(lat), lng: parseFloat(lng) });
+        mapInstance.setZoom(16);
+      }
+      openModal(name, lat, lng);
+    }
+
+    function selectLine(name) {
+      searchResults.classList.add('hidden');
+      searchInput.value = name;
+      togglePanel('list');
+    }
+
+    function selectCompany(name) {
+      searchResults.classList.add('hidden');
+      searchInput.value = name;
+      togglePanel('list');
+    }
+
+    // ── Profile sub-views ──
+    function openProfileSubview(name) {
+      document.getElementById('profile-achievements-view').classList.add('hidden');
+      document.getElementById('profile-activity-view').classList.add('hidden');
+      document.getElementById('profile-' + name + '-view').classList.remove('hidden');
+    }
+    function closeProfileSubview() {
+      document.getElementById('profile-achievements-view').classList.add('hidden');
+      document.getElementById('profile-activity-view').classList.add('hidden');
+    }
+
+    // ── Settings functions ──
+    function applyThemeUI() {
+      const dark = document.documentElement.classList.contains('dark');
+      const btn = document.getElementById('s-theme-toggle');
+      const thumb = document.getElementById('s-theme-thumb');
+      if (!btn) return;
+      btn.style.backgroundColor = dark ? '#ed2079' : '#d1d5db';
+      thumb.style.transform = dark ? 'translateX(24px)' : 'translateX(0)';
+    }
+    function toggleTheme() {
+      const dark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('eki-theme', dark ? 'dark' : 'light');
+      applyThemeUI();
+    }
+    let locOn = false;
+    function toggleLoc() {
+      locOn = !locOn;
+      const t = document.getElementById('s-loc-toggle');
+      const th = document.getElementById('s-loc-thumb');
+      t.style.backgroundColor = locOn ? '#ed2079' : '#d1d5db';
+      th.style.transform = locOn ? 'translateX(24px)' : 'translateX(0)';
+    }
+    function handleSignOut() {
+      if (confirm('サインアウトしますか？')) { window.location.href = 'auth.html'; }
+    }
+
+    // ── Profile edit functions ──
+    let profileEditing = false;
+    function toggleProfileEdit() {
+      profileEditing = !profileEditing;
+      document.getElementById('p-view-mode').classList.toggle('hidden', profileEditing);
+      document.getElementById('p-edit-mode').classList.toggle('hidden', !profileEditing);
+      document.getElementById('p-edit-btn').classList.toggle('hidden', profileEditing);
+      document.getElementById('p-save-btn').classList.toggle('hidden', !profileEditing);
+      document.getElementById('p-avatar-btn').classList.toggle('hidden', !profileEditing);
+    }
+    function saveProfileEdit() {
+      const name = document.getElementById('p-name-input').value;
+      const bio = document.getElementById('p-bio-input').value;
+      const loc = document.getElementById('p-loc-input').value;
+      document.getElementById('p-name-display').textContent = name;
+      document.getElementById('p-bio-display').textContent = bio;
+      document.getElementById('p-loc-display').textContent = '📍 ' + loc;
+      toggleProfileEdit();
+    }
+  </script>
+
+  <script>
+    // Show fallback if Maps fails to load
+    window.gm_authFailure = function () {
+      document.getElementById('map').style.display = 'none';
+      document.getElementById('map-fallback').classList.remove('hidden');
+    };
+
+    window.initMap = function () {
+      const map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 10,
+        center: { lat: 35.6762, lng: 139.6503 },
+        minZoom: 5,
+        restriction: {
+          latLngBounds: { north: 46.5, south: 24.0, east: 154.0, west: 122.0 },
+          strictBounds: false
+        },
+        disableDefaultUI: true,
+        styles: [
+          { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+          { featureType: 'transit.station', elementType: 'labels', stylers: [{ visibility: 'simplified' }] }
+        ]
+      });
+      mapInstance = map;
+
+      // Demo: Den-en-toshi line
+      new google.maps.Polyline({
+        path: [
           { lat: 35.6506, lng: 139.6841 }, { lat: 35.6436, lng: 139.6714 },
           { lat: 35.6335, lng: 139.6601 }, { lat: 35.6311, lng: 139.6456 },
           { lat: 35.6265, lng: 139.6352 }, { lat: 35.6118, lng: 139.6268 }
-        ];
+        ],
+        strokeColor: '#009B73', strokeOpacity: 0.9, strokeWeight: 10, map
+      });
 
-        new google.maps.Polyline({
-          path: denEnToshiPath,
-          strokeColor: "#009B73", 
-          strokeOpacity: 0.9,
-          strokeWeight: 10,
-          map: map
+      const stations = [
+        { name: '三軒茶屋', pos: { lat: 35.6436, lng: 139.6714 }, visited: true },
+        { name: '駒沢大学', pos: { lat: 35.6335, lng: 139.6601 }, visited: true },
+        { name: '桜新町',   pos: { lat: 35.6311, lng: 139.6456 }, visited: true },
+        { name: '用賀',     pos: { lat: 35.6265, lng: 139.6352 }, visited: false },
+        { name: '池尻大橋', pos: { lat: 35.6506, lng: 139.6841 }, visited: false },
+        { name: '二子玉川', pos: { lat: 35.6118, lng: 139.6268 }, visited: false }
+      ];
+
+      stations.forEach(s => {
+        const m = new google.maps.Marker({
+          position: s.pos, map, title: s.name,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: s.visited ? 12 : 9,
+            fillColor: s.visited ? '#FFD700' : '#FFFFFF',
+            fillOpacity: 1, strokeWeight: 4, strokeColor: '#009B73'
+          }
         });
-
-        const stations = [
-          { name: "Sangen-Jaya", pos: { lat: 35.6436, lng: 139.6714 }, visited: true },
-          { name: "Komazawa-daigaku", pos: { lat: 35.6335, lng: 139.6601 }, visited: true },
-          { name: "Sakura-shinmachi", pos: { lat: 35.6311, lng: 139.6456 }, visited: true },
-          { name: "Yoga", pos: { lat: 35.6265, lng: 139.6352 }, visited: false },
-          { name: "Ikejiri-Ohashi", pos: { lat: 35.6506, lng: 139.6841 }, visited: false },
-          { name: "Futako-Tamagawa", pos: { lat: 35.6118, lng: 139.6268 }, visited: false }
-        ];
-
-        stations.forEach(station => {
-          new google.maps.Marker({
-            position: station.pos,
-            map: map,
-            title: station.name,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: station.visited ? 12 : 9,
-              fillColor: station.visited ? "#FFD700" : "#FFFFFF",
-              fillOpacity: 1,
-              strokeWeight: 4,
-              strokeColor: "#009B73",
-            }
-          });
-        });
-      }
-    </script>
+        m.addListener('click', () => openModal(s.name, s.pos.lat, s.pos.lng));
+      });
+    };
+  </script>
 
   <script type="module" src="javascript/firebase.js"></script>
-    <script type="module" src="javascript/game.js"></script>
-  </body>
+  <script type="module" src="javascript/game.js"></script>
+</body>
 </html>

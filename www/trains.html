@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet" />
+  <style>
+    .cherry { font-family: 'Cherry Bomb One', cursive; }
+  </style>
+</head>
+<body class="bg-transparent font-sans">
+  <turbo-frame id="trains-frame" class="w-full block">
+
+    <!-- Header -->
+    <div class="px-1 pt-2 pb-4">
+      <div class="flex items-center justify-between mb-1">
+        <h2 class="cherry text-2xl text-purple-500">目撃電車</h2>
+        <button onclick="openLogModal()"
+          class="bg-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl hover:brightness-110 transition flex items-center space-x-1 shadow">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+          </svg>
+          <span>記録する</span>
+        </button>
+      </div>
+      <p class="text-xs text-gray-400">見かけた電車を記録しよう</p>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-3 gap-2 mb-4">
+      <div class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center border border-purple-100 dark:border-purple-900/40">
+        <p class="text-xl font-black text-purple-500">8</p>
+        <p class="text-[9px] font-bold text-gray-400 uppercase">目撃</p>
+      </div>
+      <div class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center border border-purple-100 dark:border-purple-900/40">
+        <p class="text-xl font-black text-purple-500">5</p>
+        <p class="text-[9px] font-bold text-gray-400 uppercase">車種</p>
+      </div>
+      <div class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center border border-purple-100 dark:border-purple-900/40">
+        <p class="text-xl font-black text-purple-500">3</p>
+        <p class="text-[9px] font-bold text-gray-400 uppercase">レア</p>
+      </div>
+    </div>
+
+    <!-- Train sightings list -->
+    <div class="space-y-3">
+
+      <!-- Sighting: Skyliner -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 overflow-hidden shadow-md">
+        <div class="w-full h-40 bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+          <img src="https://asset.watch.impress.co.jp/img/trw/docs/712/403/01_s.png"
+            class="w-full h-full object-cover" alt="Skyliner AE1000" onerror="this.style.display='none'"/>
+          <div class="absolute top-2 right-2 bg-purple-500 text-white text-[9px] font-black px-2 py-1 rounded-full shadow">✨ NEW</div>
+        </div>
+        <div class="p-3">
+          <div class="flex items-start justify-between mb-1">
+            <div>
+              <p class="font-black text-sm text-gray-800 dark:text-white">Skyliner AE1000</p>
+              <p class="text-xs text-gray-400">京成電鉄 • スカイライナー</p>
+            </div>
+            <span class="text-[9px] bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">レア</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-gray-400">
+            <span>📍 成田空港 付近</span>
+            <span>1日前</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sighting: Tokyu 2020 -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 overflow-hidden shadow-md">
+        <div class="w-full h-40 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+          <img src="https://www.tanseisha.co.jp/resource/61813_1.jpg"
+            class="w-full h-full object-cover" alt="Tokyu 2020" onerror="this.style.display='none'"/>
+        </div>
+        <div class="p-3">
+          <div class="flex items-start justify-between mb-1">
+            <div>
+              <p class="font-black text-sm text-gray-800 dark:text-white">東急 2020系</p>
+              <p class="text-xs text-gray-400">東急電鉄 • 田園都市線</p>
+            </div>
+            <span class="text-[9px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">通常</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-gray-400">
+            <span>📍 三軒茶屋</span>
+            <span>2日前</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sighting: Shinkansen -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 overflow-hidden shadow-md">
+        <div class="w-full h-40 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 flex items-center justify-center">
+          <div class="text-center">
+            <span class="text-5xl">🚅</span>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">写真なし</p>
+          </div>
+        </div>
+        <div class="p-3">
+          <div class="flex items-start justify-between mb-1">
+            <div>
+              <p class="font-black text-sm text-gray-800 dark:text-white">N700S 新幹線</p>
+              <p class="text-xs text-gray-400">JR東海 • 東海道新幹線</p>
+            </div>
+            <span class="text-[9px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">レア</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-gray-400">
+            <span>📍 東京駅</span>
+            <span>4日前</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sighting: Yamanote -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 overflow-hidden shadow-md">
+        <div class="w-full h-40 bg-green-50 dark:bg-green-900/20 flex items-center justify-center">
+          <div class="text-center">
+            <span class="text-5xl">🚃</span>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">写真なし</p>
+          </div>
+        </div>
+        <div class="p-3">
+          <div class="flex items-start justify-between mb-1">
+            <div>
+              <p class="font-black text-sm text-gray-800 dark:text-white">E235系 0番台</p>
+              <p class="text-xs text-gray-400">JR東日本 • 山手線</p>
+            </div>
+            <span class="text-[9px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">通常</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-gray-400">
+            <span>📍 新宿駅</span>
+            <span>1週間前</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Log Modal (bottom sheet) -->
+    <div id="log-modal" class="hidden fixed inset-x-0 bottom-0 z-50 pb-4 px-4">
+      <div class="bg-white dark:bg-gray-800 border-t-4 border-purple-500 rounded-t-3xl shadow-2xl p-5 max-w-sm mx-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-black text-purple-500 cherry text-lg">電車を記録</h3>
+          <button onclick="closeLogModal()" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">電車名・車種</label>
+            <input type="text" placeholder="例: E235系 山手線"
+              class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-purple-500 transition"/>
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">場所</label>
+            <input type="text" placeholder="例: 新宿駅 3番線"
+              class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-purple-500 transition"/>
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">日時</label>
+            <input type="datetime-local"
+              class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-purple-500 transition"/>
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">メモ</label>
+            <textarea placeholder="気づいたこと、感想など..." rows="2"
+              class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-purple-500 transition resize-none"></textarea>
+          </div>
+          <div class="flex items-center space-x-2">
+            <input type="checkbox" id="train-public" class="w-4 h-4 accent-purple-500"/>
+            <label for="train-public" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">フィードに投稿する</label>
+          </div>
+          <button onclick="closeLogModal()"
+            class="w-full bg-purple-500 text-white font-bold py-3 rounded-xl hover:brightness-110 transition text-sm">
+            記録する ✓
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-4"></div>
+
+    <script>
+      function openLogModal() {
+        document.getElementById('log-modal').classList.remove('hidden');
+        const now = new Date();
+        document.querySelector('input[type=datetime-local]').value = now.toISOString().slice(0,16);
+      }
+      function closeLogModal() {
+        document.getElementById('log-modal').classList.add('hidden');
+      }
+    </script>
+
+  </turbo-frame>
+</body>
+</html>

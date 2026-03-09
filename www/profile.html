@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Profile – Eki Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet" />
+  <script>if (localStorage.getItem('eki-theme') === 'dark') document.documentElement.classList.add('dark');</script>
+  <script>if (!window.tailwind) window.tailwind = {}; window.tailwind.config = { darkMode: 'class' };</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { overscroll-behavior-y: contain; }
+    .cherry { font-family: 'Cherry Bomb One', cursive; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-100 dark:bg-gray-900 font-sans">
+
+  <!-- TOP BAR -->
+  <div class="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b-2 border-black dark:border-gray-700 px-5 py-4 flex items-center">
+    <a href="index.html" class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-[#ed2079] transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M19 12H5M12 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="text-sm font-bold">戻る</span>
+    </a>
+    <h1 class="cherry text-xl text-[#ed2079] absolute left-1/2 -translate-x-1/2">Profile</h1>
+    <a href="settings.html" class="ml-auto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-gray-500 dark:text-gray-400">
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="max-w-sm mx-auto px-4 py-5 space-y-5 pb-12">
+
+    <!-- ── HERO CARD ── -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden">
+      <!-- Banner -->
+      <div class="h-24 bg-gradient-to-br from-[#ed2079] to-[#ff6f00] relative">
+        <div class="absolute inset-0 opacity-20"
+          style="background-image: repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:10px 10px;">
+        </div>
+      </div>
+      <!-- Avatar overlapping banner -->
+      <div class="px-5 pb-5">
+        <div class="flex items-end justify-between -mt-10 mb-3">
+          <div class="relative">
+            <div class="w-20 h-20 bg-[#ed2079] rounded-full border-4 border-white dark:border-gray-800 flex items-center justify-center text-white text-3xl font-bold cherry shadow-lg">T</div>
+            <button id="avatar-edit-btn" onclick="toggleEdit()" class="hidden absolute -bottom-1 -right-1 w-7 h-7 bg-gray-800 dark:bg-white rounded-full flex items-center justify-center shadow">
+              <svg class="w-3.5 h-3.5 text-white dark:text-gray-800" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path d="M15.232 5.232l3.536 3.536M2 17l1.5-5L15.5 5.5l3.5 3.5L7 21H2v-4z" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div class="flex space-x-2">
+            <button id="edit-btn" onclick="toggleEdit()"
+              class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold px-3 py-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition border border-gray-200 dark:border-gray-600">
+              編集
+            </button>
+            <button id="save-btn" onclick="saveEdit()"
+              class="hidden bg-[#ed2079] text-white text-xs font-bold px-3 py-2 rounded-xl hover:brightness-110 transition">
+              保存
+            </button>
+          </div>
+        </div>
+        <!-- View mode -->
+        <div id="view-mode">
+          <h2 class="text-xl font-black text-gray-800 dark:text-white">TrainFan123</h2>
+          <p class="text-xs text-gray-400 mb-1">@trainfan123</p>
+          <p class="text-sm text-gray-600 dark:text-gray-300">鉄道大好き🚃 全駅制覇が目標！</p>
+          <div class="flex items-center space-x-3 mt-2 text-xs text-gray-400">
+            <span>📍 東京</span>
+            <span>・</span>
+            <span>参加 2025年10月</span>
+          </div>
+        </div>
+        <!-- Edit mode (hidden by default) -->
+        <div id="edit-mode" class="hidden space-y-2 mt-1">
+          <div>
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">表示名</label>
+            <input type="text" id="edit-name" value="TrainFan123"
+              class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-[#ed2079] transition"/>
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">ひとこと</label>
+            <input type="text" id="edit-bio" value="鉄道大好き🚃 全駅制覇が目標！"
+              class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-[#ed2079] transition"/>
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">場所</label>
+            <input type="text" id="edit-location" value="東京"
+              class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl px-3 py-2 mt-1 text-sm focus:outline-none focus:border-[#ed2079] transition"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STATS ── -->
+    <div class="grid grid-cols-4 gap-2">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow p-3 text-center">
+        <p class="text-xl font-black text-[#ed2079]">47</p>
+        <p class="text-[9px] font-bold text-gray-400 uppercase">訪問駅</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow p-3 text-center">
+        <p class="text-xl font-black text-[#fbb03c]">12</p>
+        <p class="text-[9px] font-bold text-gray-400 uppercase">スタンプ</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow p-3 text-center">
+        <p class="text-xl font-black text-purple-500">8</p>
+        <p class="text-[9px] font-bold text-gray-400 uppercase">目撃電車</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow p-3 text-center">
+        <p class="text-xl font-black text-[#ff6f00]">5d</p>
+        <p class="text-[9px] font-bold text-gray-400 uppercase">連続</p>
+      </div>
+    </div>
+
+    <!-- ── PROGRESS LINK ── -->
+    <a href="progress.html"
+      class="block bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition group">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 bg-[#ed2079] rounded-xl flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M18 20V10M12 20V4M6 20v-6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p class="font-bold text-gray-800 dark:text-white text-sm">全体の進捗を見る</p>
+        </div>
+        <svg class="w-5 h-5 text-gray-400 group-hover:text-[#ed2079] transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <!-- Mini progress bar -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-xs text-gray-500">
+          <span>47 / 10,937 駅訪問</span>
+          <span class="font-bold text-[#ed2079]">0.4%</span>
+        </div>
+        <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+          <div class="bg-[#ed2079] h-2 rounded-full" style="width:0.4%"></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- ── ACHIEVEMENTS ── -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden">
+      <div class="px-5 pt-4 pb-2 flex items-center justify-between">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">実績バッジ</p>
+        <span class="text-xs text-[#2BAAE2] font-bold">全て見る</span>
+      </div>
+      <div class="px-5 pb-5 grid grid-cols-4 gap-3">
+        <!-- Badge items -->
+        <div class="flex flex-col items-center space-y-1">
+          <div class="w-14 h-14 bg-[#ed2079] rounded-2xl flex items-center justify-center shadow-md">
+            <span class="text-2xl">🚉</span>
+          </div>
+          <p class="text-[9px] font-bold text-gray-600 dark:text-gray-300 text-center leading-tight">初訪問</p>
+        </div>
+        <div class="flex flex-col items-center space-y-1">
+          <div class="w-14 h-14 bg-[#fbb03c] rounded-2xl flex items-center justify-center shadow-md">
+            <span class="text-2xl">⭐</span>
+          </div>
+          <p class="text-[9px] font-bold text-gray-600 dark:text-gray-300 text-center leading-tight">スタンプ王</p>
+        </div>
+        <div class="flex flex-col items-center space-y-1">
+          <div class="w-14 h-14 bg-[#2BAAE2] rounded-2xl flex items-center justify-center shadow-md">
+            <span class="text-2xl">🚆</span>
+          </div>
+          <p class="text-[9px] font-bold text-gray-600 dark:text-gray-300 text-center leading-tight">電車博士</p>
+        </div>
+        <div class="flex flex-col items-center space-y-1">
+          <div class="w-14 h-14 bg-[#ff6f00] rounded-2xl flex items-center justify-center shadow-md">
+            <span class="text-2xl">🔥</span>
+          </div>
+          <p class="text-[9px] font-bold text-gray-600 dark:text-gray-300 text-center leading-tight">5日連続</p>
+        </div>
+        <!-- Locked badges -->
+        <div class="flex flex-col items-center space-y-1 opacity-40">
+          <div class="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center shadow-md border-2 border-dashed border-gray-300 dark:border-gray-600">
+            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <p class="text-[9px] font-bold text-gray-400 text-center leading-tight">東京制覇</p>
+        </div>
+        <div class="flex flex-col items-center space-y-1 opacity-40">
+          <div class="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center shadow-md border-2 border-dashed border-gray-300 dark:border-gray-600">
+            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <p class="text-[9px] font-bold text-gray-400 text-center leading-tight">30日連続</p>
+        </div>
+        <div class="flex flex-col items-center space-y-1 opacity-40">
+          <div class="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center shadow-md border-2 border-dashed border-gray-300 dark:border-gray-600">
+            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <p class="text-[9px] font-bold text-gray-400 text-center leading-tight">100駅突破</p>
+        </div>
+        <div class="flex flex-col items-center space-y-1 opacity-40">
+          <div class="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-2xl flex items-center justify-center shadow-md border-2 border-dashed border-gray-300 dark:border-gray-600">
+            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <p class="text-[9px] font-bold text-gray-400 text-center leading-tight">全線制覇</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RECENT ACTIVITY ── -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden">
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-5 pt-4 pb-3">最近の活動</p>
+      <div class="divide-y divide-gray-100 dark:divide-gray-700">
+        <div class="flex items-start px-5 py-3 space-x-3">
+          <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-sm">🚉</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold text-gray-800 dark:text-white">三軒茶屋 を訪問</p>
+            <p class="text-xs text-gray-400">田園都市線 • 2時間前</p>
+          </div>
+          <span class="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">VISITED</span>
+        </div>
+        <div class="flex items-start px-5 py-3 space-x-3">
+          <div class="w-8 h-8 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-sm">⭐</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold text-gray-800 dark:text-white">東京駅スタンプを収集</p>
+            <p class="text-xs text-gray-400">JR東日本 • 昨日</p>
+          </div>
+          <span class="text-[10px] bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">STAMP</span>
+        </div>
+        <div class="flex items-start px-5 py-3 space-x-3">
+          <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-sm">🚆</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold text-gray-800 dark:text-white">Skyliner AE1000 を目撃</p>
+            <p class="text-xs text-gray-400">京成スカイライナー • 2日前</p>
+          </div>
+          <span class="text-[10px] bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded-full font-bold flex-shrink-0">TRAIN</span>
+        </div>
+        <div class="flex items-start px-5 py-3 space-x-3">
+          <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-sm">🚉</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold text-gray-800 dark:text-white">駒沢大学 を訪問</p>
+            <p class="text-xs text-gray-400">田園都市線 • 3日前</p>
+          </div>
+          <span class="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-bold">VISITED</span>
+        </div>
+      </div>
+      <div class="px-5 py-3">
+        <button class="w-full text-center text-xs font-bold text-[#2BAAE2] hover:underline">もっと見る</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let editing = false;
+    function toggleEdit() {
+      editing = !editing;
+      document.getElementById('view-mode').classList.toggle('hidden', editing);
+      document.getElementById('edit-mode').classList.toggle('hidden', !editing);
+      document.getElementById('edit-btn').classList.toggle('hidden', editing);
+      document.getElementById('save-btn').classList.toggle('hidden', !editing);
+      document.getElementById('avatar-edit-btn').classList.toggle('hidden', !editing);
+    }
+    function saveEdit() {
+      const name = document.getElementById('edit-name').value;
+      const bio = document.getElementById('edit-bio').value;
+      const loc = document.getElementById('edit-location').value;
+      document.querySelector('#view-mode h2').textContent = name;
+      document.querySelector('#view-mode p:nth-child(3)').textContent = bio;
+      document.querySelector('#view-mode span:first-child').textContent = '📍 ' + loc;
+      toggleEdit();
+    }
+  </script>
+</body>
+</html>

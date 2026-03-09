@@ -11,5 +11,14 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// Prototype: skip Firebase if config is incomplete
+if (firebaseConfig.projectId && firebaseConfig.apiKey) {
+  try {
+    const app = initializeApp(firebaseConfig);
+    getAnalytics(app);
+  } catch (e) {
+    console.warn('[Eki Story] Firebase init skipped (prototype mode):', e.message);
+  }
+} else {
+  console.warn('[Eki Story] Firebase config missing – running in prototype mode without backend.');
+}

@@ -1,0 +1,72 @@
+flowchart TD
+    subgraph CLIENT["Client — Browser (PWA)"]
+        WEB["Any Modern Browser\nPC / Smartphone / Tablet"]
+        GHPAGES["GitHub Pages\nStatic Hosting"]
+        GHPAGES --> WEB
+    end
+
+    subgraph REACT["React App (Frontend)"]
+        ROUTER["React Router\nPage Navigation"]
+        COMP["UI Components\nVisit Log / Stamps / Feed"]
+        HOOKS["Custom Hooks\nuseVisits / useStamps / useAuth"]
+        USE_FEED["useFeed Hook\nReal-time Monitoring via onSnapshot\n→ Auto-update Friends' Posts"]
+        USE_STATIONS["useStations Hook\nReads Master Data from Firestore"]
+        USE_TRAINS["useTrainModels Hook\nFetches Train Model Info from Wikipedia API\nCaches to Firestore"]
+        MAPS["Google Maps\nJavaScript API\nStation Markers & Line Overlays"]
+    end
+
+    subgraph FIREBASE["Firebase (BaaS) — No Backend Server Required"]
+        AUTH["Firebase Authentication\nUser Auth & Session Management"]
+        DB_MASTER[("Firestore Station Master DB\n/stations  10,447 stations\n/lines  601 lines\n/companies  174 companies\nImported from EkiData CSV")]
+        DB_USER[("Firestore User Data\n/visits / /stamps / /train_sightings")]
+        DB_SOCIAL[("Firestore Social Data\n/social_posts / /friends\nReal-time via onSnapshot")]
+        DB_CACHE[("Firestore Cache\n/train_models\nFetched from Wikipedia API")]
+        RULES["Firestore Security Rules\nPer-user Access Control"]
+    end
+
+    subgraph IMPORT["Master Data Setup (One-time Manual Import)"]
+        EKIDATA["EkiData CSV ★ Main Source\nstation: 10,447 stations (with coords & address)\nline: 601 lines\ncompany: 174 companies\njoin: station connections"]
+        ODPT["ODPT ※ Optional / Limited\nEnglish name supplement only\n(Potential future use for real-time\ntrain info - requires API key)"]
+        SCRIPT["Import Script\nEkiData as base\nOptionally merge ODPT English names\nBulk import to Firestore"]
+    end
+
+    subgraph EXTERNAL["External APIs (Runtime)"]
+        WIKIPEDIA["Wikipedia API\nTrain Model Info\nFree / No Registration Required"]
+    end
+
+    WEB --> REACT
+
+    ROUTER --> COMP
+    COMP --> HOOKS
+    COMP --> USE_FEED
+    COMP --> USE_STATIONS
+    COMP --> USE_TRAINS
+    HOOKS --> MAPS
+    HOOKS --> AUTH
+    HOOKS --> DB_USER
+
+    USE_FEED -- "onSnapshot Real-time" --> DB_SOCIAL
+    DB_SOCIAL -- "Auto Update" --> USE_FEED
+    USE_STATIONS --> DB_MASTER
+    USE_TRAINS -- "API Fetch" --> WIKIPEDIA
+    WIKIPEDIA -- "Cache Save" --> DB_CACHE
+    DB_CACHE -- "Cache Load" --> USE_TRAINS
+
+    EKIDATA -- "Base (Required)" --> SCRIPT
+    ODPT -. "English names only - Optional" .-> SCRIPT
+    SCRIPT -- "Bulk Import" --> DB_MASTER
+
+    DB_USER --> RULES
+    DB_SOCIAL --> RULES
+
+    style CLIENT fill:#dfe6e9,stroke:#636e72
+    style REACT fill:#d0e8ff,stroke:#0984e3
+    style FIREBASE fill:#d4f5e9,stroke:#00b894
+    style IMPORT fill:#ffe0cc,stroke:#e17055
+    style EXTERNAL fill:#f8d7f0,stroke:#e84393
+    style DB_MASTER fill:#a8e6cf,stroke:#00b894,color:#003
+    style DB_SOCIAL fill:#a8e6cf,stroke:#00b894,color:#003
+    style SCRIPT fill:#ffcc99,stroke:#e17055,color:#333
+    style USE_FEED fill:#b2d8ff,stroke:#0984e3,color:#003
+    style EKIDATA fill:#ffb347,stroke:#e17055,color:#003
+    style ODPT fill:#eeeeee,stroke:#aaaaaa,color:#888

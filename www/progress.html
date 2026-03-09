@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Progress – Eki Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet" />
+  <script>if (!window.tailwind) window.tailwind = {}; window.tailwind.config = { darkMode: 'class' };</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { overscroll-behavior-y: contain; }
+    .cherry { font-family: 'Cherry Bomb One', cursive; }
+    .bar { transition: width 0.8s ease; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-100 dark:bg-gray-900 font-sans">
+  <turbo-frame id="list-frame" class="block">
+
+  <!-- TOP BAR -->
+  <div class="bg-white dark:bg-gray-800 border-b-2 border-black dark:border-gray-700 px-5 py-4 flex items-center">
+    <button onclick="typeof closeAllPanels === 'function' ? closeAllPanels() : history.back()" class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-[#ed2079] transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M19 12H5M12 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="text-sm font-bold">戻る</span>
+    </button>
+    <h1 class="cherry text-xl text-[#ed2079] absolute left-1/2 -translate-x-1/2">Progress</h1>
+  </div>
+
+  <!-- Loading state -->
+  <div id="loading" class="flex flex-col items-center justify-center py-20 space-y-4">
+    <div class="w-12 h-12 border-4 border-[#ed2079] border-t-transparent rounded-full animate-spin"></div>
+    <p class="text-sm text-gray-400 dark:text-gray-500">データを読み込み中...</p>
+  </div>
+
+  <!-- Main content (hidden until loaded) -->
+  <div id="main-content" class="hidden max-w-sm mx-auto px-4 py-5 space-y-5 pb-12">
+
+    <!-- ── OVERALL STATS ── -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden">
+      <div class="p-5">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">全体進捗</p>
+        <!-- Big number -->
+        <div class="text-center mb-4">
+          <div class="cherry text-6xl text-[#ed2079]" id="total-pct">0.4%</div>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">日本全国の駅を制覇中</p>
+        </div>
+        <!-- Progress ring placeholder -->
+        <div class="flex justify-center mb-4">
+          <svg viewBox="0 0 100 100" class="w-32 h-32">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#f3f4f6" stroke-width="12"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#ed2079" stroke-width="12"
+              stroke-dasharray="251.2" stroke-dashoffset="250.2"
+              stroke-linecap="round" transform="rotate(-90 50 50)"/>
+            <text x="50" y="50" text-anchor="middle" dy=".35em" class="fill-gray-700 dark:fill-white" font-size="14" font-weight="800">47</text>
+            <text x="50" y="63" text-anchor="middle" font-size="7" fill="#9ca3af">/ 10,937</text>
+          </svg>
+        </div>
+        <!-- Stats grid -->
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-3">
+            <p class="text-2xl font-black text-[#ed2079]" id="stat-visited">47</p>
+            <p class="text-[9px] font-bold text-gray-400 uppercase">訪問駅</p>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-3">
+            <p class="text-2xl font-black text-[#2BAAE2]" id="stat-lines">2</p>
+            <p class="text-[9px] font-bold text-gray-400 uppercase">完了路線</p>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-3">
+            <p class="text-2xl font-black text-[#fbb03c]" id="stat-prefs">3</p>
+            <p class="text-[9px] font-bold text-gray-400 uppercase">都道府県</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LINES LIST ── -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden">
+      <div class="border-b-2 border-black dark:border-gray-700 px-5 py-3 flex items-center justify-between">
+        <p class="text-xs font-bold uppercase tracking-wider text-[#ed2079]">路線別</p>
+        <span id="lines-company-label" class="text-[10px] text-gray-400"></span>
+      </div>
+      <div id="view-lines" class="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
+        <p class="text-xs text-gray-400 text-center py-2" id="lines-loading-msg">読み込み中...</p>
+      </div>
+    </div>
+
+    <!-- ── MILESTONES ── -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-black dark:border-gray-600 shadow-md overflow-hidden">
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-5 pt-4 pb-3">次のマイルストーン</p>
+      <div class="px-5 pb-5 space-y-4">
+        <!-- 50 stations -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-base">🚉</span>
+              <span class="text-sm font-bold text-gray-800 dark:text-white">50駅訪問</span>
+            </div>
+            <span class="text-xs font-bold text-[#ed2079]">47 / 50</span>
+          </div>
+          <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3">
+            <div class="bg-[#ed2079] h-3 rounded-full bar" style="width:94%"></div>
+          </div>
+        </div>
+        <!-- 1 complete line -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-base">🏆</span>
+              <span class="text-sm font-bold text-gray-800 dark:text-white">路線完全制覇 x3</span>
+            </div>
+            <span class="text-xs font-bold text-[#2BAAE2]">2 / 3</span>
+          </div>
+          <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3">
+            <div class="bg-[#2BAAE2] h-3 rounded-full bar" style="width:66%"></div>
+          </div>
+        </div>
+        <!-- 10 stamps -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-base">⭐</span>
+              <span class="text-sm font-bold text-gray-800 dark:text-white">スタンプ20個</span>
+            </div>
+            <span class="text-xs font-bold text-[#fbb03c]">12 / 20</span>
+          </div>
+          <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3">
+            <div class="bg-[#fbb03c] h-3 rounded-full bar" style="width:60%"></div>
+          </div>
+        </div>
+        <!-- streak -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-base">🔥</span>
+              <span class="text-sm font-bold text-gray-800 dark:text-white">7日連続ログイン</span>
+            </div>
+            <span class="text-xs font-bold text-[#ff6f00]">5 / 7</span>
+          </div>
+          <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3">
+            <div class="bg-[#ff6f00] h-3 rounded-full bar" style="width:71%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ── Prototype data (simulating user visits) ──
+    const VISITED_STATIONS = new Set([
+      // Demo: Den-en-toshi line partial
+      '1130225','1130226','1130227'
+    ]);
+    const VISITED_COUNT = 47; // prototype value
+
+    async function parseCSV(url) {
+      try {
+        const r = await fetch(url);
+        const t = await r.text();
+        const rows = t.trim().split('\n');
+        const headers = rows[0].split(',').map(h => h.trim());
+        return rows.slice(1).map(row => {
+          const vals = row.split(',');
+          const obj = {};
+          headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim(); });
+          return obj;
+        });
+      } catch { return []; }
+    }
+
+    function progressBar(pct, color) {
+      return `
+        <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 mt-1">
+          <div class="h-2 rounded-full bar" style="width:${pct}%;background:${color}"></div>
+        </div>`;
+    }
+
+    function renderLines(lines, stations, companyMap) {
+      // Group stations by line
+      const byLine = {};
+      stations.forEach(s => {
+        if (!byLine[s.line_cd]) byLine[s.line_cd] = [];
+        byLine[s.line_cd].push(s);
+      });
+
+      // Lines with stations only, group by company, sort by company then station count
+      const linesWithStations = lines
+        .filter(l => (byLine[l.line_cd] || []).length > 0)
+        .sort((a, b) => {
+          if (a.company_cd !== b.company_cd) return a.company_cd - b.company_cd;
+          return (byLine[b.line_cd] || []).length - (byLine[a.line_cd] || []).length;
+        });
+
+      const container = document.getElementById('view-lines');
+      const fallbackColors = ['#ed2079','#2BAAE2','#fbb03c','#009B73','#8b5cf6','#ff6f00'];
+
+      let lastCompany = null;
+      let html = '';
+
+      linesWithStations.forEach((l, i) => {
+        const total = (byLine[l.line_cd] || []).length;
+        const visited = Math.floor(Math.random() * 3);
+        const pct = total > 0 ? Math.round((visited / total) * 100) : 0;
+        const color = l.line_color_c ? '#' + l.line_color_c : fallbackColors[i % fallbackColors.length];
+        const isDone = visited === total;
+        const companyName = companyMap[l.company_cd] || '';
+
+        // Company header when company changes
+        if (companyName && companyName !== lastCompany) {
+          html += `<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-2 pb-1">${companyName}</p>`;
+          lastCompany = companyName;
+        }
+
+        html += `
+          <div class="space-y-1">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-2 min-w-0">
+                <div class="w-2.5 h-6 rounded-full flex-shrink-0" style="background:${color}"></div>
+                <span class="text-xs font-bold text-gray-800 dark:text-white truncate">${l.line_name}</span>
+                ${isDone ? '<span class="text-[9px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-bold flex-shrink-0">完了</span>' : ''}
+              </div>
+              <span class="text-[10px] font-bold text-gray-400 flex-shrink-0 ml-2">${visited}/${total}</span>
+            </div>
+            ${progressBar(pct, color)}
+          </div>`;
+      });
+
+      container.innerHTML = html || '<p class="text-xs text-gray-400 text-center py-4">データなし</p>';
+    }
+
+    // Load data
+    async function init() {
+      const [lines, stations, companies] = await Promise.all([
+        parseCSV('/docs/line20250604free.csv'),
+        parseCSV('/docs/station20260206free.csv'),
+        parseCSV('/docs/company20251015.csv')
+      ]);
+
+      // Build company_cd → company_name map
+      const companyMap = {};
+      companies.forEach(c => { companyMap[c.company_cd] = c.company_name; });
+
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('main-content').classList.remove('hidden');
+
+      renderLines(lines, stations, companyMap);
+      document.getElementById('lines-loading-msg')?.remove();
+    }
+
+    init();
+  </script>
+
+  </turbo-frame>
+</body>
+</html>
