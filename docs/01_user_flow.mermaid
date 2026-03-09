@@ -1,0 +1,46 @@
+flowchart TD
+    A([Access via Browser\nGitHub Pages]) --> B{Logged in?\nFirebase Auth}
+    B -- No --> C[Login / Sign Up Screen\nReact Router /auth]
+    B -- Yes --> E
+
+    C --> D[Firebase Auth\nSign In Process]
+    D --> E[Home Screen\nReact Router /]
+
+    E --> F[Line List\nReact Router /lines]
+    E --> G[Log Station Visit\nReact Router /stations]
+    E --> H[Collect Stamps\nReact Router /stamps]
+    E --> I[Social Feed\nReact Router /feed]
+    E --> J[Log Train Sighting\nReact Router /trains]
+
+    F --> F1[Check Line Completion Rate\nuseStations Hook]
+    F1 --> F2{All Stations Visited?}
+    F2 -- Yes --> F3[🏆 Line Complete!]
+    F2 -- No --> G
+
+    G --> G1[Select Station on Map\nGoogle Maps JavaScript API]
+    G1 --> G2[Enter Visit Date & Note]
+    G2 --> G3[useVisits Hook\nSave to Firestore /visits]
+    G3 --> G4[Update Line Completion Rate\nUpdate Firestore /lines]
+    G4 --> E
+
+    H --> H1[Select Stamp Station]
+    H1 --> H2[Collect Digital Stamp]
+    H2 --> H3[useStamps Hook\nSave to Firestore /stamps]
+    H3 --> E
+
+    I --> I1[useFeed Hook\nReal-time Monitoring via onSnapshot]
+    I1 --> I2[Display Friends' Posts]
+    I2 --> I3{Action}
+    I3 --> I4[Like / Comment\nUpdate Firestore /social_posts]
+    I4 --> E
+
+    J --> J1[Wikipedia API\nFetch Train Model Info]
+    J1 --> J2[Enter Sighting Date & Location]
+    J2 --> J3[useTrainModels Hook\nSave to Firestore /train_sightings]
+    J3 --> E
+
+    style A fill:#a29bfe,color:#fff
+    style F3 fill:#fdcb6e,color:#333
+    style D fill:#0984e3,color:#fff
+    style C fill:#0984e3,color:#fff
+    style I1 fill:#b2d8ff,color:#003
