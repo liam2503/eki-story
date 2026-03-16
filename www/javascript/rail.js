@@ -7,9 +7,11 @@ let allStations = [];
 let allJoins = [];
 let lineColors = {};
 let polylines = [];
+const polylinesByLine = {};
 let stationLookup = {};
 let placesService;
 const decoMarkers = {};
+let activeLineFilter = null;
 
 window.initMap = async function() {
     const centerView = { lat: 35.6325, lng: 139.6525 };
@@ -32,6 +34,7 @@ window.initMap = async function() {
         ]
     });
     placesService = new google.maps.places.PlacesService(map);
+    window.map = map;
 
     const [stations, lines, joins] = await Promise.all([
         syncStationData(),
@@ -64,9 +67,12 @@ window.initMap = async function() {
     allStations = stations;
     lineColors = lines;
     allJoins = joins;
+    window.allStations = allStations;
+    window.lineColors = lineColors;
 
     allStations.forEach(s => {
         stationLookup[String(s.station_id || s.id)] = s;
+        stationLookup[String(s.id)] = s;
     });
 
     renderPolylines();
@@ -235,9 +241,27 @@ function renderPolylines() {
         modelsSpotted: "0" 
     }, 'line');
 });
+            if (!polylinesByLine[lineKey]) polylinesByLine[lineKey] = [];
+            polylinesByLine[lineKey].push(polyline);
             polylines.push(polyline);
         }
     });
+
+    window.filterToLine = function(lineId) {
+        activeLineFilter = String(lineId);
+        polylines.forEach(poly => poly.setMap(null));
+        (polylinesByLine[activeLineFilter] || []).forEach(poly => poly.setMap(map));
+        Object.entries(markers).forEach(([stationId, marker]) => {
+            const station = stationLookup[stationId];
+            marker.setMap(station && String(station.line_id) === activeLineFilter ? map : null);
+        });
+    };
+
+    window.clearLineFilter = function() {
+        activeLineFilter = null;
+        polylines.forEach(poly => poly.setMap(map));
+        Object.values(markers).forEach(marker => marker.setMap(map));
+    };
 }
 
 function renderVisibleMarkers() {
@@ -258,9 +282,10 @@ function renderVisibleMarkers() {
                 const lineData = lineColors[lineKey];
                 const markerColor = lineData?.color || "#000000";
 
+                const markerMap = activeLineFilter && String(station.line_id) !== activeLineFilter ? null : map;
                 const marker = new google.maps.Marker({
                     position: { lat: station.displayLat, lng: station.displayLon },
-                    map: map,
+                    map: markerMap,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
                         scale: currentScale,
@@ -308,6 +333,11 @@ function renderVisibleMarkers() {
             }
         } else if (markers[station.id] && markers[station.id].getMap() !== null) {
             markers[station.id].setMap(null);
+        }
+        // Re-apply filter for existing markers coming back into view
+        if (inView && markers[station.id] && activeLineFilter) {
+            const show = String(station.line_id) === activeLineFilter;
+            markers[station.id].setMap(show ? map : null);
         }
     });
 }
