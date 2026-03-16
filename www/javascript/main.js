@@ -286,6 +286,21 @@ async function initSearch() {
         });
     });
 
+    // Prevent iOS bounce/overscroll inside the dropdown
+    let touchStartY = 0;
+    searchResults.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    searchResults.addEventListener('touchmove', (e) => {
+        const el = searchResults;
+        const delta = e.touches[0].clientY - touchStartY;
+        const atTop = el.scrollTop === 0;
+        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight;
+        if ((atTop && delta > 0) || (atBottom && delta < 0)) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
         if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
