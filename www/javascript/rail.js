@@ -11,6 +11,7 @@ const polylinesByLine = {};
 let stationLookup = {};
 let placesService;
 const decoMarkers = {};
+let activeLineFilter = null;
 
 window.initMap = async function() {
     const centerView = { lat: 35.6325, lng: 139.6525 };
@@ -247,16 +248,17 @@ function renderPolylines() {
     });
 
     window.filterToLine = function(lineId) {
-        const lid = String(lineId);
+        activeLineFilter = String(lineId);
         polylines.forEach(poly => poly.setMap(null));
-        (polylinesByLine[lid] || []).forEach(poly => poly.setMap(map));
+        (polylinesByLine[activeLineFilter] || []).forEach(poly => poly.setMap(map));
         Object.entries(markers).forEach(([stationId, marker]) => {
             const station = stationLookup[stationId];
-            marker.setMap(station && String(station.line_id) === lid ? map : null);
+            marker.setMap(station && String(station.line_id) === activeLineFilter ? map : null);
         });
     };
 
     window.clearLineFilter = function() {
+        activeLineFilter = null;
         polylines.forEach(poly => poly.setMap(map));
         Object.values(markers).forEach(marker => marker.setMap(map));
     };
@@ -280,9 +282,10 @@ function renderVisibleMarkers() {
                 const lineData = lineColors[lineKey];
                 const markerColor = lineData?.color || "#000000";
 
+                const markerMap = activeLineFilter && String(station.line_id) !== activeLineFilter ? null : map;
                 const marker = new google.maps.Marker({
                     position: { lat: station.displayLat, lng: station.displayLon },
-                    map: map,
+                    map: markerMap,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
                         scale: currentScale,
@@ -330,6 +333,11 @@ function renderVisibleMarkers() {
             }
         } else if (markers[station.id] && markers[station.id].getMap() !== null) {
             markers[station.id].setMap(null);
+        }
+        // Re-apply filter for existing markers coming back into view
+        if (inView && markers[station.id] && activeLineFilter) {
+            const show = String(station.line_id) === activeLineFilter;
+            markers[station.id].setMap(show ? map : null);
         }
     });
 }
