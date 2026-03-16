@@ -127,10 +127,6 @@ function initButtons() {
         };
     }
 
-    const profileExit = document.getElementById("profile-exit");
-    if (profileExit) {
-        profileExit.onclick = resetUI;
-    }
 }
 
 let searchInitialized = false;
@@ -230,12 +226,15 @@ async function initSearch() {
 
                 html += `
                     <div class="border-b-[2px] border-black last:border-b-0">
-                        <div class="flex items-center gap-3 px-5 py-3">
+                        <div class="multi-station-header flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50">
                             <div class="flex gap-1">${colorDots}</div>
                             <span class="text-xs font-black uppercase">${group.name}</span>
                             <span class="ml-auto text-[10px] font-black uppercase text-gray-400">${group.stations.length} Lines</span>
+                            <svg class="multi-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
                         </div>
-                        <div class="border-t-[2px] border-black/20">${subItems}</div>
+                        <div class="multi-station-sub hidden border-t-[2px] border-black/20">${subItems}</div>
                     </div>
                 `;
             }
@@ -273,6 +272,16 @@ async function initSearch() {
                         window.map.panTo({ lat: Number(mid.lat), lng: Number(mid.lon) });
                     }
                 }
+            });
+        });
+
+        // Toggle multi-line station sub-items
+        searchResults.querySelectorAll('.multi-station-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const sub = header.nextElementSibling;
+                const chevron = header.querySelector('.multi-chevron');
+                sub.classList.toggle('hidden');
+                chevron.classList.toggle('rotate-180');
             });
         });
     });
