@@ -51,99 +51,104 @@
         <span class="text-gray-400 font-bold text-[10px] uppercase">v0.1</span>
       </div>
       <div class="relative flex-1">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
         <input id="station-search" type="text" placeholder="SEARCH STATIONS..."
-          class="w-full bg-gray-100 border-[3px] border-black rounded-xl px-4 py-2 text-xs font-black uppercase placeholder-gray-400 focus:outline-none focus:bg-white transition-colors" />
+          class="w-full bg-gray-100 border-[3px] border-black rounded-xl pl-11 pr-4 py-2 text-xs font-black uppercase placeholder-gray-400 focus:outline-none focus:bg-white transition-colors" />
         <div id="search-results" class="absolute top-full left-0 right-0 mt-2 bg-white border-[4px] border-black rounded-[20px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hidden z-50 max-h-72 overflow-y-auto" style="overscroll-behavior: contain;">
         </div>
       </div>
     </div>
 
     <button id="refresh-db" class="fixed top-8 right-6 z-20 bg-[#FF80AB] border-[3px] border-black text-white font-black text-xs rounded-xl px-5 py-2 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase">
-      Refresh
-    </button>
+  Refresh
+</button>
+
+<button id="debug-unlock" class="fixed top-20 right-6 z-20 bg-[#40C4FF] border-[3px] border-black text-white font-black text-xs rounded-xl px-5 py-2 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase">
+  Unlock
+</button>
 
     <div class="w-[90%] max-w-lg h-24 bg-white border-[5px] border-black flex items-center justify-around fixed bottom-10 left-1/2 transform -translate-x-1/2 rounded-[40px] z-20 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+      <div class="absolute -left-6 -top-8 rotate-[-12deg]">
+        <div id="icon-shell-s" class="w-16 h-16 bg-white border-[4px] border-black rounded-[20px] flex items-center justify-center cursor-pointer transition-all hover:-translate-y-2 hover:shadow-[0px_10px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="h-8">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </div>
+      </div>
 
-  <div class="absolute -left-6 -top-8 rotate-[-12deg]">
-    <div id="icon-shell-s" class="w-16 h-16 bg-white border-[4px] border-black rounded-[20px] flex items-center justify-center cursor-pointer transition-all hover:-translate-y-2 hover:shadow-[0px_10px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="h-8">
-        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-    </div>
-  </div>
-
-  <div class="flex items-center space-x-8">
-    <div id="icon-shell-0" class="group w-16 h-16 rounded-[20px] border-[4px] border-transparent hover:border-black flex items-center justify-center cursor-pointer transition-all hover:bg-[#FF80AB] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-10 text-[#FF80AB] group-hover:text-white stroke-current stroke-[3px]">
-        <path d="M3 10C3 6.22876 3 4.34315 4.17157 3.17157C5.34315 2 7.22876 2 11 2H13C16.7712 2 18.6569 2 19.8284 3.17157C21 4.34315 21 6.22876 21 10V14C21 17.7712 21 19.6569 19.8284 20.8284C18.6569 22 16.7712 22 13 22H11C7.22876 22 5.34315 22 4.17157 20.8284C3 19.6569 3 17.7712 3 14V10Z" />
-        <path d="M6 12C6 10.5858 6 9.87868 6.43934 9.43934C6.87868 9 7.58579 9 9 9H15C16.4142 9 17.1213 9 17.5607 9.43934C18 9.87868 18 10.5858 18 12V16C18 17.4142 18 18.1213 17.5607 18.5607C17.1213 19 16.4142 19 15 19H9C7.58579 19 6.87868 19 6.43934 18.5607C6 18.1213 6 17.4142 6 16V12Z" />
-        <path d="M7 6H12" stroke-linecap="round"/>
-      </svg>
-    </div>
-
-    <div id="icon-shell-1" class="group w-20 h-20 rounded-full bg-[#B2FF59] border-[5px] border-black flex items-center justify-center cursor-pointer transition-all hover:-translate-y-2 hover:shadow-[0px_10px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-12 text-black stroke-current stroke-[3px]">
-        <path d="M5.7 15C4.03377 15.6353 3 16.5205 3 17.4997C3 19.4329 7.02944 21 12 21C16.9706 21 21 19.4329 21 17.4997C21 16.5205 19.9662 15.6353 18.3 15M12 9H12.01M18 9C18 13.0637 13.5 15 12 18C10.5 15 6 13.0637 6 9C6 5.68629 8.68629 3 12 3C15.3137 3 18 5.68629 18 9ZM13 9C13 9.55228 12.5523 10 12 10C11.4477 10 11 9.55228 11 9C11 8.44772 11.4477 8 12 8C12.5523 8 13 8.44772 13 9Z" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-
-    <div id="icon-shell-2" class="group w-16 h-16 rounded-[20px] border-[4px] border-transparent hover:border-black flex items-center justify-center cursor-pointer transition-all hover:bg-[#40C4FF] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-10 text-[#40C4FF] group-hover:text-white stroke-current stroke-[3.5px]">
-        <path d="M8 6.00067L21 6.00139M8 12.0007L21 12.0015M8 18.0007L21 18.0015M3.5 6H3.51M3.5 12H3.51M3.5 18H3.51" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-  </div>
-
-  <div class="absolute -right-6 -top-8 rotate-[12deg]">
-    <div id="user-shell" class="w-16 h-16 bg-white border-[4px] border-black rounded-full flex items-center justify-center cursor-pointer transition-all hover:-translate-y-2 hover:shadow-[0px_10px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="h-8">
-        <path d="M18 20a6 6 0 0 0-12 0" />
-        <circle cx="12" cy="10" r="4" />
-      </svg>
-    </div>
-  </div>
-</div>
-
-<div id="map-tooltip" class="fixed pointer-events-none opacity-0 z-30 transition-opacity duration-200">
-    <div id="tooltip-container" class="relative bg-white border-[5px] border-black p-8 rounded-[40px] flex flex-col items-center justify-center text-center min-w-[280px]">
-
-        <div id="tooltip-line-pill" class="mb-3 px-4 py-1 rounded-full border-[3px] border-black hidden">
-            <span id="tooltip-line-text" class="text-[10px] font-black uppercase tracking-widest text-white">Line Name</span>
+      <div class="flex items-center space-x-8">
+        <div id="icon-shell-0" class="group w-16 h-16 rounded-[20px] border-[4px] border-transparent hover:border-black flex items-center justify-center cursor-pointer transition-all hover:bg-[#FF80AB] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-10 text-[#FF80AB] group-hover:text-white stroke-current stroke-[3px]">
+            <path d="M3 10C3 6.22876 3 4.34315 4.17157 3.17157C5.34315 2 7.22876 2 11 2H13C16.7712 2 18.6569 2 19.8284 3.17157C21 4.34315 21 6.22876 21 10V14C21 17.7712 21 19.6569 19.8284 20.8284C18.6569 22 16.7712 22 13 22H11C7.22876 22 5.34315 22 4.17157 20.8284C3 19.6569 3 17.7712 3 14V10Z" />
+            <path d="M6 12C6 10.5858 6 9.87868 6.43934 9.43934C6.87868 9 7.58579 9 9 9H15C16.4142 9 17.1213 9 17.5607 9.43934C18 9.87868 18 10.5858 18 12V16C18 17.4142 18 18.1213 17.5607 18.5607C17.1213 19 16.4142 19 15 19H9C7.58579 19 6.87868 19 6.43934 18.5607C6 18.1213 6 17.4142 6 16V12Z" />
+            <path d="M7 6H12" stroke-linecap="round"/>
+          </svg>
         </div>
 
-        <h3 id="tooltip-station" class="text-black font-black text-3xl leading-tight uppercase tracking-tight mb-4">Station Name</h3>
-
-        <div id="tooltip-footer" class="flex flex-col items-center justify-center w-full gap-3">
-            <span id="tooltip-status" class="bg-[#B2FF59] border-[3px] border-black px-6 py-2 rounded-2xl text-xs font-black uppercase text-black">
-                Visited
-            </span>
-
-            <div id="tooltip-count-wrapper" class="hidden flex items-center justify-center gap-4 mt-2">
-
-    <div class="bg-white border-[4px] border-black rounded-[24px] px-4 py-2 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3">
-        <div class="flex items-baseline font-black italic">
-            <span id="tooltip-count-now" class="text-3xl">12</span>
-            <span class="text-xl mx-0.5 text-black/30">/</span>
-            <span id="tooltip-count-total" class="text-sm text-black/50">30</span>
-        </div>
-        <span class="text-[9px] font-black uppercase tracking-tighter text-black/60 text-left leading-[0.8rem]">Stations<br>Visited</span>
-    </div>
-
-    <div class="bg-white border-[4px] border-black rounded-[24px] px-4 py-2 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3">
-        <span id="tooltip-models-num" class="text-3xl font-black italic">5</span>
-        <span class="text-[9px] font-black uppercase tracking-tighter text-black/60 text-left leading-[0.8rem]">Models<br>Spotted</span>
-    </div>
-
-</div>
+        <div id="icon-shell-1" class="group w-20 h-20 rounded-full bg-[#B2FF59] border-[5px] border-black flex items-center justify-center cursor-pointer transition-all hover:-translate-y-2 hover:shadow-[0px_10px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-12 text-black stroke-current stroke-[3px]">
+            <path d="M5.7 15C4.03377 15.6353 3 16.5205 3 17.4997C3 19.4329 7.02944 21 12 21C16.9706 21 21 19.4329 21 17.4997C21 16.5205 19.9662 15.6353 18.3 15M12 9H12.01M18 9C18 13.0637 13.5 15 12 18C10.5 15 6 13.0637 6 9C6 5.68629 8.68629 3 12 3C15.3137 3 18 5.68629 18 9ZM13 9C13 9.55228 12.5523 10 12 10C11.4477 10 11 9.55228 11 9C11 8.44772 11.4477 8 12 8C12.5523 8 13 8.44772 13 9Z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
 
-        <div id="tooltip-arrow" class="absolute -bottom-3.5 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-white border-r-[5px] border-b-[5px] border-black rotate-45"></div>
+        <div id="icon-shell-2" class="group w-16 h-16 rounded-[20px] border-[4px] border-transparent hover:border-black flex items-center justify-center cursor-pointer transition-all hover:bg-[#40C4FF] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-10 text-[#40C4FF] group-hover:text-white stroke-current stroke-[3.5px]">
+            <path d="M8 6.00067L21 6.00139M8 12.0007L21 12.0015M8 18.0007L21 18.0015M3.5 6H3.51M3.5 12H3.51M3.5 18H3.51" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="absolute -right-6 -top-8 rotate-[12deg]">
+        <div id="user-shell" class="w-16 h-16 bg-white border-[4px] border-black rounded-full flex items-center justify-center cursor-pointer transition-all hover:-translate-y-2 hover:shadow-[0px_10px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="h-8">
+            <path d="M18 20a6 6 0 0 0-12 0" />
+            <circle cx="12" cy="10" r="4" />
+          </svg>
+        </div>
+      </div>
     </div>
-</div>
+
+    <div id="map-tooltip" class="fixed pointer-events-none opacity-0 z-30 transition-opacity duration-200">
+        <div id="tooltip-container" class="relative bg-white border-[5px] border-black p-8 rounded-[40px] flex flex-col items-center justify-center text-center min-w-[280px]">
+            <div id="tooltip-line-pill" class="mb-3 px-4 py-1 rounded-full border-[3px] border-black hidden">
+                <span id="tooltip-line-text" class="text-[10px] font-black uppercase tracking-widest text-white">Line Name</span>
+            </div>
+            <h3 id="tooltip-station" class="text-black font-black text-3xl leading-tight uppercase tracking-tight mb-4">Station Name</h3>
+            <div id="tooltip-footer" class="flex flex-col items-center justify-center w-full gap-3">
+                <span id="tooltip-status" class="bg-[#B2FF59] border-[3px] border-black px-6 py-2 rounded-2xl text-xs font-black uppercase text-black">Visited</span>
+                <div id="tooltip-count-wrapper" class="hidden flex items-center justify-center gap-4 mt-2">
+                    <div class="bg-white border-[4px] border-black rounded-[24px] px-4 py-2 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3">
+                        <div class="flex items-baseline font-black italic">
+                            <span id="tooltip-count-now" class="text-3xl">12</span>
+                            <span class="text-xl mx-0.5 text-black/30">/</span>
+                            <span id="tooltip-count-total" class="text-sm text-black/50">30</span>
+                        </div>
+                        <span class="text-[9px] font-black uppercase tracking-tighter text-black/60 text-left leading-[0.8rem]">Stations<br>Visited</span>
+                    </div>
+                    <div class="bg-white border-[4px] border-black rounded-[24px] px-4 py-2 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3">
+                        <span id="tooltip-models-num" class="text-3xl font-black italic">5</span>
+                        <span class="text-[9px] font-black uppercase tracking-tighter text-black/60 text-left leading-[0.8rem]">Models<br>Spotted</span>
+                    </div>
+                </div>
+            </div>
+            <div id="tooltip-arrow" class="absolute -bottom-3.5 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-white border-r-[5px] border-b-[5px] border-black rotate-45"></div>
+        </div>
+    </div>
 
     <script type="module" src="javascript/firebase.js"></script>
-    <script type="module" src="javascript/main.js"></script>
-    <script type="module" src="javascript/rail.js"></script>
+<script type="module" src="javascript/user.js"></script>
+<script type="module" src="javascript/map_utils.js"></script>
+<script type="module" src="javascript/map_layers.js"></script>
+<script type="module" src="javascript/map_markers.js"></script>
+<script type="module" src="javascript/rail.js"></script>
+<script type="module" src="javascript/ui.js"></script>
+<script type="module" src="javascript/search.js"></script>
+<script type="module" src="javascript/main.js"></script>
   </body>
 </html>
