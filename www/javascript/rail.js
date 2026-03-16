@@ -7,6 +7,7 @@ let allStations = [];
 let allJoins = [];
 let lineColors = {};
 let polylines = [];
+const polylinesByLine = {};
 let stationLookup = {};
 let placesService;
 const decoMarkers = {};
@@ -238,9 +239,26 @@ function renderPolylines() {
         modelsSpotted: "0" 
     }, 'line');
 });
+            if (!polylinesByLine[lineKey]) polylinesByLine[lineKey] = [];
+            polylinesByLine[lineKey].push(polyline);
             polylines.push(polyline);
         }
     });
+
+    window.filterToLine = function(lineId) {
+        const lid = String(lineId);
+        polylines.forEach(poly => poly.setMap(null));
+        (polylinesByLine[lid] || []).forEach(poly => poly.setMap(map));
+        Object.entries(markers).forEach(([stationId, marker]) => {
+            const station = stationLookup[stationId];
+            marker.setMap(station && String(station.line_id) === lid ? map : null);
+        });
+    };
+
+    window.clearLineFilter = function() {
+        polylines.forEach(poly => poly.setMap(map));
+        Object.values(markers).forEach(marker => marker.setMap(map));
+    };
 }
 
 function renderVisibleMarkers() {

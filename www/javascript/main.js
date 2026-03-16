@@ -147,6 +147,7 @@ async function initSearch() {
         if (!query) {
             searchResults.classList.add('hidden');
             searchResults.innerHTML = '';
+            window.clearLineFilter?.();
             return;
         }
 
@@ -254,20 +255,21 @@ async function initSearch() {
                 searchInput.value = '';
 
                 if (type === 'station') {
-                    // Use already-loaded data if available
                     const cached = window.allStations?.find(s => String(s.station_id || s.id) === String(id));
-                    if (cached && window.map) {
-                        window.map.panTo({ lat: Number(cached.lat), lng: Number(cached.lon) });
+                    if (cached) {
+                        window.filterToLine?.(cached.line_id);
+                        if (window.map) window.map.panTo({ lat: Number(cached.lat), lng: Number(cached.lon) });
                         return;
                     }
-                    // Otherwise fetch full station data
+                    // Fetch full station data if not cached
                     const snap = await getDoc(doc(db, 'stations', id));
-                    if (snap.exists() && window.map) {
+                    if (snap.exists()) {
                         const d = snap.data();
-                        window.map.panTo({ lat: Number(d.lat), lng: Number(d.lon) });
+                        window.filterToLine?.(d.line_id);
+                        if (window.map) window.map.panTo({ lat: Number(d.lat), lng: Number(d.lon) });
                     }
                 } else if (type === 'line') {
-                    // Navigate to midpoint of line
+                    window.filterToLine?.(id);
                     const lineStations = window.allStations?.filter(s => String(s.line_id) === String(id));
                     if (lineStations?.length && window.map) {
                         const mid = lineStations[Math.floor(lineStations.length / 2)];
