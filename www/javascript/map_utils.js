@@ -1,9 +1,10 @@
 import { db } from './firebase.js';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 
-export async function syncStationData() {
-    const configRef = doc(db, 'metadata', 'config');
-    const configSnap = await getDoc(configRef);
+export async function syncStationData(configSnap) {
+    if (!configSnap) {
+        configSnap = await getDoc(doc(db, 'metadata', 'config'));
+    }
     const remoteVersion = configSnap.exists() ? configSnap.data().stationVersion : 0;
     const localVersion = localStorage.getItem('stationVersion');
     let localData = localStorage.getItem('stationData');
@@ -21,9 +22,10 @@ export async function syncStationData() {
     return JSON.parse(localData);
 }
 
-export async function syncLineData() {
-    const configRef = doc(db, 'metadata', 'config');
-    const configSnap = await getDoc(configRef);
+export async function syncLineData(configSnap) {
+    if (!configSnap) {
+        configSnap = await getDoc(doc(db, 'metadata', 'config'));
+    }
     const remoteVersion = configSnap.exists() ? configSnap.data().stationVersion : 0;
     const localVersion = localStorage.getItem('lineVersion');
     let localData = localStorage.getItem('lineData');
@@ -51,9 +53,10 @@ export async function syncLineData() {
     return JSON.parse(localData);
 }
 
-export async function syncJoinData() {
-    const configRef = doc(db, 'metadata', 'config');
-    const configSnap = await getDoc(configRef);
+export async function syncJoinData(configSnap) {
+    if (!configSnap) {
+        configSnap = await getDoc(doc(db, 'metadata', 'config'));
+    }
     const remoteVersion = configSnap.exists() ? configSnap.data().stationVersion : 0;
     const localVersion = localStorage.getItem('joinVersion');
     let localData = localStorage.getItem('joinData');
