@@ -46,21 +46,6 @@ window.initMap = async function() {
         coordMap[key].push(s);
     });
 
-    Object.values(coordMap).forEach(group => {
-        if (group.length === 1) {
-            group[0].displayLat = Number(group[0].lat);
-            group[0].displayLon = Number(group[0].lon);
-        } else {
-            const radius = 0.00015;
-            group.forEach((station, index) => {
-                const angle = (index / group.length) * Math.PI * 2;
-                station.displayLat = Number(station.lat) + (Math.cos(angle) * radius);
-                const latRad = Number(station.lat) * (Math.PI / 180);
-                station.displayLon = Number(station.lon) + ((Math.sin(angle) * radius) / Math.cos(latRad));
-            });
-        }
-    });
-
     allStations = stations;
     lineColors = lines;
     window.allStations = allStations;
