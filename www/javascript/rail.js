@@ -1,4 +1,6 @@
 import { syncStationData, syncLineData, syncJoinData } from './map_utils.js';
+import { db } from './firebase.js';
+import { doc, getDoc } from 'firebase/firestore';
 import { renderPolylines, polylines } from './map_layers.js';
 import { renderVisibleMarkers, updateUserMarker } from './map_markers.js';
 import { toggleStation } from './user.js';
@@ -32,10 +34,12 @@ window.initMap = async function() {
     window.map = map;
 
     // Load Data from Firestore/Cache
+    // Fetch config once and share it across all sync functions to avoid 3 redundant round trips
+    const configSnap = await getDoc(doc(db, 'metadata', 'config'));
     const [stations, lines, joins] = await Promise.all([
-        syncStationData(),
-        syncLineData(),
-        syncJoinData()
+        syncStationData(configSnap),
+        syncLineData(configSnap),
+        syncJoinData(configSnap)
     ]);
 
     // Handle overlapping stations (same Lat/Lon)
