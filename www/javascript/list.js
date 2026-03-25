@@ -48,6 +48,68 @@ if (selectors.backBtn) {
     renderLines();
 }
 
+export function initStampScanner(existingButtonId) {
+    const addStampBtn = document.getElementById(existingButtonId);
+    const addStampContainer = document.getElementById("add-stamp-container");
+    const closeStampBtn = document.getElementById("close-stamp-btn");
+    const videoElement = document.getElementById("camera-feed");
+    const canvasElement = document.getElementById("camera-canvas");
+    const placeholderElement = document.getElementById("camera-placeholder");
+    const captureBtn = document.getElementById("capture-stamp-btn");
+
+    let cameraStream = null;
+
+    if (!addStampBtn || !addStampContainer) return;
+
+    async function startCamera() {
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' } 
+            });
+            videoElement.srcObject = cameraStream;
+            videoElement.classList.remove('hidden');
+            placeholderElement.classList.add('hidden');
+        } catch (err) {
+            placeholderElement.innerHTML = `<span class="text-red-500 font-black uppercase text-center px-4">Camera Access Denied</span>`;
+        }
+    }
+
+    function stopCamera() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+        videoElement.classList.add('hidden');
+        placeholderElement.classList.remove('hidden');
+    }
+
+    addStampBtn.addEventListener('click', () => {
+        addStampContainer.classList.remove("translate-y-full", "pointer-events-none");
+        startCamera();
+    });
+
+    closeStampBtn.addEventListener('click', () => {
+        addStampContainer.classList.add("translate-y-full", "pointer-events-none");
+        stopCamera();
+    });
+
+    captureBtn.addEventListener('click', () => {
+        if (!cameraStream) return;
+        
+        const context = canvasElement.getContext('2d');
+        canvasElement.width = videoElement.videoWidth;
+        canvasElement.height = videoElement.videoHeight;
+        context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+        
+        const imageDataUrl = canvasElement.toDataURL('image/png');
+        
+        stopCamera();
+        addStampContainer.classList.add("translate-y-full", "pointer-events-none");
+        
+        console.log("Image ready for OpenCV:", imageDataUrl);
+    });
+}
+
 document.addEventListener('click', (e) => {
     if (!selectors.searchInput.contains(e.target)) selectors.searchDropdown.classList.add('hidden');
     if (!selectors.prefSelector.contains(e.target)) selectors.prefMenu.classList.add('hidden');
