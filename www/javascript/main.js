@@ -1,6 +1,9 @@
 import { initButtons } from './ui.js';
 import { initSearch } from './search.js';
 import { initProfileSync, isVisited, toggleStation } from './user.js';
+import { initStampScanner } from './list_detail.js';
+
+initStampScanner();
 
 window.isVisited = isVisited;
 

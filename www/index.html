@@ -183,14 +183,17 @@
         </div>
     </div>
 
-    <div id="add-stamp-container" class="fixed inset-0 z-[100] bg-white overflow-y-auto transition-transform duration-500 ease-in-out translate-y-full pointer-events-none flex flex-col">
+<div id="add-stamp-container" class="fixed inset-0 z-[100] bg-white overflow-y-auto transition-transform duration-500 ease-in-out translate-y-full pointer-events-none flex flex-col">
     <div class="p-6 flex items-center justify-between border-b-[5px] border-black bg-white">
         <h2 class="text-3xl font-black uppercase tracking-tighter">New Stamp</h2>
         <button id="close-stamp-btn" class="w-12 h-12 border-[4px] border-black rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all">
             <svg class="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
     </div>
-    <div class="flex-1 p-6 flex flex-col items-center justify-center gap-8 bg-white">
+    <div class="flex-1 p-6 flex flex-col items-center justify-center gap-6 bg-white">
+        
+        <div id="stamp-station-pill" class="px-6 py-2 rounded-full border-[4px] border-black text-black font-black uppercase tracking-tighter text-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] w-max max-w-full text-center truncate"></div>
+
         <div class="w-full max-w-sm aspect-square bg-gray-100 border-[5px] border-black rounded-[40px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center relative overflow-hidden">
             <video id="camera-feed" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline></video>
             <canvas id="camera-canvas" class="hidden"></canvas>
@@ -204,10 +207,21 @@
             </div>
         </div>
         
-        <div class="w-full max-w-sm">
-            <button id="capture-stamp-btn" class="w-full bg-[#B2FF59] border-[5px] border-black rounded-2xl py-4 text-black font-black text-2xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[6px] active:translate-x-[6px] active:shadow-none transition-all">
+        <div class="w-full max-w-sm flex gap-4">
+            <button id="capture-stamp-btn" class="flex-1 bg-[#B2FF59] border-[5px] border-black rounded-2xl py-4 text-black font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[6px] active:translate-x-[6px] active:shadow-none transition-all flex flex-col items-center justify-center gap-2">
+                <svg class="w-8 h-8" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
                 Capture
             </button>
+            <label for="upload-stamp-input" class="flex-1 bg-[#40C4FF] border-[5px] border-black rounded-2xl py-4 text-black font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[6px] active:translate-x-[6px] active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-center leading-none">
+                <svg class="w-8 h-8" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                </svg>
+                Upload
+                <input type="file" id="upload-stamp-input" accept="image/*" class="hidden">
+            </label>
         </div>
     </div>
 </div>

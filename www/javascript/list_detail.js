@@ -21,6 +21,9 @@ export async function showLineDetail(lineId) {
     selectors.detailStationsList.innerHTML = stations.map(s => {
         const visited = window.isVisited?.(s.id);
         const dotColor = visited ? '#B2FF59' : '#FFFFFF';
+        const stationName = s.station_name_en || s.station_name_jp;
+        const lineColor = line.color || '#B2FF59';
+        
         return `
             <div class="flex items-start gap-6 ml-1 station-item">
                 <div class="station-dot w-8 h-8 rounded-full border-[4px] border-black z-20 shrink-0 mt-1 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]" 
@@ -28,9 +31,9 @@ export async function showLineDetail(lineId) {
                 </div>
                 <div class="flex flex-col gap-2">
                     <span class="text-xl font-black uppercase tracking-tight leading-none pt-2">
-                        ${s.station_name_en || s.station_name_jp}
+                        ${stationName}
                     </span>
-                    <button class="add-stamp-btn bg-white border-[3px] border-black px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-max mt-1" data-station-id="${s.id}">
+                    <button class="add-stamp-btn bg-white border-[3px] border-black px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-max mt-1" data-station-id="${s.id}" data-station-name="${stationName}" data-line-color="${lineColor}">
                         + Add Stamp
                     </button>
                 </div>
@@ -59,6 +62,8 @@ export function initStampScanner() {
     const canvasElement = document.getElementById("camera-canvas");
     const placeholderElement = document.getElementById("camera-placeholder");
     const captureBtn = document.getElementById("capture-stamp-btn");
+    const uploadInput = document.getElementById("upload-stamp-input");
+    const stampStationPill = document.getElementById("stamp-station-pill");
 
     async function startCamera() {
         try {
@@ -87,6 +92,12 @@ export function initStampScanner() {
             const btn = e.target.closest('.add-stamp-btn');
             if (btn) {
                 currentStationId = btn.getAttribute('data-station-id');
+                
+                if (stampStationPill) {
+                    stampStationPill.innerText = btn.getAttribute('data-station-name');
+                    stampStationPill.style.backgroundColor = btn.getAttribute('data-line-color');
+                }
+
                 addStampContainer.classList.remove("translate-y-full", "pointer-events-none");
                 startCamera();
             }
@@ -115,6 +126,25 @@ export function initStampScanner() {
             addStampContainer.classList.add("translate-y-full", "pointer-events-none");
             
             console.log("Captured image for station:", currentStationId);
+        });
+    }
+
+    if (uploadInput) {
+        uploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const imageDataUrl = event.target.result;
+                
+                stopCamera();
+                addStampContainer.classList.add("translate-y-full", "pointer-events-none");
+                uploadInput.value = '';
+                
+                console.log("Uploaded image for station:", currentStationId);
+            };
+            reader.readAsDataURL(file);
         });
     }
 }

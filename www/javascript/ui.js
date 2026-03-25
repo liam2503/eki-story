@@ -3,13 +3,10 @@ export function initButtons() {
     const heartBtn = document.getElementById("icon-shell-1");
     const listBtn = document.getElementById("icon-shell-2");
     const userBtn = document.getElementById("user-shell");
-    const addStampBtn = document.getElementById("icon-shell-s");
 
     const feedContainer = document.getElementById("feed-container");
     const listContainer = document.getElementById("list-container");
     const profileContainer = document.getElementById("profile-container");
-    const addStampContainer = document.getElementById("add-stamp-container");
-    const closeStampBtn = document.getElementById("close-stamp-btn");
 
     if (!feedBtn || !listBtn) return;
 
@@ -79,16 +76,6 @@ export function initButtons() {
             if (!isOpen) {
                 profileContainer.classList.remove("translate-x-full", "pointer-events-none");
             }
-        };
-    }
-
-    if (addStampBtn && addStampContainer && closeStampBtn) {
-        addStampBtn.onclick = function() {
-            addStampContainer.classList.remove("translate-y-full", "pointer-events-none");
-        };
-
-        closeStampBtn.onclick = function() {
-            addStampContainer.classList.add("translate-y-full", "pointer-events-none");
         };
     }
 }
