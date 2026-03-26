@@ -67,7 +67,8 @@ const els = {
         invert: document.getElementById("tool-invert"),
         modalCont: document.getElementById("stamp-modal-container"),
         modalImg: document.getElementById("stamp-modal-image"),
-        modalDate: document.getElementById("stamp-modal-date")
+        modalDate: document.getElementById("stamp-modal-date"),
+        datePicker: document.getElementById("stamp-date-picker")
     };
 
     const deleteConfirmModal = document.getElementById("delete-confirm-modal");
@@ -145,6 +146,9 @@ const els = {
         const warped = finalizeWarp(els.cropCanvas);
         currentOriginalImage = warped;
         els.cropCont.classList.add('translate-y-full', 'pointer-events-none');
+        
+        els.datePicker.value = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        
         setupRefinement(warped, els.refineBase, els.refineMask, els.refineWork);
     };
 
@@ -166,7 +170,13 @@ const els = {
     };
 
     document.getElementById("confirm-refine-btn").onclick = async () => {
-        await saveStamp(currentStationId, processFinalStamp(els.refineBase, els.refineMask, els.ink.value, isFlipped), currentOriginalImage);
+        const dateVal = els.datePicker.value;
+        let customTs = Date.now();
+        if (dateVal) {
+            customTs = new Date(dateVal + 'T12:00:00').getTime(); 
+        }
+
+        await saveStamp(currentStationId, processFinalStamp(els.refineBase, els.refineMask, els.ink.value, isFlipped), currentOriginalImage, customTs);
         els.refineCont.classList.add('translate-y-full', 'pointer-events-none');
         isFlipped = false; els.refineBase.style.transform = els.refineMask.style.transform = 'scaleX(1)';
         showLineDetail(currentLineId);
@@ -192,6 +202,15 @@ const els = {
         if (originalData) {
             currentStationId = viewingStationId;
             currentOriginalImage = originalData;
+            
+            const ts = userStampDates[viewingStationId];
+            if (ts) {
+                const d = new Date(ts);
+                els.datePicker.value = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+            } else {
+                els.datePicker.value = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+            }
+
             setupRefinement(originalData, els.refineBase, els.refineMask, els.refineWork);
         }
     };

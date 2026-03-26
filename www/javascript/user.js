@@ -23,10 +23,10 @@ export async function toggleStation(stationId) {
     }
 }
 
-export async function saveStamp(id, b64, originalB64) {
+export async function saveStamp(id, b64, originalB64, customTimestamp) {
     if (!id) return;
     const stampRef = doc(db, 'users', CURRENT_USER_ID, 'stamps', String(id));
-    const data = { image: b64, timestamp: Date.now() };
+    const data = { image: b64, timestamp: customTimestamp || Date.now() };
     if (originalB64) data.original = originalB64;
     await setDoc(stampRef, data);
 }
