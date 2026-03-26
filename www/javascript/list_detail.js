@@ -1,5 +1,5 @@
 import { state, selectors } from './list_state.js';
-import { userStamps, userStampOriginals, userStampDates, saveStamp, deleteStamp, isVisited } from './user.js';
+import { userStamps, userStampOriginals, userStampDates, saveStamp, deleteStamp, isVisited, userModels } from './user.js';
 import { loadOpenCV } from './stamp_cv_loader.js';
 import { startCamera, stopCamera } from './stamp_camera.js';
 import { startCrop, handleCropInput, finalizeWarp } from './stamp_crop.js';
@@ -7,6 +7,10 @@ import { setupRefinement, handleRefineDraw, processFinalStamp, applyLiveContrast
 
 let currentStationId = null, currentLineId = null, viewingStationId = null, isFlipped = false, currentTool = 'brush';
 let currentOriginalImage = null;
+
+export function getCurrentLineId() {
+    return currentLineId;
+}
 
 export async function showLineDetail(lineId) {
     currentLineId = lineId;
@@ -36,6 +40,34 @@ export async function showLineDetail(lineId) {
         </div>`;
     }).join('');
     
+    const tabStations = document.getElementById('tab-stations');
+    const tabModels = document.getElementById('tab-models');
+
+    tabStations.className = "flex-1 py-4 text-xs font-black uppercase border-r-[4px] border-black bg-[#B2FF59]";
+    tabModels.className = "flex-1 py-4 text-xs font-black uppercase bg-gray-100 text-gray-400";
+    selectors.detailStationsList.classList.remove('hidden');
+    selectors.detailTrackLine.classList.remove('hidden');
+    if (selectors.detailModelsList) selectors.detailModelsList.classList.add('hidden');
+    
+    tabStations.onclick = () => {
+        tabStations.className = "flex-1 py-4 text-xs font-black uppercase border-r-[4px] border-black bg-[#B2FF59]";
+        tabModels.className = "flex-1 py-4 text-xs font-black uppercase bg-gray-100 text-gray-400";
+        selectors.detailStationsList.classList.remove('hidden');
+        selectors.detailTrackLine.classList.remove('hidden');
+        if (selectors.detailModelsList) selectors.detailModelsList.classList.add('hidden');
+    };
+
+    tabModels.onclick = () => {
+        tabModels.className = "flex-1 py-4 text-xs font-black uppercase bg-[#B2FF59]";
+        tabStations.className = "flex-1 py-4 text-xs font-black uppercase border-r-[4px] border-black bg-gray-100 text-gray-400";
+        selectors.detailStationsList.classList.add('hidden');
+        selectors.detailTrackLine.classList.add('hidden');
+        if (selectors.detailModelsList) selectors.detailModelsList.classList.remove('hidden');
+        renderModelsList(lineId, line);
+    };
+
+    renderModelsList(lineId, line);
+
     requestAnimationFrame(() => {
         const dots = selectors.detailStationsList.querySelectorAll('.station-dot');
         if (dots.length > 1) {
@@ -44,6 +76,30 @@ export async function showLineDetail(lineId) {
         }
         selectors.detailContainer.classList.remove('translate-x-full');
     });
+}
+
+function renderModelsList(lineId, line) {
+    if (!selectors.detailModelsList) return;
+    const modelsForLine = Object.entries(userModels || {}).filter(([k, v]) => String(v.line_id) === String(lineId));
+    
+    let html = `
+        <div class="flex flex-col gap-4 w-full">
+            <button class="add-model-btn bg-white border-[4px] border-black px-6 py-4 rounded-[20px] text-lg font-black uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-full mb-4" data-line-id="${lineId}" data-line-name="${line.name_en}" data-line-color="${line.color || '#B2FF59'}">+ Add Train Model</button>
+            <div class="grid grid-cols-2 gap-4">
+    `;
+    
+    modelsForLine.forEach(([modelId, data]) => {
+        const modelName = data.name || "Unknown Model";
+        html += `
+            <div class="cursor-pointer model-image-preview transition-transform active:scale-95 flex flex-col items-center gap-2" data-model-id="${modelId}">
+                <img src="${data.image}" class="w-full aspect-square object-cover border-[4px] border-black rounded-[20px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white pointer-events-none">
+                <span class="text-[10px] font-black uppercase tracking-tight text-center truncate w-full px-1">${modelName}</span>
+            </div>
+        `;
+    });
+
+    html += `</div></div>`;
+    selectors.detailModelsList.innerHTML = html;
 }
 
 export function initStampScanner() {

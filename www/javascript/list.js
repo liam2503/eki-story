@@ -37,9 +37,14 @@ async function initList() {
         };
     }
 
-    window.addEventListener('visitedDataUpdated', () => {
-        renderLines();
-    });
+    // Ensure list re-renders whenever fresh user/map data is populated
+    window.addEventListener('visitedDataUpdated', renderLines);
+    window.addEventListener('stationsLoaded', renderLines);
+    window.addEventListener('lineDataLoaded', renderLines);
+    
+    // Fallback re-renders in case the global events fire before this module is loaded
+    setTimeout(renderLines, 500);
+    setTimeout(renderLines, 1500);
 
     renderLines();
 }

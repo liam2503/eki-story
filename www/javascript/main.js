@@ -1,7 +1,8 @@
 import { initButtons } from './ui.js';
 import { initSearch } from './search.js';
 import { initProfileSync, isVisited, toggleStation } from './user.js';
-import { initStampScanner } from './list_detail.js';
+import { initStampScanner, showLineDetail, getCurrentLineId } from './list_detail.js';
+import { initModelUI } from './model_ui.js';
 
 window.isVisited = isVisited;
 
@@ -10,6 +11,10 @@ function initAll() {
     initSearch();
     initProfileSync();
     initStampScanner();
+    initModelUI(() => {
+        const lineId = getCurrentLineId();
+        if (lineId) showLineDetail(lineId);
+    });
 }
 
 document.addEventListener("DOMContentLoaded", initAll);

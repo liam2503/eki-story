@@ -58,7 +58,16 @@ window.initMap = async function() {
 
     allStations = stations;
     lineColors = lines;
+    
     window.allStations = allStations;
+    window.lineColors = lineColors;
+    window.lineData = lineColors; 
+
+    localStorage.setItem('stationData', JSON.stringify(stations));
+    localStorage.setItem('lineData', JSON.stringify(lines));
+
+    window.dispatchEvent(new CustomEvent('stationsLoaded'));
+    window.dispatchEvent(new CustomEvent('lineDataLoaded'));
 
     allStations.forEach(s => {
         stationLookup[String(s.id)] = s;
@@ -83,6 +92,13 @@ window.initMap = async function() {
 
     renderPolylines(map, joins, stationLookup, lineColors, showTooltip);
     initUserTracking();
+
+    // Fade out and remove loading overlay once data is ready
+    const overlay = document.getElementById('app-loading-overlay');
+    if (overlay) {
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => overlay.remove(), 500); 
+    }
 
     map.addListener('idle', () => {
         renderVisibleMarkers(map, allStations, lineColors, activeLineFilter, showTooltip);

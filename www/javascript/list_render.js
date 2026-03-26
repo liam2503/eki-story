@@ -1,8 +1,12 @@
 import { state, selectors, RENDER_CHUNK_SIZE } from './list_state.js';
 import { showLineDetail } from './list_detail.js';
-import { isVisited, userStamps } from './user.js';
+import { isVisited, userStamps, userModels } from './user.js';
 
 export function renderLines() {
+    // ALWAYS pull fresh data directly from the window before evaluating
+    state.localStations = window.allStations || JSON.parse(localStorage.getItem('stationData') || '[]');
+    state.localLines = window.lineData || window.lineColors || JSON.parse(localStorage.getItem('lineData') || '{}');
+
     if (selectors.sentinel.parentNode) {
         state.observer.unobserve(selectors.sentinel);
     }
@@ -15,7 +19,10 @@ export function renderLines() {
     if (!state.currentPrefId && !state.currentCompId) {
         targetLineIds = targetLineIds.filter(id => {
             const stationsOnLine = state.localStations.filter(s => String(s.line_id) === String(id));
-            return stationsOnLine.some(s => isVisited(s.id) || userStamps[String(s.id)]);
+            const hasVisitedStation = stationsOnLine.some(s => isVisited(s.id) || userStamps[String(s.id)]);
+            const hasModel = Object.values(userModels || {}).some(m => String(m.line_id) === String(id));
+            
+            return hasVisitedStation || hasModel;
         });
     } else {
         if (state.currentPrefId) {
@@ -64,7 +71,7 @@ export function renderNextChunk() {
         card.innerHTML = `
             <div class="flex items-center justify-between gap-4 pointer-events-none">
                 <h3 class="text-black font-black text-2xl leading-tight uppercase tracking-tight break-words flex-1">${line.name_en}</h3>
-                <div class="w-20 h-20 shrink-0 bg-white border-[4px] border-black rounded-full flex items-center justify-center text-black font-black italic" style="box-shadow: 4px 4px 0px 0px ${line.color}">
+                <div class="w-20 h-20 shrink-0 bg-white border-[4px] border-black rounded-full flex items-center justify-center text-black font-black italic" style="box-shadow: 4px 4px 0px 0px ${line.color || '#000'}">
                     <div class="flex items-baseline mt-1">
                         <span class="text-3xl leading-none">${visited}</span>
                         <span class="mx-0.5 opacity-40 text-xl leading-none">/</span>
