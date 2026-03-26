@@ -3,10 +3,12 @@ import { initSearch } from './search.js';
 import { initProfileSync, isVisited, toggleStation } from './user.js';
 import { initStampScanner, showLineDetail, getCurrentLineId } from './list_detail.js';
 import { initModelUI } from './model_ui.js';
+import { initSettings } from './settings.js';
 
 window.isVisited = isVisited;
 
 function initAll() {
+    initSettings();
     initButtons();
     initSearch();
     initProfileSync();

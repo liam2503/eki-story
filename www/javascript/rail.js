@@ -31,6 +31,7 @@ window.initMap = async function() {
         isFractionalZoomEnabled: true,
         center: centerView,
         disableDefaultUI: true,
+        colorScheme: window.getInitialColorScheme?.() || 'LIGHT',
         styles: [
             { "featureType": "all", "elementType": "labels", "stylers": [{ "visibility": "off" }] },
             { "featureType": "landscape", "stylers": [{ "color": "#A5D6A7" }] },

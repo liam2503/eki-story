@@ -15,9 +15,14 @@ export function initButtons() {
     function resetUI() {
         feedContainer.classList.add("-translate-x-full", "pointer-events-none");
         listContainer.classList.add("translate-x-full", "pointer-events-none");
-        
+
         if (profileContainer) {
             profileContainer.classList.add("translate-x-full", "pointer-events-none");
+        }
+
+        const settingsContainer = document.getElementById("settings-container");
+        if (settingsContainer) {
+            settingsContainer.classList.add("-translate-x-full", "pointer-events-none");
         }
 
         const feedIcon = feedBtn.querySelector("svg");
