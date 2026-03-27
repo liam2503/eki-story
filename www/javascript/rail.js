@@ -27,7 +27,7 @@ window.initMap = async function() {
     const centerView = { lat: 35.6325, lng: 139.6525 };
     map = new google.maps.Map(document.getElementById("map"), {
         zoom: 14.8, 
-        minZoom: 13,
+        minZoom: 11,
         isFractionalZoomEnabled: true,
         center: centerView,
         disableDefaultUI: true,
