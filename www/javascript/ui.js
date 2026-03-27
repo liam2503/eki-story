@@ -61,10 +61,12 @@ export function initButtons() {
 
     if (heartBtn) {
         heartBtn.onclick = function() {
-            const isAnyFrameOpen = 
+            const settingsContainer = document.getElementById("settings-container");
+            const isAnyFrameOpen =
                 !feedContainer.classList.contains("-translate-x-full") ||
-                !listContainer.classList.contains("translate-x-full") || 
-                (profileContainer && !profileContainer.classList.contains("translate-x-full"));
+                !listContainer.classList.contains("translate-x-full") ||
+                (profileContainer && !profileContainer.classList.contains("translate-x-full")) ||
+                (settingsContainer && !settingsContainer.classList.contains("-translate-x-full"));
 
             if (!isAnyFrameOpen) {
                 window.centerOnUser?.();
