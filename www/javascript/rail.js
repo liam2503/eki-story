@@ -223,21 +223,27 @@ export function showTooltip(latLng, data, type) {
 
         if (linePill) linePill.classList.add('hidden');
 
-        container.style.backgroundColor = 'black';
+        const dark = document.documentElement.classList.contains('dark');
+        const lineBg = dark ? '#1e293b' : 'white';
+        const lineText = dark ? '#f1f5f9' : 'black';
+        const lineBorder = dark ? '#475569' : 'black';
+        const segmentEmpty = dark ? 'bg-gray-700' : 'bg-gray-300';
+
+        container.style.backgroundColor = lineBg;
         container.style.borderColor = data.color;
-        arrow.style.backgroundColor = 'black';
+        arrow.style.backgroundColor = lineBg;
         arrow.style.borderRightColor = data.color;
         arrow.style.borderBottomColor = data.color;
         container.style.boxShadow = `10px 10px 0px 0px ${data.color}`;
-        stationEl.style.color = 'white';
-        
+        stationEl.style.color = lineText;
+
         if (fractionEl) {
             fractionEl.classList.remove('hidden');
             fractionEl.innerHTML = `
                 <div class="flex items-baseline mt-1">
-                    <span class="text-3xl leading-none">${data.visitedCount}</span>
-                    <span class="mx-0.5 opacity-40 text-xl leading-none">/</span>
-                    <span class="text-sm opacity-60 leading-none">${data.totalCount}</span>
+                    <span class="text-3xl leading-none" style="color:${lineText}">${data.visitedCount}</span>
+                    <span class="mx-0.5 opacity-40 text-xl leading-none" style="color:${lineText}">/</span>
+                    <span class="text-sm opacity-60 leading-none" style="color:${lineText}">${data.totalCount}</span>
                 </div>
             `;
         }
@@ -247,7 +253,7 @@ export function showTooltip(latLng, data, type) {
             progressEl.innerHTML = '';
             for(let i = 0; i < data.totalCount; i++) {
                 const segment = document.createElement('div');
-                segment.className = `flex-1 h-full rounded-sm ${i < data.visitedCount ? 'bg-[#B2FF59]' : 'bg-gray-700'}`;
+                segment.className = `flex-1 h-full rounded-sm ${i < data.visitedCount ? 'bg-[#B2FF59]' : segmentEmpty}`;
                 progressEl.appendChild(segment);
             }
         }
