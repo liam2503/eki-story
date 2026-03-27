@@ -283,6 +283,7 @@ export function hideTooltip() {
         window.activeStationId = null;
     }
 }
+window.hideTooltip = hideTooltip;
 
 document.addEventListener('DOMContentLoaded', () => {
     const cancelUnmarkBtn = document.getElementById('cancel-unmark-btn');

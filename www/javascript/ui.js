@@ -33,6 +33,8 @@ export function initButtons() {
         listBtn.classList.remove("bg-[#40C4FF]");
         listIcon.classList.remove("text-white");
         listIcon.classList.add("text-[#40C4FF]");
+
+        window.hideTooltip?.();
     }
 
     window.resetUI = resetUI;
