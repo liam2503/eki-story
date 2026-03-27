@@ -3,7 +3,6 @@ export function initButtons() {
     const heartBtn = document.getElementById("icon-shell-1");
     const listBtn = document.getElementById("icon-shell-2");
     const userBtn = document.getElementById("user-shell");
-    const profileExitBtn = document.getElementById("profile-exit");
     const refreshBtn = document.getElementById("refresh-db");
 
     const feedContainer = document.getElementById("feed-container");
@@ -83,12 +82,6 @@ export function initButtons() {
             if (!isOpen) {
                 profileContainer.classList.remove("translate-x-full", "pointer-events-none");
             }
-        };
-    }
-
-    if (profileExitBtn) {
-        profileExitBtn.onclick = function() {
-            resetUI();
         };
     }
 
