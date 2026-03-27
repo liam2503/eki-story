@@ -78,6 +78,22 @@
         html.dark #tooltip-arrow { background-color: #1e293b; border-color: #475569; }
         html.dark #tooltip-station { color: #f1f5f9; }
         html.dark #tooltip-line-fraction { background-color: #1e293b; border-color: #475569; }
+
+        /* Feed cards */
+        html.dark #feed-frame .bg-white { background-color: #2a0a15; border-color: #5a1530; }
+        html.dark #feed-frame h3 { color: #f1f5f9; }
+        html.dark #feed-frame p { color: #94a3b8; }
+
+        /* List search & cards */
+        html.dark #list-search-input { background-color: #0f2535; color: #f1f5f9; border-color: #1e4d6b; }
+        html.dark #list-search-dropdown { background-color: #0f2535; border-color: #1e4d6b; }
+        html.dark #pref-dropdown-menu, html.dark #comp-dropdown-menu { background-color: #0f2535; border-color: #1e4d6b; }
+        html.dark #list-lines-container > div { background-color: #0f2535 !important; border-color: #1e4d6b !important; box-shadow: 8px 8px 0px 0px #1e4d6b !important; }
+        html.dark #list-lines-container span, html.dark #list-lines-container p { color: #f1f5f9; }
+
+        /* Profile cards */
+        html.dark #profile-container .bg-white { background-color: #0d2200; border-color: #1c4700; box-shadow: 6px 6px 0px 0px #1c4700; }
+        html.dark #profile-container span { color: #f1f5f9; }
     </style>
 </head>
 
@@ -96,15 +112,15 @@
 
     <div id="map"></div>
     
-    <div id="feed-container" class="fixed inset-0 z-30 bg-[#FF80AB]/90 backdrop-blur-md overflow-y-auto pt-8 pb-40 border-r-[8px] border-black transition-transform duration-500 ease-in-out -translate-x-full pointer-events-none">
+    <div id="feed-container" class="fixed inset-0 z-30 bg-[#FF80AB]/90 dark:bg-[#6B0030]/95 backdrop-blur-md overflow-y-auto pt-8 pb-40 border-r-[8px] border-black transition-transform duration-500 ease-in-out -translate-x-full pointer-events-none">
         <turbo-frame id="feed-frame" src="feed.html" class="block max-w-md mx-auto"></turbo-frame>
     </div>
 
-    <div id="list-container" class="fixed inset-0 z-30 bg-[#40C4FF]/90 backdrop-blur-md overflow-y-auto pt-8 pb-40 border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none">
+    <div id="list-container" class="fixed inset-0 z-30 bg-[#40C4FF]/90 dark:bg-[#003649]/95 backdrop-blur-md overflow-y-auto pt-8 pb-40 border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none">
         <turbo-frame id="list-frame" src="list.html" class="block max-w-md mx-auto"></turbo-frame>
     </div>
 
-    <div id="profile-container" class="fixed inset-0 z-30 bg-[#B2FF59]/90 backdrop-blur-md overflow-y-auto pt-0 pb-40 border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none">
+    <div id="profile-container" class="fixed inset-0 z-30 bg-[#B2FF59]/90 dark:bg-[#1C4700]/95 backdrop-blur-md overflow-y-auto pt-0 pb-40 border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none">
         <div class="max-w-md mx-auto px-6">
             <h2 class="text-black font-black text-4xl uppercase tracking-tighter mb-8 mt-8">Profile</h2>
             <div class="space-y-4">
