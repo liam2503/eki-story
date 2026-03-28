@@ -1,3 +1,5 @@
+import { idbClear } from './idb.js';
+
 export function initButtons() {
     const feedBtn = document.getElementById("icon-shell-0");
     const heartBtn = document.getElementById("icon-shell-1");
@@ -90,8 +92,9 @@ export function initButtons() {
     }
 
     if (refreshBtn) {
-        refreshBtn.onclick = function() {
+        refreshBtn.onclick = async function() {
             localStorage.clear();
+            await idbClear(); // Clear IndexedDB as well
             window.location.reload();
         };
     }

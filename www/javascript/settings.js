@@ -45,26 +45,14 @@ function setToggle(btn, isOn) {
 }
 
 export function initSettings() {
-    const settingsContainer = document.getElementById('settings-container');
-    if (!settingsContainer) return;
-
-    const settingsBtn = document.getElementById('icon-shell-s');
-    const settingsCloseBtn = document.getElementById('settings-close-btn');
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    const soundToggle = document.getElementById('sound-toggle');
-    const signOutBtn = document.getElementById('sign-out-btn');
-
-    // Load and apply saved preferences
     const savedDark = localStorage.getItem(DARK_MODE_KEY) === 'true';
-    const savedSound = localStorage.getItem(SOUND_KEY) !== 'false';
-
     applyDarkMode(savedDark);
-    if (darkModeToggle) setToggle(darkModeToggle, savedDark);
-    if (soundToggle) setToggle(soundToggle, savedSound);
-
-    // Expose color scheme getter — rail.js uses this at map init time
+    
     window.getInitialColorScheme = () =>
         localStorage.getItem(DARK_MODE_KEY) === 'true' ? 'DARK' : 'LIGHT';
+
+    const settingsContainer = document.getElementById('settings-container');
+    const settingsBtn = document.getElementById('icon-shell-s');
 
     if (settingsBtn) {
         settingsBtn.onclick = function () {
@@ -77,13 +65,18 @@ export function initSettings() {
             }
         };
     }
+}
 
-    if (settingsCloseBtn) {
-        settingsCloseBtn.onclick = () =>
-            settingsContainer.classList.add('-translate-x-full', 'pointer-events-none');
-    }
+export function initSettingsFrame() {
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const soundToggle = document.getElementById('sound-toggle');
+    const signOutBtn = document.getElementById('sign-out-btn');
+
+    const savedDark = localStorage.getItem(DARK_MODE_KEY) === 'true';
+    const savedSound = localStorage.getItem(SOUND_KEY) !== 'false';
 
     if (darkModeToggle) {
+        setToggle(darkModeToggle, savedDark);
         darkModeToggle.onclick = function () {
             const isDark = darkModeToggle.classList.contains('bg-gray-300');
             applyDarkMode(isDark);
@@ -93,6 +86,7 @@ export function initSettings() {
     }
 
     if (soundToggle) {
+        setToggle(soundToggle, savedSound);
         soundToggle.onclick = function () {
             const willBeOn = soundToggle.classList.contains('bg-gray-300');
             setToggle(soundToggle, willBeOn);

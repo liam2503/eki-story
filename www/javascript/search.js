@@ -1,9 +1,10 @@
 import { db } from './firebase.js';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { idbGet, idbSet } from './idb.js';
 
 async function syncSearchIndex() {
-    const cached = localStorage.getItem('searchIndex');
-    if (cached) return JSON.parse(cached);
+    const cached = await idbGet('searchIndex');
+    if (cached) return cached;
 
     const [stationSnap, lineSnap] = await Promise.all([
         getDocs(collection(db, 'stations')),
@@ -34,7 +35,7 @@ async function syncSearchIndex() {
         };
     });
     const index = { stations, lines };
-    localStorage.setItem('searchIndex', JSON.stringify(index));
+    await idbSet('searchIndex', index);
     return index;
 }
 

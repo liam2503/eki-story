@@ -5,6 +5,7 @@ export const decoMarkers = {};
 export let userMarker = null;
 
 export function renderVisibleMarkers(map, allStations, lineColors, activeLineFilter, showTooltip) {
+    if (!map) return;
     const bounds = map.getBounds();
     if (!bounds) return;
     const ne = bounds.getNorthEast();

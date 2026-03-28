@@ -4,6 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { renderPolylines, polylines } from './map_layers.js';
 import { renderVisibleMarkers, updateUserMarker } from './map_markers.js';
 import { toggleStation } from './user.js';
+import { idbSet } from './idb.js';
 
 let map;
 let allStations = [];
@@ -43,6 +44,9 @@ window.initMap = async function() {
     window.map = map;
 
     const configSnap = await getDoc(doc(db, 'metadata', 'config'));
+
+try {
+    const configSnap = await getDoc(doc(db, 'metadata', 'config'));
     const [stations, lines, joins] = await Promise.all([
         syncStationData(configSnap),
         syncLineData(configSnap),
@@ -63,8 +67,8 @@ window.initMap = async function() {
     window.lineColors = lineColors;
     window.lineData = lineColors; 
 
-    localStorage.setItem('stationData', JSON.stringify(stations));
-    localStorage.setItem('lineData', JSON.stringify(lines));
+    await idbSet('stationData', stations);
+    await idbSet('lineData', lines);
 
     window.dispatchEvent(new CustomEvent('stationsLoaded'));
     window.dispatchEvent(new CustomEvent('lineDataLoaded'));
@@ -92,6 +96,16 @@ window.initMap = async function() {
 
     renderPolylines(map, joins, stationLookup, lineColors, showTooltip);
     initUserTracking();
+
+} catch (error) {
+    console.error(error);
+} finally {
+    const overlay = document.getElementById('app-loading-overlay');
+    if (overlay) {
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => overlay.remove(), 500); 
+    }
+}
 
     // Fade out and remove loading overlay once data is ready
     const overlay = document.getElementById('app-loading-overlay');
@@ -160,6 +174,8 @@ window.centerOnUser = function() {
 };
 
 window.renderVisibleMarkers = () => {
+    // Add a check to prevent crashing if the map hasn't loaded yet
+    if (!map) return; 
     renderVisibleMarkers(map, allStations, lineColors, activeLineFilter, showTooltip);
 };
 

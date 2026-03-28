@@ -1,3 +1,4 @@
+import { idbGet } from './idb.js';
 import { db } from './firebase.js';
 import { collection, getDocs } from 'firebase/firestore';
 import { state, selectors } from './list_state.js';
@@ -7,8 +8,8 @@ import { populatePrefectures, populateCompanies, handleSearch } from './list_sea
 async function initList() {
     if (!selectors.listFrame) return;
 
-    state.localStations = window.allStations || JSON.parse(localStorage.getItem('stationData') || '[]');
-    state.localLines = window.lineData || window.lineColors || JSON.parse(localStorage.getItem('lineData') || '{}');
+    state.localStations = window.allStations || await idbGet('stationData') || [];
+    state.localLines = window.lineData || window.lineColors || await idbGet('lineData') || {};
 
     const [prefSnap, compSnap] = await Promise.all([
         getDocs(collection(db, 'prefectures')),

@@ -1,11 +1,12 @@
 import { state, selectors, RENDER_CHUNK_SIZE } from './list_state.js';
 import { showLineDetail } from './list_detail.js';
 import { isVisited, userStamps, userModels } from './user.js';
+import { idbGet } from './idb.js';
 
-export function renderLines() {
+export async function renderLines() {
     // ALWAYS pull fresh data directly from the window before evaluating
-    state.localStations = window.allStations || JSON.parse(localStorage.getItem('stationData') || '[]');
-    state.localLines = window.lineData || window.lineColors || JSON.parse(localStorage.getItem('lineData') || '{}');
+    state.localStations = window.allStations || await idbGet('stationData') || [];
+    state.localLines = window.lineData || window.lineColors || await idbGet('lineData') || {};
 
     if (selectors.sentinel.parentNode) {
         state.observer.unobserve(selectors.sentinel);

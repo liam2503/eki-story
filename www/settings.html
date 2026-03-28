@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quantico:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <turbo-frame id="settings-frame" class="block px-6">
+        <h2 class="text-black dark:text-white font-black text-4xl uppercase tracking-tighter mb-4 mt-8">Settings</h2>
+        <div class="space-y-4">
+            <div class="bg-white dark:bg-slate-800 border-[4px] border-black dark:border-slate-600 rounded-2xl px-6 py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
+                <span class="text-xs font-black uppercase tracking-tighter dark:text-white">Dark Mode</span>
+                <button id="dark-mode-toggle" class="w-14 h-8 bg-gray-300 border-[3px] border-black rounded-full relative transition-colors duration-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <span class="toggle-knob absolute top-[3px] left-[3px] w-[18px] h-[18px] bg-white border-[2px] border-black rounded-full transition-transform duration-200 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"></span>
+                </button>
+            </div>
+            <div class="bg-white dark:bg-slate-800 border-[4px] border-black dark:border-slate-600 rounded-2xl px-6 py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
+                <span class="text-xs font-black uppercase tracking-tighter dark:text-white">Sound</span>
+                <button id="sound-toggle" class="w-14 h-8 bg-gray-300 border-[3px] border-black rounded-full relative transition-colors duration-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <span class="toggle-knob absolute top-[3px] left-[3px] w-[18px] h-[18px] bg-white border-[2px] border-black rounded-full transition-transform duration-200 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"></span>
+                </button>
+            </div>
+            <button id="sign-out-btn" class="w-full bg-[#FF80AB] border-[3px] border-black text-black font-black text-xs rounded-xl px-5 py-3 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-tighter">
+                Sign Out
+            </button>
+        </div>
+        <script type="module">
+            import { initSettingsFrame } from './javascript/settings.js';
+            initSettingsFrame();
+        </script>
+    </turbo-frame>
+</body>
+</html>

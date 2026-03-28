@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Quantico:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -28,111 +30,6 @@
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
-
-    <style>
-        #map { height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 0; }
-        body {
-            overscroll-behavior-y: contain;
-            background-color: #f0f0f0;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
-        }
-
-        html.dark body { background-color: #0f172a; }
-
-        html.dark #top-bar {
-            background-color: #1e293b;
-            border-color: #475569;
-            box-shadow: 8px 8px 0px 0px rgba(71,85,105,1);
-        }
-        html.dark #top-bar span { color: #f1f5f9; }
-        html.dark #station-search {
-            background-color: #334155;
-            color: #f1f5f9;
-            border-color: #475569;
-        }
-        html.dark #station-search::placeholder { color: #64748b; }
-        html.dark #search-results {
-            background-color: #1e293b;
-            border-color: #475569;
-        }
-
-        html.dark #bottom-nav {
-            background-color: #1e293b;
-            border-color: #475569;
-            box-shadow: 12px 12px 0px 0px rgba(71,85,105,1);
-        }
-        html.dark #icon-shell-s { background-color: #1e293b; border-color: #475569; }
-        html.dark #icon-shell-s svg { stroke: #94a3b8; }
-        html.dark #user-shell { background-color: #1e293b; border-color: #475569; }
-        html.dark #user-shell svg { stroke: #94a3b8; }
-
-        html.dark #line-detail-container { background-color: #0f172a; }
-        html.dark #line-detail-container .bg-white { background-color: #1e293b; }
-        html.dark #line-detail-container .bg-gray-100 { background-color: #1e293b; }
-        html.dark #line-detail-container .text-black { color: #f1f5f9; }
-        html.dark #line-detail-container .text-gray-400 { color: #64748b; }
-        html.dark #line-detail-container .border-black { border-color: #475569; }
-        html.dark #line-detail-container span { color: #f1f5f9; }
-        html.dark #line-detail-container .add-stamp-btn,
-        html.dark #line-detail-container .add-model-btn { color: #f1f5f9; border-color: #475569; }
-        html.dark #detail-line-name, html.dark #detail-fraction { color: #f1f5f9; }
-        html.dark #line-detail-back { background-color: #1e293b; border-color: #475569; box-shadow: 4px 4px 0px 0px rgba(71,85,105,1); }
-        html.dark #line-detail-back svg { stroke: #f1f5f9; }
-        html.dark #detail-progress-bar { background-color: #f1f5f9; }
-
-        html.dark #tooltip-container { background-color: #1e293b; border-color: #475569; }
-        html.dark #tooltip-arrow { background-color: #1e293b; border-color: #475569; }
-        html.dark #tooltip-station { color: #f1f5f9; }
-        html.dark #tooltip-line-fraction { background-color: #1e293b; border-color: #475569; }
-
-        /* Feed cards */
-        html.dark #feed-frame .bg-white { background-color: #1a1a2e; border-color: #2d2d4a; }
-        html.dark #feed-frame h3 { color: #f1f5f9; }
-        html.dark #feed-frame p { color: #94a3b8; }
-
-        /* List search & cards */
-        html.dark #list-search-input { background-color: #1e293b; color: #f1f5f9; border-color: #334155; }
-        html.dark #list-search-dropdown { background-color: #1e293b; border-color: #334155; }
-        html.dark #pref-dropdown-menu, html.dark #comp-dropdown-menu { background-color: #1e293b; border-color: #334155; }
-        html.dark #pref-dropdown-menu span, html.dark #comp-dropdown-menu span { color: #f1f5f9; }
-        html.dark #pref-dropdown-menu .border-black, html.dark #comp-dropdown-menu .border-black { border-color: #334155; }
-        html.dark #pref-dropdown-menu .pref-option:hover, html.dark #comp-dropdown-menu .comp-option:hover { background-color: #334155; }
-        html.dark #pref-selected-text, html.dark #comp-selected-text { color: black; }
-        html.dark #list-lines-container > div { background-color: #1e293b !important; border-color: #334155 !important; box-shadow: 8px 8px 0px 0px rgba(51,65,85,1) !important; }
-        html.dark #list-lines-container span, html.dark #list-lines-container p { color: #f1f5f9; }
-        html.dark #list-lines-container h3 { color: #f1f5f9; }
-        html.dark #list-lines-container .bg-white { background-color: #1e293b; }
-
-        /* Profile cards */
-        html.dark #profile-container .bg-white { background-color: #1e293b; border-color: #334155; box-shadow: 6px 6px 0px 0px rgba(51,65,85,1); }
-        html.dark #profile-container span { color: #f1f5f9; }
-
-        /* Stamp camera screen */
-        html.dark #add-stamp-container { background-color: #0f172a; }
-        html.dark #add-stamp-container .bg-white { background-color: #0f172a; }
-        html.dark #add-stamp-container h2 { color: #f1f5f9; }
-        html.dark #add-stamp-container .bg-gray-100 { background-color: #1e293b; }
-        html.dark #add-stamp-container .border-black { border-color: #334155; }
-        html.dark #add-stamp-container #close-stamp-btn { background-color: #1e293b; }
-        html.dark #add-stamp-container #close-stamp-btn svg { stroke: #f1f5f9; }
-        html.dark #camera-placeholder span { color: #475569; }
-
-        /* Model camera screen */
-        html.dark #add-model-container { background-color: #0f172a; }
-        html.dark #add-model-container .bg-white { background-color: #0f172a; }
-        html.dark #add-model-container h2 { color: #f1f5f9; }
-        html.dark #add-model-container .bg-gray-100 { background-color: #1e293b; }
-        html.dark #add-model-container .border-black { border-color: #334155; }
-        html.dark #add-model-container #close-model-btn { background-color: #1e293b; }
-        html.dark #add-model-container #close-model-btn svg { stroke: #f1f5f9; }
-        html.dark #model-name-input { background-color: #1e293b; color: #f1f5f9; }
-        html.dark #model-date-picker { background-color: #1e293b; color: #f1f5f9; border-color: #334155; }
-        html.dark #model-camera-placeholder span { color: #475569; }
-        html.dark #retake-model-btn { background-color: #334155; }
-    </style>
 </head>
 
 <body class="min-h-screen relative font-sans overflow-hidden">
@@ -148,34 +45,26 @@
         </div>
     </div>
 
-    <div id="map"></div>
+<div id="map" class="absolute inset-0 w-full h-[100dvh] z-0"></div>
     
-    <div id="feed-container" class="fixed inset-0 z-30 bg-[#FF80AB]/90 backdrop-blur-md overflow-y-auto pt-8 pb-40 border-r-[8px] border-black transition-transform duration-500 ease-in-out -translate-x-full pointer-events-none">
+    <div id="feed-container" class="fixed inset-0 z-30 bg-[#FF80AB]/90 backdrop-blur-md overflow-y-auto pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(10rem+env(safe-area-inset-bottom))] border-r-[8px] border-black transition-transform duration-500 ease-in-out -translate-x-full pointer-events-none">
         <turbo-frame id="feed-frame" src="feed.html" class="block max-w-md mx-auto"></turbo-frame>
     </div>
 
-    <div id="list-container" class="fixed inset-0 z-30 bg-[#40C4FF]/90 backdrop-blur-md overflow-y-auto pt-8 pb-40 border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none">
+    <div id="list-container" class="fixed inset-0 z-30 bg-[#40C4FF]/90 backdrop-blur-md overflow-y-auto pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(10rem+env(safe-area-inset-bottom))] border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none">
         <turbo-frame id="list-frame" src="list.html" class="block max-w-md mx-auto"></turbo-frame>
     </div>
 
-    <div id="profile-container" class="fixed inset-0 z-30 bg-[#B2FF59]/90 backdrop-blur-md overflow-y-auto pt-0 pb-40 border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none">
-        <div class="max-w-md mx-auto px-6">
-            <h2 class="text-black font-black text-4xl uppercase tracking-tighter mb-4 mt-8">Profile</h2>
-            <div class="space-y-4">
-                <div class="bg-white border-[4px] border-black rounded-2xl px-6 py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
-                    <span class="text-xs font-black uppercase tracking-tighter">Streak</span>
-                    <span class="text-2xl font-black">5d</span>
-                </div>
-                <div class="bg-white border-[4px] border-black rounded-2xl px-6 py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
-                    <span class="text-xs font-black uppercase tracking-tighter">Alerts</span>
-                    <span class="text-2xl font-black">3</span>
-                </div>
-            </div>
-        </div>
+    <div id="profile-container" class="fixed inset-0 z-30 bg-[#B2FF59]/90 backdrop-blur-md overflow-y-auto pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(10rem+env(safe-area-inset-bottom))] border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none">
+        <turbo-frame id="profile-frame" src="profile.html" class="block max-w-md mx-auto"></turbo-frame>
+    </div>
+    
+    <div id="settings-container" class="fixed inset-0 z-30 bg-[#CFD8DC]/90 dark:bg-slate-900/95 backdrop-blur-md overflow-y-auto pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(10rem+env(safe-area-inset-bottom))] border-r-[8px] border-black transition-transform duration-500 ease-in-out -translate-x-full pointer-events-none">
+        <turbo-frame id="settings-frame" src="settings.html" class="block max-w-md mx-auto"></turbo-frame>
     </div>
 
     <div id="line-detail-container" class="fixed inset-0 z-50 w-full bg-white translate-x-full transition-transform duration-300 ease-in-out flex flex-col hidden">        
-        <div class="p-6 border-b-[4px] border-black bg-white z-30">
+        <div class="px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] border-b-[4px] border-black bg-white z-30">
             <div class="flex items-center justify-between mb-4">
                 <button id="line-detail-back" class="w-12 h-12 border-[3px] border-black rounded-full flex items-center justify-center hover:bg-gray-100 active:translate-y-1 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none">
                     <svg class="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M15 19l-7-7 7-7"/></svg>
@@ -200,7 +89,7 @@
         </div>
     </div>
 
-    <div id="top-bar" class="w-[80%] max-w-xl bg-white border-[4px] border-black flex items-center gap-4 px-6 py-4 fixed top-8 left-1/2 transform -translate-x-1/2 rounded-[24px] z-20 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+    <div id="top-bar" class="w-[80%] max-w-xl bg-white border-[4px] border-black flex items-center gap-4 px-6 py-4 fixed top-[calc(2rem+env(safe-area-inset-top))] left-1/2 transform -translate-x-1/2 rounded-[24px] z-20 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
         <div class="flex flex-col shrink-0">
             <span class="text-black font-black text-sm leading-none uppercase tracking-tighter">Eki Story</span>
             <span class="text-gray-400 font-bold text-[10px] uppercase">v0.5</span>
@@ -217,7 +106,7 @@
         </div>
     </div>
 
-    <button id="refresh-db" class="fixed top-8 right-6 z-20 bg-[#FF80AB] border-[3px] border-black text-white font-black text-xs rounded-xl px-5 py-2 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase">
+    <button id="refresh-db" class="fixed top-[calc(2rem+env(safe-area-inset-top))] right-6 z-20 bg-[#FF80AB] border-[3px] border-black text-white font-black text-xs rounded-xl px-5 py-2 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase">
         Refresh
     </button>
 
@@ -255,7 +144,7 @@
         </div>
     </div>
 
-    <div id="bottom-nav" class="w-full h-28 bg-white border-t-[5px] border-black fixed bottom-0 left-0 z-40 pb-4">
+    <div id="bottom-nav" class="w-full h-[calc(7rem+env(safe-area-inset-bottom))] bg-white border-t-[5px] border-black fixed bottom-0 left-0 z-40 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <div class="w-[90%] max-w-lg h-24 mx-auto relative flex items-center justify-around">
         <div class="absolute -left-6 -top-8 rotate-[-12deg]">
             <div id="icon-shell-s" class="w-16 h-16 bg-white border-[4px] border-black rounded-[20px] flex items-center justify-center cursor-pointer transition-all hover:-translate-y-2 hover:shadow-[0px_10px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
@@ -298,13 +187,13 @@
     </div>
 
     <div id="add-stamp-container" class="fixed inset-0 z-[100] bg-white overflow-y-auto transition-transform duration-500 ease-in-out translate-y-full pointer-events-none flex flex-col">
-        <div class="p-6 flex items-center justify-between border-b-[5px] border-black bg-white">
+        <div class="px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] flex items-center justify-between border-b-[5px] border-black bg-white">
             <h2 class="text-3xl font-black uppercase tracking-tighter">New Stamp</h2>
             <button id="close-stamp-btn" class="w-12 h-12 border-[4px] border-black rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all">
                 <svg class="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
-        <div class="flex-1 p-6 flex flex-col items-center justify-center gap-6 bg-white relative">
+        <div class="flex-1 p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] flex flex-col items-center justify-center gap-6 bg-white relative">
             <div id="stamp-station-pill" class="px-6 py-2 rounded-full border-[4px] border-black text-black font-black uppercase tracking-tighter text-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] w-max max-w-full text-center truncate"></div>
 
             <div class="w-full max-w-sm aspect-square bg-gray-100 border-[5px] border-black rounded-[40px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center relative overflow-hidden">
@@ -340,13 +229,13 @@
     </div>
 
     <div id="add-model-container" class="fixed inset-0 z-[100] bg-white overflow-y-auto transition-transform duration-500 ease-in-out translate-y-full pointer-events-none flex flex-col">
-        <div class="p-6 flex items-center justify-between border-b-[5px] border-black bg-white">
+        <div class="px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] flex items-center justify-between border-b-[5px] border-black bg-white">
             <h2 class="text-3xl font-black uppercase tracking-tighter">New Model</h2>
             <button id="close-model-btn" class="w-12 h-12 border-[4px] border-black rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all">
                 <svg class="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
-        <div class="flex-1 p-6 flex flex-col items-center justify-center gap-6 bg-white relative">
+        <div class="flex-1 p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] flex flex-col items-center justify-center gap-6 bg-white relative">
             <div id="model-line-pill" class="px-6 py-2 rounded-full border-[4px] border-black text-black font-black uppercase tracking-tighter text-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] w-max max-w-full text-center truncate"></div>
 
             <div class="w-full max-w-sm aspect-square bg-gray-100 border-[5px] border-black rounded-[40px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center relative overflow-hidden">
@@ -406,8 +295,8 @@
         </div>
     </div>
 
-<div id="crop-container" class="fixed inset-0 z-[115] bg-[#1a1a1a] translate-y-full pointer-events-none transition-transform duration-500 flex flex-col">
-        <div class="p-6 flex items-center justify-between bg-[#1a1a1a] border-b-[4px] border-black z-10">
+    <div id="crop-container" class="fixed inset-0 z-[115] bg-[#1a1a1a] translate-y-full pointer-events-none transition-transform duration-500 flex flex-col">
+        <div class="px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] flex items-center justify-between bg-[#1a1a1a] border-b-[4px] border-black z-10">
             <button id="cancel-crop-btn" class="w-12 h-12 bg-gray-800 border-[3px] border-black rounded-full flex items-center justify-center text-white active:translate-y-1 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
@@ -421,13 +310,13 @@
             <canvas id="crop-canvas" class="touch-none absolute"></canvas>
         </div>
 
-        <div class="p-6 bg-[#1a1a1a] border-t-[4px] border-black flex flex-col items-center justify-center z-10">
+        <div class="px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-[#1a1a1a] border-t-[4px] border-black flex flex-col items-center justify-center z-10">
             <p class="text-white font-black uppercase tracking-tighter text-sm">Drag corners to fit the stamp</p>
         </div>
     </div>
 
     <div id="refinement-container" class="fixed inset-0 z-[120] bg-[#1a1a1a] translate-y-full pointer-events-none transition-transform duration-500 flex flex-col">
-        <div class="p-6 flex items-center justify-between bg-[#1a1a1a] border-b-[4px] border-black z-10">
+        <div class="px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] flex items-center justify-between bg-[#1a1a1a] border-b-[4px] border-black z-10">
             <button id="cancel-refine-btn" class="w-12 h-12 bg-gray-800 border-[3px] border-black rounded-full flex items-center justify-center text-white active:translate-y-1 transition-all">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
@@ -442,88 +331,89 @@
             <canvas id="refine-mask-canvas" class="absolute touch-none cursor-crosshair object-contain"></canvas>
         </div>
 
-<div class="flex items-center justify-center gap-2">
-        <button id="tool-brush" class="flex-1 h-14 rounded-xl bg-[#40C4FF] border-[4px] border-white text-black font-black uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">Brush</button>
-        <button id="tool-erase" class="flex-1 h-14 rounded-xl bg-gray-800 border-[4px] border-transparent text-white font-black uppercase tracking-tighter">Erase</button>
-        <button id="tool-undo" class="w-14 h-14 shrink-0 rounded-xl bg-gray-700 border-[4px] border-black flex items-center justify-center text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-            </svg>
-        </button>
-        <button id="tool-invert" class="w-14 h-14 shrink-0 rounded-xl bg-gray-700 border-[4px] border-black flex items-center justify-center text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" />
-                <path d="M12 2A10 10 0 0 0 12 22V2Z" fill="currentColor"/>
-            </svg>
-        </button>
-        <button id="tool-flip" class="w-14 h-14 shrink-0 rounded-xl bg-gray-700 border-[4px] border-black flex items-center justify-center text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path d="M8 7h8m0 0l-3-3m3 3l-3 3m-2 10H6m0 0l3-3m-3 3l3 3"/></svg>
-        </button>
-    </div>
+        <div class="px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] flex flex-col gap-3 bg-[#1a1a1a] border-t-[4px] border-black z-10 w-full">
+            <div class="flex items-center justify-center gap-2">
+                <button id="tool-brush" class="flex-1 h-14 rounded-xl bg-[#40C4FF] border-[4px] border-white text-black font-black uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">Brush</button>
+                <button id="tool-erase" class="flex-1 h-14 rounded-xl bg-gray-800 border-[4px] border-transparent text-white font-black uppercase tracking-tighter">Erase</button>
+                <button id="tool-undo" class="w-14 h-14 shrink-0 rounded-xl bg-gray-700 border-[4px] border-black flex items-center justify-center text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                    </svg>
+                </button>
+                <button id="tool-invert" class="w-14 h-14 shrink-0 rounded-xl bg-gray-700 border-[4px] border-black flex items-center justify-center text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" />
+                        <path d="M12 2A10 10 0 0 0 12 22V2Z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <button id="tool-flip" class="w-14 h-14 shrink-0 rounded-xl bg-gray-700 border-[4px] border-black flex items-center justify-center text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path d="M8 7h8m0 0l-3-3m3 3l-3 3m-2 10H6m0 0l3-3m-3 3l3 3"/></svg>
+                </button>
+            </div>
 
-    <div class="grid grid-cols-2 gap-3">
-        <div class="bg-gray-800 p-3 rounded-xl border-[3px] border-black flex flex-col gap-2">
-            <span class="text-white text-[10px] font-black uppercase tracking-widest">Brush Size</span>
-            <input type="range" id="brush-size" min="5" max="100" value="30" class="w-full h-2 bg-black rounded-lg appearance-none cursor-pointer">
-        </div>
-        <div class="bg-gray-800 p-3 rounded-xl border-[3px] border-black flex flex-col gap-2">
-            <span class="text-white text-[10px] font-black uppercase tracking-widest">Contrast</span>
-            <input type="range" id="stamp-contrast" min="0" max="200" value="100" class="w-full h-2 bg-black rounded-lg appearance-none cursor-pointer">
-        </div>
-    </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-gray-800 p-3 rounded-xl border-[3px] border-black flex flex-col gap-2">
+                    <span class="text-white text-[10px] font-black uppercase tracking-widest">Brush Size</span>
+                    <input type="range" id="brush-size" min="5" max="100" value="30" class="w-full h-2 bg-black rounded-lg appearance-none cursor-pointer">
+                </div>
+                <div class="bg-gray-800 p-3 rounded-xl border-[3px] border-black flex flex-col gap-2">
+                    <span class="text-white text-[10px] font-black uppercase tracking-widest">Contrast</span>
+                    <input type="range" id="stamp-contrast" min="0" max="200" value="100" class="w-full h-2 bg-black rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
 
-<div class="flex items-center gap-3 bg-gray-800 p-4 rounded-xl border-[3px] border-black justify-between mt-3">
-        <span class="text-white text-[12px] font-black uppercase tracking-widest">Stamp Date</span>
-        <input type="date" id="stamp-date-picker" class="bg-black text-white border-[2px] border-gray-600 rounded-lg p-2 font-bold text-sm uppercase focus:outline-none focus:border-white transition-colors">
-    </div>
-    
-    <div class="flex items-center gap-3 bg-gray-800 p-4 rounded-xl border-[3px] border-black justify-between mt-3">
-        <span class="text-white text-[12px] font-black uppercase tracking-widest">Ink Color</span>
-        <input type="color" id="ink-color-picker" value="#FF5252" class="w-full h-10 border-none bg-transparent cursor-pointer">
-    </div>
-</div>
-</div>
-
-<div id="stamp-modal-container" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col items-center justify-center p-6">
-    <div class="relative w-full max-w-sm flex flex-col items-center gap-6">
-        <button id="close-stamp-modal" class="absolute -top-12 right-0 w-10 h-10 bg-white border-[3px] border-black rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <svg class="w-5 h-5" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-        <img id="stamp-modal-image" src="" class="w-full object-contain bg-white border-[5px] border-black rounded-[24px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-h-[60vh]">
-        
-        <p id="stamp-modal-date" class="text-white font-bold text-sm tracking-widest uppercase"></p>
-        
-        <div class="flex gap-4 w-full">
-            <button id="edit-stamp-btn" class="flex-1 bg-[#40C4FF] border-[4px] border-black rounded-xl py-3 text-black font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2">
-                Edit
-            </button>
-            <button id="delete-stamp-btn" class="flex-1 bg-[#FF5252] border-[4px] border-black rounded-xl py-3 text-white font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2">
-                Delete
-            </button>
+            <div class="flex items-center gap-3 bg-gray-800 p-4 rounded-xl border-[3px] border-black justify-between mt-3">
+                <span class="text-white text-[12px] font-black uppercase tracking-widest">Stamp Date</span>
+                <input type="date" id="stamp-date-picker" class="bg-black text-white border-[2px] border-gray-600 rounded-lg p-2 font-bold text-sm uppercase focus:outline-none focus:border-white transition-colors">
+            </div>
+            
+            <div class="flex items-center gap-3 bg-gray-800 p-4 rounded-xl border-[3px] border-black justify-between mt-3">
+                <span class="text-white text-[12px] font-black uppercase tracking-widest">Ink Color</span>
+                <input type="color" id="ink-color-picker" value="#FF5252" class="w-full h-10 border-none bg-transparent cursor-pointer">
+            </div>
         </div>
     </div>
-</div>
 
-<div id="model-modal-container" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col items-center justify-center p-6">
-    <div class="relative w-full max-w-sm flex flex-col items-center gap-6">
-        <button id="close-model-modal" class="absolute -top-12 right-0 w-10 h-10 bg-white border-[3px] border-black rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <svg class="w-5 h-5" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-        <img id="model-modal-image" src="" class="w-full object-contain bg-white border-[5px] border-black rounded-[24px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-h-[60vh]">
-        
-        <h3 id="model-modal-name" class="text-white font-black text-2xl uppercase tracking-tighter mt-2 text-center w-full break-words"></h3>
-        <p id="model-modal-date" class="text-white font-bold text-sm tracking-widest uppercase"></p>
-        
-        <div class="flex gap-4 w-full">
-            <button id="edit-model-btn" class="flex-1 bg-[#40C4FF] border-[4px] border-black rounded-xl py-3 text-black font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2">
-                Edit
+    <div id="stamp-modal-container" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col items-center justify-center p-6">
+        <div class="relative w-full max-w-sm flex flex-col items-center gap-6">
+            <button id="close-stamp-modal" class="absolute -top-12 right-0 w-10 h-10 bg-white border-[3px] border-black rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <svg class="w-5 h-5" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
-            <button id="delete-model-btn" class="flex-1 bg-[#FF5252] border-[4px] border-black rounded-xl py-3 text-white font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2">
-                Delete
-            </button>
+            <img id="stamp-modal-image" src="" class="w-full object-contain bg-white border-[5px] border-black rounded-[24px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-h-[60vh]">
+            
+            <p id="stamp-modal-date" class="text-white font-bold text-sm tracking-widest uppercase"></p>
+            
+            <div class="flex gap-4 w-full">
+                <button id="edit-stamp-btn" class="flex-1 bg-[#40C4FF] border-[4px] border-black rounded-xl py-3 text-black font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2">
+                    Edit
+                </button>
+                <button id="delete-stamp-btn" class="flex-1 bg-[#FF5252] border-[4px] border-black rounded-xl py-3 text-white font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2">
+                    Delete
+                </button>
+            </div>
         </div>
     </div>
-</div>
+
+    <div id="model-modal-container" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col items-center justify-center p-6">
+        <div class="relative w-full max-w-sm flex flex-col items-center gap-6">
+            <button id="close-model-modal" class="absolute -top-12 right-0 w-10 h-10 bg-white border-[3px] border-black rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <svg class="w-5 h-5" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <img id="model-modal-image" src="" class="w-full object-contain bg-white border-[5px] border-black rounded-[24px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-h-[60vh]">
+            
+            <h3 id="model-modal-name" class="text-white font-black text-2xl uppercase tracking-tighter mt-2 text-center w-full break-words"></h3>
+            <p id="model-modal-date" class="text-white font-bold text-sm tracking-widest uppercase"></p>
+            
+            <div class="flex gap-4 w-full">
+                <button id="edit-model-btn" class="flex-1 bg-[#40C4FF] border-[4px] border-black rounded-xl py-3 text-black font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2">
+                    Edit
+                </button>
+                <button id="delete-model-btn" class="flex-1 bg-[#FF5252] border-[4px] border-black rounded-xl py-3 text-white font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div id="delete-confirm-modal" class="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col items-center justify-center p-6">
         <div id="delete-confirm-box" class="w-full max-w-sm bg-white border-[5px] border-black rounded-[32px] p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center gap-6 text-center transform transition-transform scale-95 duration-300">
@@ -580,30 +470,6 @@
                 </button>
                 <button id="confirm-unmark-btn" class="flex-1 bg-[#FF5252] border-[4px] border-black rounded-xl py-3 text-white font-black text-lg uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all">
                     Unmark
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Settings Panel -->
-    <div id="settings-container" class="fixed inset-0 z-30 bg-[#CFD8DC]/90 dark:bg-slate-900/95 backdrop-blur-md overflow-y-auto pt-0 pb-40 border-r-[8px] border-black transition-transform duration-500 ease-in-out -translate-x-full pointer-events-none">
-        <div class="max-w-md mx-auto px-6">
-            <h2 class="text-black dark:text-white font-black text-4xl uppercase tracking-tighter mb-4 mt-8">Settings</h2>
-            <div class="space-y-4">
-                <div class="bg-white dark:bg-slate-800 border-[4px] border-black dark:border-slate-600 rounded-2xl px-6 py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
-                    <span class="text-xs font-black uppercase tracking-tighter dark:text-white">Dark Mode</span>
-                    <button id="dark-mode-toggle" class="w-14 h-8 bg-gray-300 border-[3px] border-black rounded-full relative transition-colors duration-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                        <span class="toggle-knob absolute top-[3px] left-[3px] w-[18px] h-[18px] bg-white border-[2px] border-black rounded-full transition-transform duration-200 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"></span>
-                    </button>
-                </div>
-                <div class="bg-white dark:bg-slate-800 border-[4px] border-black dark:border-slate-600 rounded-2xl px-6 py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
-                    <span class="text-xs font-black uppercase tracking-tighter dark:text-white">Sound</span>
-                    <button id="sound-toggle" class="w-14 h-8 bg-gray-300 border-[3px] border-black rounded-full relative transition-colors duration-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                        <span class="toggle-knob absolute top-[3px] left-[3px] w-[18px] h-[18px] bg-white border-[2px] border-black rounded-full transition-transform duration-200 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"></span>
-                    </button>
-                </div>
-                <button id="sign-out-btn" class="w-full bg-[#FF80AB] border-[3px] border-black text-black font-black text-xs rounded-xl px-5 py-3 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase tracking-tighter">
-                    Sign Out
                 </button>
             </div>
         </div>
