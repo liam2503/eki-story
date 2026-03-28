@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=0.85, maximum-scale=0.85, user-scalable=no, viewport-fit=cover" />
-    <title>Eki Story</title>
+<meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />    <title>Eki Story</title>
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,28 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Quantico:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            future: {
-                hoverOnlyWhenSupported: true,
-            },
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Quantico', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
 </head>
 
-<body class="min-h-screen relative font-sans overflow-hidden">
+<body class="min-h-screen relative font-sans overflow-x-hidden overflow-y-hidden">
 
     <div id="app-loading-overlay" class="fixed inset-0 z-[200] bg-[#40C4FF] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="bg-white border-[5px] border-black rounded-[32px] p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center gap-6 text-center mx-6">
