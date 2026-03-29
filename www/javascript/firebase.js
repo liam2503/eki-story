@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver, browserLocalPersistence, GoogleAuthProvider } from "firebase/auth";
+import { Capacitor } from "@capacitor/core";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,7 +21,19 @@ const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
 }, 'eki-data');
 
-const auth = getAuth(app);
+let auth;
+
+if (Capacitor.isNativePlatform()) {
+    auth = initializeAuth(app, {
+        persistence: indexedDBLocalPersistence
+    });
+} else {
+    auth = initializeAuth(app, {
+        persistence: browserLocalPersistence,
+        popupRedirectResolver: browserPopupRedirectResolver
+    });
+}
+
 const googleProvider = new GoogleAuthProvider();
 
 export { db, auth, googleProvider };

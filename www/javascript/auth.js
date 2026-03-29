@@ -1,3 +1,5 @@
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { Capacitor } from '@capacitor/core';
 import { auth, db, googleProvider } from './firebase.js';
 import { 
     onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
@@ -154,19 +156,39 @@ export function initAuth() {
     };
 
     authGoogleBtn.onclick = async () => {
-        errorMsg.classList.add('hidden');
-        try {
+    errorMsg.classList.add('hidden');
+    try {
+        if (Capacitor.isNativePlatform()) {
+            // 1. NATIVE CAPACITOR FLOW
+            GoogleAuth.initialize({
+              clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+              scopes: ['profile', 'email'],
+              grantOfflineAccess: true,
+            });
+
+            const googleUser = await GoogleAuth.signIn();
+            const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
+
+            if (auth.currentUser && auth.currentUser.isAnonymous) {
+                await linkWithCredential(auth.currentUser, credential);
+                window.location.reload();
+            } else {
+                await signInWithCredential(auth, credential);
+            }
+        } else {
+            // 2. STANDARD WEB FLOW (for testing in browser)
             if (auth.currentUser && auth.currentUser.isAnonymous) {
                 await linkWithPopup(auth.currentUser, googleProvider);
-                window.location.reload();
+                window.location.reload(); 
             } else {
                 await signInWithPopup(auth, googleProvider);
             }
-        } catch (err) {
-            errorMsg.innerText = err.message;
-            errorMsg.classList.remove('hidden');
         }
-    };
+    } catch (err) {
+        errorMsg.innerText = err.message;
+        errorMsg.classList.remove('hidden');
+    }
+};
 
     authAnonBtn.onclick = async () => {
         errorMsg.classList.add('hidden');

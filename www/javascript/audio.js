@@ -1,7 +1,10 @@
-const confirmSound = new Audio('confirm2.ogg');
-confirmSound.preload = 'auto';
+import confirm2Audio from '../confirm2.ogg';
+import returnAudio from '../return.ogg';
 
-const returnSound = new Audio('return.ogg');
+const confirmSound = new Audio(confirm2Audio);
+const returnSound = new Audio(returnAudio);
+
+confirmSound.preload = 'auto';
 returnSound.preload = 'auto';
 
 export function playConfirmSound() {
@@ -17,3 +20,4 @@ export function playReturnSound() {
         returnSound.play().catch(() => {});
     }
 }
+
