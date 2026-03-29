@@ -1,7 +1,8 @@
 import { db } from './firebase.js';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, addDoc, query, orderBy, increment, serverTimestamp } from 'firebase/firestore';
-import { CURRENT_USER_ID } from './user.js';
 import { startCamera, stopCamera } from './stamp_camera.js';
+import { CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
+import { showAuthScreen } from './auth.js';
 
 let postsUnsubscribe = null;
 let commentsUnsubscribe = null;
@@ -9,9 +10,9 @@ let detailPostUnsubscribe = null;
 let pendingPostImage = null;
 let currentDetailPostId = null;
 
-const DISPLAY_NAME = "Liam1234";
-
 export function initFeedFrame() {
+    if (!CURRENT_USER_ID) return;
+
     const newPostBtn = document.getElementById('new-post-btn');
     const feedList = document.getElementById('feed-posts-list');
     
@@ -47,6 +48,10 @@ document.addEventListener('turbo:frame-load', (e) => {
 function handleFeedClick(e) {
     const yeahBtn = e.target.closest('.yeah-btn');
     if (yeahBtn) {
+        if (IS_ANONYMOUS) {
+            showAuthScreen();
+            return;
+        }
         toggleYeah(yeahBtn.dataset.id, yeahBtn.classList.contains('bg-[#FF80AB]'));
         return;
     }
@@ -113,6 +118,10 @@ function createPostElement(id, data, isDetail = false) {
 }
 
 function openCreatePost() {
+    if (IS_ANONYMOUS) {
+        showAuthScreen();
+        return;
+    }
     const cont = document.getElementById('create-post-container');
     const video = document.getElementById('feed-camera-feed');
     const place = document.getElementById('feed-camera-placeholder');
@@ -310,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const postData = {
                 userId: CURRENT_USER_ID,
-                username: DISPLAY_NAME,
+                username: CURRENT_USERNAME,
                 image: pendingPostImage || '',
                 caption: caption,
                 tag: tag,
@@ -337,6 +346,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (submitCommentBtn) {
         submitCommentBtn.onclick = async () => {
+            if (IS_ANONYMOUS) {
+                showAuthScreen();
+                return;
+            }
             const input = document.getElementById('comment-text-input');
             const text = input.value.trim();
             if (!text || !currentDetailPostId) return;
@@ -345,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const commentsRef = collection(db, 'posts', currentDetailPostId, 'comments');
             await addDoc(commentsRef, {
                 userId: CURRENT_USER_ID,
-                username: DISPLAY_NAME,
+                username: CURRENT_USERNAME,
                 text: text,
                 timestamp: Date.now()
             });

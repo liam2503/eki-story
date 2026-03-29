@@ -1,3 +1,6 @@
+import { auth } from './firebase.js';
+import { signOut } from 'firebase/auth';
+
 const DARK_MODE_KEY = 'eki-dark-mode';
 const SOUND_KEY = 'eki-sound';
 
@@ -95,7 +98,10 @@ export function initSettingsFrame() {
     }
 
     if (signOutBtn) {
-        signOutBtn.onclick = () => console.log('Sign out tapped');
+        signOutBtn.onclick = async () => {
+            await signOut(auth);
+            window.location.reload(); 
+        };
     }
 }
 

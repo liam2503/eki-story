@@ -1,7 +1,16 @@
 import { db } from './firebase.js';
 import { doc, collection, onSnapshot, setDoc, deleteDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
-export const CURRENT_USER_ID = "liam_test_user";
+export let CURRENT_USER_ID = null;
+export let CURRENT_USERNAME = "Guest";
+export let IS_ANONYMOUS = false;
+
+export function setCurrentUser(id, username, isAnon) {
+    CURRENT_USER_ID = id;
+    CURRENT_USERNAME = username;
+    IS_ANONYMOUS = isAnon;
+}
+
 export let visitedStations = []; 
 export const userStamps = {};
 export const userStampOriginals = {}; 
@@ -13,7 +22,7 @@ export function isVisited(stationId) {
 }
 
 export async function toggleStation(stationId) {
-    if (!stationId) return;
+    if (!stationId || !CURRENT_USER_ID) return;
     const userRef = doc(db, 'users', CURRENT_USER_ID);
     const isAlreadyVisited = isVisited(stationId);
 
@@ -25,7 +34,7 @@ export async function toggleStation(stationId) {
 }
 
 export async function saveStamp(id, b64, originalB64, customTimestamp) {
-    if (!id) return;
+    if (!id || !CURRENT_USER_ID) return;
     const stampRef = doc(db, 'users', CURRENT_USER_ID, 'stamps', String(id));
     const data = { image: b64, timestamp: customTimestamp || Date.now() };
     if (originalB64) data.original = originalB64;
@@ -33,13 +42,13 @@ export async function saveStamp(id, b64, originalB64, customTimestamp) {
 }
 
 export async function deleteStamp(id) {
-    if (!id) return;
+    if (!id || !CURRENT_USER_ID) return;
     const stampRef = doc(db, 'users', CURRENT_USER_ID, 'stamps', String(id));
     await deleteDoc(stampRef);
 }
 
 export async function saveModel(lineId, b64, modelName, customTimestamp, existingId = null) {
-    if (!lineId) return;
+    if (!lineId || !CURRENT_USER_ID) return;
     const modelId = existingId || Date.now().toString();
     const modelRef = doc(db, 'users', CURRENT_USER_ID, 'models', modelId);
     await setDoc(modelRef, { 
@@ -51,12 +60,14 @@ export async function saveModel(lineId, b64, modelName, customTimestamp, existin
 }
 
 export async function deleteModel(id) {
-    if (!id) return;
+    if (!id || !CURRENT_USER_ID) return;
     const modelRef = doc(db, 'users', CURRENT_USER_ID, 'models', String(id));
     await deleteDoc(modelRef);
 }
 
 export function initProfileSync() {
+    if (!CURRENT_USER_ID) return;
+    
     onSnapshot(doc(db, 'users', CURRENT_USER_ID), (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
