@@ -1,6 +1,9 @@
 import { idbClear } from './idb.js';
 import { auth } from './firebase.js';
 import { signOut } from 'firebase/auth';
+import { Capacitor } from '@capacitor/core';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+
 const DARK_MODE_KEY = 'eki-dark-mode';
 const SOUND_KEY = 'eki-sound';
 
@@ -98,12 +101,35 @@ export function initSettingsFrame() {
         };
     }
 
+    if (signOutBtn) {
+        if (auth.currentUser && auth.currentUser.isAnonymous) {
+            signOutBtn.disabled = true;
+            signOutBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-300');
+            signOutBtn.classList.remove('active:translate-y-[4px]', 'active:translate-x-[4px]', 'active:shadow-none', 'hover:translate-y-[2px]'); 
+            signOutBtn.innerText = "Sign Out (Guest)";
+        } else {
+            signOutBtn.disabled = false;
+            signOutBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-300');
+            
+            signOutBtn.onclick = async () => {
+                try {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    await idbClear();
+                    
+                    if (Capacitor.isNativePlatform()) {
+                        try {
+                            await GoogleAuth.signOut();
+                        } catch (e) {
+                        }
+                    }
 
-if (signOutBtn) {
-        signOutBtn.onclick = async () => {
-            await signOut(auth);
-            window.location.reload(); 
-        };
+                    await signOut(auth);
+                    window.location.reload(); 
+                } catch (err) {
+                }
+            };
+        }
     }
 
     if (refreshBtn) {
@@ -112,10 +138,6 @@ if (signOutBtn) {
             await idbClear();
             window.location.reload();
         };
-    }
-
-    if (signOutBtn) {
-        signOutBtn.onclick = () => console.log('Sign out tapped');
     }
 }
 

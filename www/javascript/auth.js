@@ -80,6 +80,7 @@ export function initAuth() {
             initProfileSync();
             initFeedFrame();
         } else {
+            // User is signed out
             if (isInitialLoad) {
                 authContainer.style.transition = 'none';
                 authContainer.classList.remove('hidden', 'translate-y-full');
@@ -90,6 +91,18 @@ export function initAuth() {
                 void authContainer.offsetWidth;
                 authContainer.classList.remove('translate-y-full');
             }
+
+            // Hide the X button so they must log in or play as guest
+            if (authCloseBtn) authCloseBtn.classList.add('hidden');
+            if (authAnonBtn) authAnonBtn.classList.remove('hidden');
+
+            // Reset form back to default "Log In" state
+            isSignUpMode = false;
+            authUsername.classList.add('hidden');
+            authUsername.required = false;
+            authIdentifier.placeholder = "Email or Username";
+            authSubmitBtn.innerText = "Log In";
+            authToggleMode.innerText = "Need an account? Sign Up";
         }
         isInitialLoad = false;
     });
