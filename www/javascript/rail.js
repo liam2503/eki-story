@@ -27,8 +27,11 @@ window.clearLineFilter = function() {
 
 window.initMap = async function() {
     const centerView = { lat: 35.6325, lng: 139.6525 };
+    const isDark = localStorage.getItem('eki-dark-mode') === 'true';
+
     map = new google.maps.Map(document.getElementById("map"), {
         mapId: "c1670ec5a2e905485de80c27",
+        colorScheme: isDark ? "DARK" : "LIGHT",
         zoom: 14.8, 
         minZoom: 11,
         isFractionalZoomEnabled: true,
@@ -37,6 +40,7 @@ window.initMap = async function() {
     });
 
     window.map = map;
+
 
     try {
         let stations = await idbGet('stationData');

@@ -70,15 +70,15 @@
 
 <div id="map" class="absolute inset-0 w-full h-[100dvh] z-0"></div>
     
-<div id="feed-container" class="fixed inset-0 z-30 bg-[#FF80AB]/90 backdrop-blur-md overflow-y-auto border-r-[8px] border-black transition-transform duration-500 ease-in-out -translate-x-full pointer-events-none px-6 pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(10rem+env(safe-area-inset-bottom))] ios:px-4 ios:pt-[calc(0.5rem+env(safe-area-inset-top))] ios:pb-[calc(8rem+env(safe-area-inset-bottom))]">
+<div id="feed-container" class="fixed inset-0 z-30 bg-[#FF80AB]/90 dark:bg-slate-900/95 backdrop-blur-md overflow-y-auto border-r-[8px] border-black transition-transform duration-500 ease-in-out -translate-x-full pointer-events-none px-6 pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(10rem+env(safe-area-inset-bottom))] ios:px-4 ios:pt-[calc(0.5rem+env(safe-area-inset-top))] ios:pb-[calc(8rem+env(safe-area-inset-bottom))]">
     <turbo-frame id="feed-frame" src="feed.html" class="block max-w-md mx-auto"></turbo-frame>
 </div>
 
-<div id="list-container" class="fixed inset-0 z-30 bg-[#40C4FF]/90 backdrop-blur-md overflow-y-auto border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none px-6 pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(10rem+env(safe-area-inset-bottom))] ios:px-4 ios:pt-[calc(0.5rem+env(safe-area-inset-top))] ios:pb-[calc(8rem+env(safe-area-inset-bottom))]">
+<div id="list-container" class="fixed inset-0 z-30 bg-[#40C4FF]/90 dark:bg-slate-900/95 backdrop-blur-md overflow-y-auto border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none px-6 pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(10rem+env(safe-area-inset-bottom))] ios:px-4 ios:pt-[calc(0.5rem+env(safe-area-inset-top))] ios:pb-[calc(8rem+env(safe-area-inset-bottom))]">
     <turbo-frame id="list-frame" src="list.html" class="block max-w-md mx-auto"></turbo-frame>
 </div>
 
-<div id="profile-container" class="fixed inset-0 z-30 bg-[#B2FF59]/90 backdrop-blur-md overflow-y-auto border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none px-6 pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(10rem+env(safe-area-inset-bottom))] ios:px-4 ios:pt-[calc(0.5rem+env(safe-area-inset-top))] ios:pb-[calc(8rem+env(safe-area-inset-bottom))]">
+<div id="profile-container" class="fixed inset-0 z-30 bg-[#B2FF59]/90 dark:bg-slate-900/95 backdrop-blur-md overflow-y-auto border-l-[8px] border-black transition-transform duration-500 ease-in-out translate-x-full pointer-events-none px-6 pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(10rem+env(safe-area-inset-bottom))] ios:px-4 ios:pt-[calc(0.5rem+env(safe-area-inset-top))] ios:pb-[calc(8rem+env(safe-area-inset-bottom))]">
     <turbo-frame id="profile-frame" src="profile.html" class="block max-w-md mx-auto"></turbo-frame>
 </div>
 
@@ -491,7 +491,7 @@
 
 <div id="create-post-container" class="fixed inset-0 z-[120] bg-white dark:bg-slate-900 overflow-y-auto transition-transform duration-500 ease-in-out translate-y-full pointer-events-none flex flex-col">
         <div class="px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] flex items-center justify-between border-b-[5px] border-black dark:border-slate-600 bg-white dark:bg-slate-900 sticky top-0 z-10">
-            <h2 class="text-3xl font-black uppercase tracking-tighter dark:text-white">New Post</h2>
+            <h2 class="text-3xl font-black uppercase tracking-tighter dark:text-[#FF80AB]">New Post</h2>
             <button id="close-create-post-btn" class="w-12 h-12 border-[4px] border-black dark:border-slate-600 rounded-full flex items-center justify-center bg-gray-100 dark:bg-slate-800 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all">
                 <svg class="w-6 h-6 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
@@ -556,7 +556,7 @@
             <button id="close-post-detail-btn" class="w-12 h-12 border-[4px] border-black dark:border-slate-600 rounded-full flex items-center justify-center bg-gray-100 dark:bg-slate-800 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all">
                 <svg class="w-6 h-6 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="4"><path d="M15 19l-7-7 7-7"/></svg>
             </button>
-            <h2 class="text-2xl font-black uppercase tracking-tighter dark:text-white">Post</h2>
+            <h2 class="text-2xl font-black uppercase tracking-tighter dark:text-[#FF80AB]">Post</h2>
             <div class="w-12"></div>
         </div>
         <div class="flex-1 overflow-y-auto pb-32">

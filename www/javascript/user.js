@@ -71,6 +71,12 @@ export async function deleteModel(id) {
     await deleteDoc(modelRef);
 }
 
+export async function updateUserSetting(key, value) {
+    if (!CURRENT_USER_ID || IS_ANONYMOUS) return;
+    const userRef = doc(db, 'users', CURRENT_USER_ID);
+    await setDoc(userRef, { settings: { [key]: value } }, { merge: true });
+}
+
 export function initProfileSync() {
     if (!CURRENT_USER_ID) return;
     
@@ -78,6 +84,14 @@ export function initProfileSync() {
         if (docSnap.exists()) {
             const data = docSnap.data();
             visitedStations = data.visited_stations || [];
+            
+            if (data.settings) {
+                if (data.settings['eki-dark-mode'] !== undefined) localStorage.setItem('eki-dark-mode', data.settings['eki-dark-mode']);
+                if (data.settings['eki-sound'] !== undefined) localStorage.setItem('eki-sound', data.settings['eki-sound']);
+                if (data.settings['eki-decline-requests'] !== undefined) localStorage.setItem('eki-decline-requests', data.settings['eki-decline-requests']);
+                window.dispatchEvent(new CustomEvent('settingsSynced'));
+            }
+
             if (window.renderVisibleMarkers) window.renderVisibleMarkers();
             window.dispatchEvent(new CustomEvent('visitedDataUpdated'));
         }
