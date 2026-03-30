@@ -1,6 +1,6 @@
 import { idbClear } from './idb.js';
 import { auth } from './firebase.js';
-import { signOut } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { showAuthScreen } from './auth.js';
@@ -74,6 +74,8 @@ export function initSettings() {
     }
 }
 
+let authUnsubscribe = null;
+
 export function initSettingsFrame() {
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     const soundToggle = document.getElementById('sound-toggle');
@@ -103,34 +105,35 @@ export function initSettingsFrame() {
     }
 
     if (signOutBtn) {
-        if (auth.currentUser && auth.currentUser.isAnonymous) {
-            signOutBtn.innerText = "Sign In / Sign Up";
-            signOutBtn.onclick = () => {
-                showAuthScreen();
-            };
-        } else {
-            signOutBtn.innerText = "Sign Out";
-            signOutBtn.onclick = async () => {
-                try {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    await idbClear();
-                    
-                    if (Capacitor.isNativePlatform()) {
-                        try {
-                            await GoogleAuth.signOut();
-                        } catch (e) {
-                            console.warn("Google Auth Sign Out bypassed:", e);
+        if (authUnsubscribe) authUnsubscribe();
+        
+        authUnsubscribe = onAuthStateChanged(auth, (user) => {
+            if (!user || user.isAnonymous) {
+                signOutBtn.innerText = "Sign In / Create An Account";
+                signOutBtn.onclick = () => {
+                    window.resetUI?.();
+                    showAuthScreen();
+                };
+            } else {
+                signOutBtn.innerText = "Sign Out";
+                signOutBtn.onclick = async () => {
+                    try {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        await idbClear();
+                        
+                        if (Capacitor.isNativePlatform()) {
+                            try {
+                                await GoogleAuth.signOut();
+                            } catch (e) {}
                         }
-                    }
 
-                    await signOut(auth);
-                    window.location.reload(); 
-                } catch (err) {
-                    console.error("Error signing out:", err);
-                }
-            };
-        }
+                        await signOut(auth);
+                        window.location.reload(); 
+                    } catch (err) {}
+                };
+            }
+        });
     }
 
     if (refreshBtn) {

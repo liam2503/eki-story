@@ -70,7 +70,6 @@ export function initAuth() {
                     authContainer.classList.add('hidden');
                 }
             }, 500);
-            if (authCloseBtn) authCloseBtn.classList.add('hidden');
             
             let username = user.isAnonymous ? "Guest" : "User";
             
