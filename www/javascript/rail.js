@@ -28,7 +28,7 @@ window.clearLineFilter = function() {
 window.initMap = async function() {
     const centerView = { lat: 35.6325, lng: 139.6525 };
     map = new google.maps.Map(document.getElementById("map"), {
-        mapId: "DEMO_MAP_ID",
+        mapId: "c1670ec5a2e905485de80c27",
         zoom: 14.8, 
         minZoom: 11,
         isFractionalZoomEnabled: true,

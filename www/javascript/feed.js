@@ -1,5 +1,5 @@
 import { db } from './firebase.js';
-import { collection, onSnapshot, doc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, addDoc, query, orderBy, increment, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, addDoc, query, orderBy, increment, serverTimestamp } from 'firebase/firestore';
 import { startCamera, stopCamera } from './stamp_camera.js';
 import { CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
 import { showAuthScreen } from './auth.js';
@@ -10,14 +10,36 @@ let detailPostUnsubscribe = null;
 let pendingPostImage = null;
 let currentDetailPostId = null;
 
-export function initFeedFrame() {
+let currentFeedFilter = 'all';
+let latestPosts = [];
+let currentUserFriends = [];
+
+export async function initFeedFrame() {
     if (!CURRENT_USER_ID) return;
 
     const newPostBtn = document.getElementById('new-post-btn');
     const feedList = document.getElementById('feed-posts-list');
+    const filterAllBtn = document.getElementById('feed-filter-all');
+    const filterFriendsBtn = document.getElementById('feed-filter-friends');
     
     if (newPostBtn) {
         newPostBtn.onclick = openCreatePost;
+    }
+
+    if (filterAllBtn && filterFriendsBtn) {
+        filterAllBtn.onclick = () => setFeedFilter('all');
+        filterFriendsBtn.onclick = () => setFeedFilter('friends');
+    }
+
+    if (!IS_ANONYMOUS) {
+        try {
+            const userDoc = await getDoc(doc(db, 'users', CURRENT_USER_ID));
+            if (userDoc.exists()) {
+                currentUserFriends = userDoc.data().friends || [];
+            }
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     if (feedList && !postsUnsubscribe) {
@@ -25,14 +47,8 @@ export function initFeedFrame() {
         const q = query(postsRef, orderBy('timestamp', 'desc'));
         
         postsUnsubscribe = onSnapshot(q, (snapshot) => {
-            const list = document.getElementById('feed-posts-list');
-            if (!list) return;
-            
-            list.innerHTML = '';
-            snapshot.forEach(docSnap => {
-                const data = docSnap.data();
-                list.appendChild(createPostElement(docSnap.id, data));
-            });
+            latestPosts = snapshot.docs;
+            renderFeed();
         });
 
         feedList.addEventListener('click', handleFeedClick);
@@ -44,6 +60,50 @@ document.addEventListener('turbo:frame-load', (e) => {
         initFeedFrame();
     }
 });
+
+function setFeedFilter(filter) {
+    if (filter === 'friends' && IS_ANONYMOUS) {
+        showAuthScreen();
+        return;
+    }
+    currentFeedFilter = filter;
+    
+    const btnAll = document.getElementById('feed-filter-all');
+    const btnFriends = document.getElementById('feed-filter-friends');
+    
+    if (filter === 'all') {
+        btnAll.className = "px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-lg bg-white dark:bg-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black dark:text-white transition-all cursor-pointer";
+        btnFriends.className = "px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-lg text-gray-500 hover:text-black dark:hover:text-white transition-all cursor-pointer";
+    } else {
+        btnFriends.className = "px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-lg bg-white dark:bg-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black dark:text-white transition-all cursor-pointer";
+        btnAll.className = "px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-lg text-gray-500 hover:text-black dark:hover:text-white transition-all cursor-pointer";
+    }
+    
+    renderFeed();
+}
+
+function renderFeed() {
+    const list = document.getElementById('feed-posts-list');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    
+    latestPosts.forEach(docSnap => {
+        const data = docSnap.data();
+        
+        if (currentFeedFilter === 'friends') {
+            if (data.userId !== CURRENT_USER_ID && !currentUserFriends.includes(data.userId)) {
+                return; 
+            }
+        }
+        
+        list.appendChild(createPostElement(docSnap.id, data));
+    });
+
+    if (list.innerHTML === '') {
+        list.innerHTML = `<div class="text-center text-gray-400 font-bold text-sm uppercase mt-10 tracking-widest">No posts to show</div>`;
+    }
+}
 
 function handleFeedClick(e) {
     const yeahBtn = e.target.closest('.yeah-btn');
@@ -104,7 +164,7 @@ function createPostElement(id, data, isDetail = false) {
         ${tagContainer}
         <div class="flex gap-4 mt-6">
             <button class="yeah-btn flex-1 ${yeahColor} border-[4px] border-black dark:border-slate-600 rounded-xl py-3 ${yeahText} font-black text-base uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all flex items-center justify-center gap-2" data-id="${id}">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.514"></path></svg>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h-2.514"></path></svg>
                 YEAH! <span class="ml-1">${yeahs.length}</span>
             </button>
             <button class="${isDetail ? 'opacity-50 pointer-events-none' : 'talk-btn post-detail-trigger'} flex-1 bg-white dark:bg-slate-700 border-[4px] border-black dark:border-slate-600 rounded-xl py-3 text-black dark:text-white font-black text-base uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all flex items-center justify-center gap-2" data-id="${id}">
