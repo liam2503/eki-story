@@ -127,7 +127,7 @@ function openCreatePost() {
     const place = document.getElementById('feed-camera-placeholder');
     const img = document.getElementById('feed-preview-image');
     const capBtn = document.getElementById('feed-capture-actions');
-    const saveBtn = document.getElementById('feed-save-actions');
+    const retakeBtn = document.getElementById('retake-feed-btn');
     const caption = document.getElementById('post-caption-input');
     const tag = document.getElementById('post-tag-input');
     const searchInput = document.getElementById('post-station-search-input');
@@ -141,8 +141,7 @@ function openCreatePost() {
     img.src = '';
     img.classList.add('hidden');
     capBtn.classList.remove('hidden');
-    saveBtn.classList.add('hidden');
-    saveBtn.classList.remove('flex');
+    retakeBtn.classList.add('hidden');
     
     cont.classList.remove('translate-y-full', 'pointer-events-none');
     startCamera(video, place, async () => {});
@@ -292,13 +291,12 @@ document.addEventListener('DOMContentLoaded', () => {
         retakeBtn.onclick = () => {
             const img = document.getElementById('feed-preview-image');
             const capActs = document.getElementById('feed-capture-actions');
-            const saveActs = document.getElementById('feed-save-actions');
+            const retakeBtn = document.getElementById('retake-feed-btn');
             pendingPostImage = null;
             img.classList.add('hidden');
             img.src = '';
             capActs.classList.remove('hidden');
-            saveActs.classList.add('hidden');
-            saveActs.classList.remove('flex');
+            retakeBtn.classList.add('hidden');
             startCamera(document.getElementById('feed-camera-feed'), document.getElementById('feed-camera-placeholder'), async () => {});
         };
     }
@@ -374,13 +372,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function showPostPreview() {
     const img = document.getElementById('feed-preview-image');
     const capActs = document.getElementById('feed-capture-actions');
-    const saveActs = document.getElementById('feed-save-actions');
+    const retakeBtn = document.getElementById('retake-feed-btn');
     
     img.src = pendingPostImage;
     img.classList.remove('hidden');
     capActs.classList.add('hidden');
-    saveActs.classList.remove('hidden');
-    saveActs.classList.add('flex');
+    retakeBtn.classList.remove('hidden');
 }
 
 function openPostDetail(id) {

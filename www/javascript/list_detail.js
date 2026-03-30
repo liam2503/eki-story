@@ -23,6 +23,24 @@ export async function showLineDetail(lineId) {
     const totalCount = line.total_stations || stations.length;
 
     selectors.detailLineName.innerText = line.name_en;
+    selectors.detailLineName.onclick = () => {
+        window.filterToLine?.(lineId);
+        if (stations?.length && window.map) {
+            const mid = stations[Math.floor(stations.length / 2)];
+            window.map.panTo({ lat: Number(mid.lat || mid.displayLat), lng: Number(mid.lon || mid.displayLon) });
+            window.map.setZoom(line.zoom || 12);
+        }
+        
+        const filterPill = document.getElementById('active-filter-pill');
+        if (filterPill) {
+            document.getElementById('active-filter-name').innerText = line.name_en;
+            document.getElementById('active-filter-color').style.backgroundColor = line.color || '#000';
+            filterPill.classList.remove('hidden');
+        }
+        
+        selectors.detailContainer.classList.add('translate-x-full');
+        window.resetUI?.();
+    };
     selectors.detailFraction.innerText = `${visitedCount}/${totalCount}`;
     selectors.detailProgressBar.style.width = `${(visitedCount / totalCount) * 100}%`;
     selectors.detailProgressBar.style.backgroundColor = line.color || 'black';
@@ -34,8 +52,7 @@ export async function showLineDetail(lineId) {
         return `<div class="flex items-start gap-6 ml-1 station-item">
             <div class="station-dot w-8 h-8 rounded-full border-[4px] border-black shrink-0 mt-1 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]" style="background-color: ${visited ? '#B2FF59' : '#FFF'}"></div>
             <div class="flex flex-col gap-2 w-full">
-                <span class="text-xl font-black uppercase tracking-tight pt-2">${s.station_name_en || s.station_name_jp}</span>
-                <button class="add-stamp-btn bg-white border-[3px] border-black px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-max mt-1" data-station-id="${s.id}" data-station-name="${s.station_name_en}" data-line-color="${line.color || '#B2FF59'}">+ Add Stamp</button>
+<span class="station-name-click cursor-pointer hover:text-gray-500 transition-colors text-xl font-black uppercase tracking-tight pt-2" data-station-id="${s.id}" data-lat="${s.lat || s.displayLat}" data-lon="${s.lon || s.displayLon}">${s.station_name_en || s.station_name_jp}</span>                <button class="add-stamp-btn bg-white border-[3px] border-black px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-max mt-1" data-station-id="${s.id}" data-station-name="${s.station_name_en}" data-line-color="${line.color || '#B2FF59'}">+ Add Stamp</button>
                 ${stampHtml}
             </div>
         </div>`;
@@ -108,7 +125,7 @@ function renderModelsList(lineId, line) {
 }
 
 export function initStampScanner() {
-const els = {
+    const els = {
         addCont: document.getElementById("add-stamp-container"),
         video: document.getElementById("camera-feed"),
         canvas: document.getElementById("camera-canvas"),
@@ -167,8 +184,63 @@ const els = {
 
                 els.modalCont.classList.remove('opacity-0', 'pointer-events-none');
             }
+            return;
+        }
+
+        const nameClick = e.target.closest('.station-name-click');
+        if (nameClick) {
+            const sid = nameClick.dataset.stationId;
+            const lat = Number(nameClick.dataset.lat);
+            const lon = Number(nameClick.dataset.lon);
+            
+            const station = state.localStations.find(s => String(s.id) === String(sid));
+            const line = state.localLines[currentLineId];
+
+            window.filterToLine?.(currentLineId);
+            if (window.map) {
+                window.map.panTo({ lat, lng: lon });
+                window.map.setZoom(15);
+            }
+
+            const filterPill = document.getElementById('active-filter-pill');
+            if (filterPill && line) {
+                document.getElementById('active-filter-name').innerText = line.name_en;
+                document.getElementById('active-filter-color').style.backgroundColor = line.color || '#000';
+                filterPill.classList.remove('hidden');
+            }
+            
+            selectors.detailContainer.classList.add('translate-x-full');
+            window.resetUI?.();
+
+            if (window.showTooltip && station) {
+                window.showTooltip({ lat, lng: lon }, {
+                    stationId: station.id,
+                    stationName: station.station_name_en || station.station_name_jp || "Unknown Station",
+                    lineName: line?.name_en || `Line ${currentLineId}`,
+                    color: line?.color || "#000000",
+                    isVisited: isVisited(station.id)
+                }, 'station');
+            } else {
+                setTimeout(() => {
+                    import('./map_markers.js').then(({ markers }) => {
+                        const markerObj = markers[sid];
+                        if (markerObj && markerObj.instance) {
+                            google.maps.event.trigger(markerObj.instance, 'gmp-click');
+                        }
+                    });
+                }, 500);
+            }
+            return;
         }
     });
+
+    const clearFilterBtn = document.getElementById('clear-filter-btn');
+    if (clearFilterBtn) {
+        clearFilterBtn.onclick = () => {
+            document.getElementById('active-filter-pill').classList.add('hidden');
+            window.filterToLine?.(null);
+        };
+    }
 
     document.getElementById("capture-stamp-btn").onclick = () => {
         els.canvas.width = els.video.videoWidth; els.canvas.height = els.video.videoHeight;

@@ -17,6 +17,10 @@ export function showAuthScreen() {
     const authContainer = document.getElementById('auth-container');
     const authAnonBtn = document.getElementById('auth-anon-btn');
     const authCloseBtn = document.getElementById('auth-close-btn');
+    const authUsername = document.getElementById('auth-username');
+    const authIdentifier = document.getElementById('auth-identifier');
+    const authSubmitBtn = document.getElementById('auth-submit-btn');
+    const authToggleMode = document.getElementById('auth-toggle-mode');
     
     authContainer.classList.remove('hidden');
     void authContainer.offsetWidth;
@@ -30,11 +34,13 @@ export function showAuthScreen() {
         }
         
         isSignUpMode = false;
-        document.getElementById('auth-username').classList.add('hidden');
-        document.getElementById('auth-username').required = false;
-        document.getElementById('auth-identifier').placeholder = "Email or Username";
-        document.getElementById('auth-submit-btn').innerText = "Log In";
-        document.getElementById('auth-toggle-mode').innerText = "Need an account? Sign Up";
+        if (authUsername) {
+            authUsername.classList.add('hidden');
+            authUsername.required = false;
+        }
+        if (authIdentifier) authIdentifier.placeholder = "Email Address";
+        if (authSubmitBtn) authSubmitBtn.innerText = "Log In & Link Data";
+        if (authToggleMode) authToggleMode.innerText = "Need an account? Sign Up";
     }
 }
 
@@ -63,29 +69,58 @@ export function initAuth() {
     }
 
     onAuthStateChanged(auth, async (user) => {
+        const wasInitialLoad = isInitialLoad;
+        isInitialLoad = false;
+
         if (user) {
-            authContainer.classList.add('translate-y-full');
-            setTimeout(() => {
-                if (authContainer.classList.contains('translate-y-full')) {
-                    authContainer.classList.add('hidden');
+            if (user.isAnonymous && wasInitialLoad) {
+                authContainer.style.transition = 'none';
+                authContainer.classList.remove('hidden', 'translate-y-full');
+                void authContainer.offsetWidth;
+                authContainer.style.transition = '';
+
+                if (authCloseBtn) authCloseBtn.classList.remove('hidden');
+                if (authAnonBtn) {
+                    authAnonBtn.classList.remove('hidden');
+                    authAnonBtn.innerText = "Continue as Guest";
                 }
-            }, 500);
-            
+                
+                isSignUpMode = false;
+                if(authUsername) {
+                    authUsername.classList.add('hidden');
+                    authUsername.required = false;
+                }
+                if(authIdentifier) authIdentifier.placeholder = "Email Address";
+                if(authSubmitBtn) authSubmitBtn.innerText = "Log In & Link Data";
+                if(authToggleMode) authToggleMode.innerText = "Need an account? Sign Up";
+            } else if (!wasInitialLoad || !user.isAnonymous) {
+                authContainer.classList.add('translate-y-full');
+                setTimeout(() => {
+                    if (authContainer.classList.contains('translate-y-full')) {
+                        authContainer.classList.add('hidden');
+                    }
+                }, 500);
+            }
+
             let username = user.isAnonymous ? "Guest" : "User";
-            
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists() && userDoc.data().username) {
-                username = userDoc.data().username;
-            } else if (!user.isAnonymous) {
-                username = user.displayName || user.email.split('@')[0];
-                await setDoc(doc(db, 'users', user.uid), { username: username, email: user.email }, { merge: true });
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists() && userDoc.data().username) {
+                    username = userDoc.data().username;
+                } else if (!user.isAnonymous) {
+                    username = user.displayName || user.email.split('@')[0];
+                    await setDoc(doc(db, 'users', user.uid), { username: username, email: user.email }, { merge: true });
+                }
+            } catch (e) {
+                console.error(e);
             }
 
             setCurrentUser(user.uid, username, user.isAnonymous);
             initProfileSync();
             initFeedFrame();
+
         } else {
-            if (isInitialLoad) {
+            if (wasInitialLoad) {
                 authContainer.style.transition = 'none';
                 authContainer.classList.remove('hidden', 'translate-y-full');
                 void authContainer.offsetWidth;
@@ -103,13 +138,14 @@ export function initAuth() {
             }
 
             isSignUpMode = false;
-            authUsername.classList.add('hidden');
-            authUsername.required = false;
-            authIdentifier.placeholder = "Email or Username";
-            authSubmitBtn.innerText = "Log In";
-            authToggleMode.innerText = "Need an account? Sign Up";
+            if(authUsername) {
+                authUsername.classList.add('hidden');
+                authUsername.required = false;
+            }
+            if(authIdentifier) authIdentifier.placeholder = "Email or Username";
+            if(authSubmitBtn) authSubmitBtn.innerText = "Log In";
+            if(authToggleMode) authToggleMode.innerText = "Need an account? Sign Up";
         }
-        isInitialLoad = false;
     });
 
     authToggleMode.onclick = () => {
@@ -128,8 +164,13 @@ export function initAuth() {
         } else {
             authUsername.classList.add('hidden');
             authUsername.required = false;
-            authIdentifier.placeholder = "Email or Username";
-            authSubmitBtn.innerText = "Log In";
+            if (auth.currentUser && auth.currentUser.isAnonymous) {
+                authIdentifier.placeholder = "Email Address";
+                authSubmitBtn.innerText = "Log In & Link Data";
+            } else {
+                authIdentifier.placeholder = "Email or Username";
+                authSubmitBtn.innerText = "Log In";
+            }
             authToggleMode.innerText = "Need an account? Sign Up";
         }
         errorMsg.classList.add('hidden');
@@ -158,14 +199,21 @@ export function initAuth() {
                     await setDoc(doc(db, 'users', cred.user.uid), { username, email: currentEmail }, { merge: true });
                 }
             } else {
-                let loginEmail = identifier;
-                if (!identifier.includes('@')) {
-                    const q = query(collection(db, 'users'), where("username", "==", identifier));
-                    const snapshot = await getDocs(q);
-                    if (snapshot.empty) throw new Error("Username not found.");
-                    loginEmail = snapshot.docs[0].data().email;
+                if (auth.currentUser && auth.currentUser.isAnonymous) {
+                     if (!identifier.includes('@')) throw new Error("Please enter your email address to link data.");
+                     const credential = EmailAuthProvider.credential(identifier, password);
+                     await linkWithCredential(auth.currentUser, credential);
+                     window.location.reload();
+                } else {
+                    let loginEmail = identifier;
+                    if (!identifier.includes('@')) {
+                        const q = query(collection(db, 'users'), where("username", "==", identifier));
+                        const snapshot = await getDocs(q);
+                        if (snapshot.empty) throw new Error("Username not found.");
+                        loginEmail = snapshot.docs[0].data().email;
+                    }
+                    await signInWithEmailAndPassword(auth, loginEmail, password);
                 }
-                await signInWithEmailAndPassword(auth, loginEmail, password);
             }
         } catch (err) {
             errorMsg.innerText = err.message;

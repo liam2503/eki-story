@@ -1,4 +1,4 @@
-import { idbClear } from './idb.js';
+import { idbGet, idbSet } from './idb.js'; // Imported specifically for the targeted deletion
 import { auth } from './firebase.js';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { Capacitor } from '@capacitor/core';
@@ -7,6 +7,7 @@ import { showAuthScreen } from './auth.js';
 
 const DARK_MODE_KEY = 'eki-dark-mode';
 const SOUND_KEY = 'eki-sound';
+const DECLINE_REQUESTS_KEY = 'eki-decline-requests';
 
 const LIGHT_STYLES = [
     { featureType: 'all', elementType: 'labels', stylers: [{ visibility: 'off' }] },
@@ -74,35 +75,108 @@ export function initSettings() {
     }
 }
 
+// Function to safely delete ONLY map mapping data
+async function refreshGlobalData() {
+    try {
+        // We set these keys to null, which forces the app to re-fetch them from Firestore
+        // on the next load, without wiping the entire IndexedDB database (saving user data).
+        await idbSet('stationData', null);
+        await idbSet('lineData', null);
+        await idbSet('joinData', null);
+    } catch (e) {
+        console.warn("Failed to clear global map data", e);
+    }
+}
+
+document.addEventListener('click', async (e) => {
+    const darkModeToggle = e.target.closest('#dark-mode-toggle');
+    if (darkModeToggle) {
+        const isDark = darkModeToggle.classList.contains('bg-gray-300');
+        applyDarkMode(isDark);
+        localStorage.setItem(DARK_MODE_KEY, isDark);
+        setToggle(darkModeToggle, isDark);
+        return;
+    }
+
+    const soundToggle = e.target.closest('#sound-toggle');
+    if (soundToggle) {
+        const willBeOn = soundToggle.classList.contains('bg-gray-300');
+        setToggle(soundToggle, willBeOn);
+        localStorage.setItem(SOUND_KEY, willBeOn);
+        return;
+    }
+
+    const declineRequestsToggle = e.target.closest('#decline-requests-toggle');
+    if (declineRequestsToggle) {
+        const willBeOn = declineRequestsToggle.classList.contains('bg-gray-300');
+        setToggle(declineRequestsToggle, willBeOn);
+        localStorage.setItem(DECLINE_REQUESTS_KEY, willBeOn);
+        return;
+    }
+
+    const refreshBtn = e.target.closest('#refresh-db-btn');
+    if (refreshBtn) {
+        e.preventDefault();
+        
+        const loadingOverlay = document.getElementById('app-loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+            loadingOverlay.classList.add('opacity-100');
+            loadingOverlay.style.zIndex = '9999';
+        }
+        
+        setTimeout(async () => {
+            // Only clear global map data, protect user state
+            await refreshGlobalData();
+            window.location.href = window.location.pathname;
+        }, 150);
+        return;
+    }
+
+    const signOutBtn = e.target.closest('#sign-out-btn');
+    if (signOutBtn) {
+        const user = auth.currentUser;
+        if (!user || user.isAnonymous) {
+            window.resetUI?.();
+            showAuthScreen();
+        } else {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // If they explicitly sign out, we clear the whole IndexedDB (including user data)
+                const { idbClear } = await import('./idb.js');
+                await Promise.race([idbClear(), new Promise(resolve => setTimeout(resolve, 1500))]);
+                
+                if (Capacitor.isNativePlatform()) {
+                    try {
+                        await GoogleAuth.signOut();
+                    } catch (e) {}
+                }
+
+                await signOut(auth);
+                window.location.href = window.location.pathname; 
+            } catch (err) {}
+        }
+        return;
+    }
+});
+
 let authUnsubscribe = null;
 
 export function initSettingsFrame() {
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     const soundToggle = document.getElementById('sound-toggle');
+    const declineRequestsToggle = document.getElementById('decline-requests-toggle');
     const signOutBtn = document.getElementById('sign-out-btn');
-    const refreshBtn = document.getElementById('refresh-db-btn');
 
     const savedDark = localStorage.getItem(DARK_MODE_KEY) === 'true';
     const savedSound = localStorage.getItem(SOUND_KEY) !== 'false';
+    const savedDeclineRequests = localStorage.getItem(DECLINE_REQUESTS_KEY) === 'true';
 
-    if (darkModeToggle) {
-        setToggle(darkModeToggle, savedDark);
-        darkModeToggle.onclick = function () {
-            const isDark = darkModeToggle.classList.contains('bg-gray-300');
-            applyDarkMode(isDark);
-            localStorage.setItem(DARK_MODE_KEY, isDark);
-            setToggle(darkModeToggle, isDark);
-        };
-    }
-
-    if (soundToggle) {
-        setToggle(soundToggle, savedSound);
-        soundToggle.onclick = function () {
-            const willBeOn = soundToggle.classList.contains('bg-gray-300');
-            setToggle(soundToggle, willBeOn);
-            localStorage.setItem(SOUND_KEY, willBeOn);
-        };
-    }
+    if (darkModeToggle) setToggle(darkModeToggle, savedDark);
+    if (soundToggle) setToggle(soundToggle, savedSound);
+    if (declineRequestsToggle) setToggle(declineRequestsToggle, savedDeclineRequests);
 
     if (signOutBtn) {
         if (authUnsubscribe) authUnsubscribe();
@@ -110,51 +184,10 @@ export function initSettingsFrame() {
         authUnsubscribe = onAuthStateChanged(auth, (user) => {
             if (!user || user.isAnonymous) {
                 signOutBtn.innerText = "Sign In / Create An Account";
-                signOutBtn.onclick = () => {
-                    window.resetUI?.();
-                    showAuthScreen();
-                };
             } else {
                 signOutBtn.innerText = "Sign Out";
-                signOutBtn.onclick = async () => {
-                    try {
-                        localStorage.clear();
-                        sessionStorage.clear();
-                        await idbClear();
-                        
-                        if (Capacitor.isNativePlatform()) {
-                            try {
-                                await GoogleAuth.signOut();
-                            } catch (e) {}
-                        }
-
-                        await signOut(auth);
-                        window.location.reload(); 
-                    } catch (err) {}
-                };
             }
         });
-    }
-
-    if (refreshBtn) {
-        refreshBtn.onclick = function(e) {
-            e.preventDefault();
-            
-            const loadingOverlay = document.getElementById('app-loading-overlay');
-            if (loadingOverlay) {
-                loadingOverlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-                loadingOverlay.classList.add('opacity-100');
-                loadingOverlay.style.zIndex = '9999';
-            }
-            
-            setTimeout(async () => {
-                try {
-                    localStorage.clear();
-                    await idbClear();
-                } catch (err) {}
-                window.location.reload();
-            }, 150);
-        };
     }
 }
 
