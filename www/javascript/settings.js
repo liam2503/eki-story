@@ -1,6 +1,6 @@
 import { idbClear } from './idb.js';
 import { auth } from './firebase.js';
-import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { signOut, onAuthStateChanged, deleteUser } from 'firebase/auth';
 import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { showAuthScreen } from './auth.js';
@@ -84,6 +84,7 @@ export function initSettingsFrame() {
     const declineRequestsToggle = document.getElementById('decline-requests-toggle');
     const signOutBtn = document.getElementById('sign-out-btn');
     const refreshBtn = document.getElementById('refresh-db-btn');
+    const deleteBtn = document.getElementById('delete-account-btn');
 
     const savedDark = localStorage.getItem(DARK_MODE_KEY) === 'true';
     const savedSound = localStorage.getItem(SOUND_KEY) !== 'false';
@@ -122,7 +123,6 @@ export function initSettingsFrame() {
     }
 
     if (signOutBtn) {
-        // Create a reusable function to update the button
         const updateAuthBtnUI = (user) => {
             if (!user || user.isAnonymous) {
                 signOutBtn.innerText = "Sign In / Create An Account";
@@ -130,6 +130,7 @@ export function initSettingsFrame() {
                     window.resetUI?.();
                     showAuthScreen();
                 };
+                if (deleteBtn) deleteBtn.classList.add('hidden');
             } else {
                 signOutBtn.innerText = "Sign Out";
                 signOutBtn.onclick = async () => {
@@ -148,13 +149,28 @@ export function initSettingsFrame() {
                         window.location.reload(); 
                     } catch (err) {}
                 };
+
+                if (deleteBtn) {
+                    deleteBtn.classList.remove('hidden');
+                    deleteBtn.onclick = async () => {
+                        if (window.confirm("Are you absolutely sure you want to delete your account? This will permanently delete your data and cannot be undone.")) {
+                            try {
+                                await deleteUser(auth.currentUser);
+                                localStorage.clear();
+                                sessionStorage.clear();
+                                import('./idb.js').then(m => m.idbClear());
+                                window.location.reload();
+                            } catch (err) {
+                                alert("Failed to delete account. You may need to sign out and sign back in to verify your identity before deleting. Error: " + err.message);
+                            }
+                        }
+                    };
+                }
             }
         };
 
-        // 1. Synchronous check to instantly prevent the UI flash
         updateAuthBtnUI(auth.currentUser);
 
-        // 2. Attach the listener to handle any background state changes
         if (authUnsubscribe) authUnsubscribe();
         authUnsubscribe = onAuthStateChanged(auth, updateAuthBtnUI);
     }

@@ -238,11 +238,13 @@ export function initStampScanner() {
     if (clearFilterBtn) {
         clearFilterBtn.onclick = () => {
             document.getElementById('active-filter-pill').classList.add('hidden');
-            window.filterToLine?.(null);
             
-            // Force the map to re-evaluate visible markers without the filter
+            // Pass an empty string instead of null to prevent accidental "null" string conversions
+            window.filterToLine?.(""); 
+            
+            // Force the map to re-evaluate and draw all visible markers again
             if (window.map) {
-                 google.maps.event.trigger(window.map, 'idle'); 
+                google.maps.event.trigger(window.map, 'idle');
             }
         };
     }

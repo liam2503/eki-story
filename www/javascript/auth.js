@@ -39,7 +39,7 @@ export function showAuthScreen() {
             authUsername.required = false;
         }
         if (authIdentifier) authIdentifier.placeholder = "Email Address";
-        if (authSubmitBtn) authSubmitBtn.innerText = "Log In & Link Data";
+        if (authSubmitBtn) authSubmitBtn.innerText = "Log In";
         if (authToggleMode) authToggleMode.innerText = "Need an account? Sign Up";
     }
 }
@@ -91,7 +91,7 @@ export function initAuth() {
                     authUsername.required = false;
                 }
                 if(authIdentifier) authIdentifier.placeholder = "Email Address";
-                if(authSubmitBtn) authSubmitBtn.innerText = "Log In & Link Data";
+                if(authSubmitBtn) authSubmitBtn.innerText = "Log In";
                 if(authToggleMode) authToggleMode.innerText = "Need an account? Sign Up";
             } else if (!wasInitialLoad || !user.isAnonymous) {
                 authContainer.classList.add('translate-y-full');
@@ -112,7 +112,6 @@ export function initAuth() {
                     await setDoc(doc(db, 'users', user.uid), { username: username, email: user.email }, { merge: true });
                 }
             } catch (e) {
-                console.error(e);
             }
 
             setCurrentUser(user.uid, username, user.isAnonymous);
@@ -155,7 +154,7 @@ export function initAuth() {
             authUsername.required = true;
             authIdentifier.placeholder = "Email Address";
             if (auth.currentUser && auth.currentUser.isAnonymous) {
-                authSubmitBtn.innerText = "Save Data & Sign Up";
+                authSubmitBtn.innerText = "Sign Up & Link Data";
                 authToggleMode.innerText = "Already have an account? Log In";
             } else {
                 authSubmitBtn.innerText = "Sign Up";
@@ -166,7 +165,7 @@ export function initAuth() {
             authUsername.required = false;
             if (auth.currentUser && auth.currentUser.isAnonymous) {
                 authIdentifier.placeholder = "Email Address";
-                authSubmitBtn.innerText = "Log In & Link Data";
+                authSubmitBtn.innerText = "Log In";
             } else {
                 authIdentifier.placeholder = "Email or Username";
                 authSubmitBtn.innerText = "Log In";
@@ -199,21 +198,14 @@ export function initAuth() {
                     await setDoc(doc(db, 'users', cred.user.uid), { username, email: currentEmail }, { merge: true });
                 }
             } else {
-                if (auth.currentUser && auth.currentUser.isAnonymous) {
-                     if (!identifier.includes('@')) throw new Error("Please enter your email address to link data.");
-                     const credential = EmailAuthProvider.credential(identifier, password);
-                     await linkWithCredential(auth.currentUser, credential);
-                     window.location.reload();
-                } else {
-                    let loginEmail = identifier;
-                    if (!identifier.includes('@')) {
-                        const q = query(collection(db, 'users'), where("username", "==", identifier));
-                        const snapshot = await getDocs(q);
-                        if (snapshot.empty) throw new Error("Username not found.");
-                        loginEmail = snapshot.docs[0].data().email;
-                    }
-                    await signInWithEmailAndPassword(auth, loginEmail, password);
+                let loginEmail = identifier;
+                if (!identifier.includes('@')) {
+                    const q = query(collection(db, 'users'), where("username", "==", identifier));
+                    const snapshot = await getDocs(q);
+                    if (snapshot.empty) throw new Error("Username not found.");
+                    loginEmail = snapshot.docs[0].data().email;
                 }
+                await signInWithEmailAndPassword(auth, loginEmail, password);
             }
         } catch (err) {
             errorMsg.innerText = err.message;
