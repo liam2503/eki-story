@@ -160,8 +160,8 @@ export async function initProfileFrame() {
                 const btn = e.currentTarget;
                 if (btn.disabled) return;
                 btn.disabled = true;
-                const fromId = reqDoc.data().from;
-                const toId = reqDoc.data().to;
+                const fromId = data.from;
+                const toId = data.to;
                 try {
                     await Promise.all([
                         updateDoc(doc(db, 'users', toId), { friends: arrayUnion(fromId) }),
