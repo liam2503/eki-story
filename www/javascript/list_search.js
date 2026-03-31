@@ -1,13 +1,17 @@
 import { state, selectors } from './list_state.js';
 import { renderLines } from './list_render.js';
+import { getLanguage, t } from './i18n.js';
 
 export function populatePrefectures() {
+    const lang = getLanguage();
+    const allPrefs = t('list.allPrefectures');
+    
     let html = `<div class="pref-option flex items-center px-6 py-4 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0" data-value="">
-                    <span class="text-base font-black uppercase">All Prefectures</span>
+                    <span class="text-base font-black uppercase">${allPrefs}</span>
                 </div>`;
     state.prefectures.forEach(p => {
         const id = p.pref_id || p.id;
-        const name = p.pref_name_en || p.name_en;
+        const name = lang === 'ja' ? (p.pref_name_jp || p.name_jp || p.pref_name_en || p.name_en) : (p.pref_name_en || p.name_en);
         html += `<div class="pref-option flex items-center px-6 py-4 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0" data-value="${id}" data-name="${name}">
                     <span class="text-base font-black uppercase">${name}</span>
                 </div>`;
@@ -17,10 +21,10 @@ export function populatePrefectures() {
         item.onclick = (e) => {
             e.stopPropagation();
             state.currentPrefId = item.dataset.value;
-            selectors.prefSelectedText.textContent = item.dataset.name || "All Prefectures";
+            selectors.prefSelectedText.textContent = item.dataset.name || allPrefs;
             selectors.prefMenu.classList.add('hidden');
             state.currentCompId = "";
-            selectors.compSelectedText.textContent = "All Companies";
+            selectors.compSelectedText.textContent = t('list.allCompanies');
             updateCompanyDropdown();
             renderLines();
         };
@@ -28,13 +32,16 @@ export function populatePrefectures() {
 }
 
 export function populateCompanies(filteredCompanies = state.companies) {
+    const lang = getLanguage();
+    const allComps = t('list.allCompanies');
+    
     let html = `<div class="comp-option flex items-center gap-4 px-6 py-4 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0" data-value="">
                     <div class="w-10 h-10 shrink-0"></div>
-                    <span class="text-base font-black uppercase">All Companies</span>
+                    <span class="text-base font-black uppercase">${allComps}</span>
                 </div>`;
     filteredCompanies.forEach(c => {
         const id = c.company_id || c.id;
-        const name = c.company_name_en || c.name_en || c.company_name_jp;
+        const name = lang === 'ja' ? (c.company_name_jp || c.name_jp || c.company_name_en || c.name_en) : (c.company_name_en || c.name_en || c.company_name_jp);
         
         const logoHtml = c.logo_url 
             ? `<img src="${c.logo_url}" class="w-10 h-10 object-contain shrink-0" />`
@@ -50,7 +57,7 @@ export function populateCompanies(filteredCompanies = state.companies) {
         item.onclick = (e) => {
             e.stopPropagation();
             state.currentCompId = item.dataset.value;
-            selectors.compSelectedText.textContent = item.dataset.name || "All Companies";
+            selectors.compSelectedText.textContent = item.dataset.name || allComps;
             selectors.compMenu.classList.add('hidden');
             renderLines();
         };
@@ -77,22 +84,24 @@ export function updateCompanyDropdown() {
 
 export function handleSearch(e) {
     const query = e.target.value.trim().toLowerCase();
+    const lang = getLanguage();
+    
     if (!query) {
         selectors.searchDropdown.classList.add('hidden');
         return;
     }
     
-    const matchedLines = Object.entries(state.localLines).filter(([, d]) => (d.name_en || '').toLowerCase().includes(query)).slice(0, 5);
-    const matchedStations = state.localStations.filter(s => (s.station_name_en || '').toLowerCase().includes(query) || (s.station_name_jp || '').toLowerCase().includes(query)).slice(0, 10);
+    const matchedLines = Object.entries(state.localLines).filter(([, d]) => (d.name_en || '').toLowerCase().includes(query) || (d.name_jp || '').toLowerCase().includes(query)).slice(0, 5);
 
     let html = '';
     matchedLines.forEach(([id, data]) => {
+        const lineName = lang === 'ja' ? (data.name_jp || data.name_en) : (data.name_en || data.name_jp);
         html += `<div class="search-result flex items-center gap-4 px-6 py-4 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0" onclick="window.selectLineAndScroll('${id}')">
                     <div class="w-10 h-3 rounded-full border-[2px] border-black shrink-0" style="background-color:${data.color}"></div>
-                    <span class="text-sm font-black uppercase">${data.name_en}</span>
+                    <span class="text-sm font-black uppercase">${lineName}</span>
                 </div>`;
     });
-    selectors.searchDropdown.innerHTML = html || '<div class="px-6 py-4 text-sm font-black uppercase text-gray-400">No results</div>';
+    selectors.searchDropdown.innerHTML = html || `<div class="px-6 py-4 text-sm font-black uppercase text-gray-400">${t('common.noResults')}</div>`;
     selectors.searchDropdown.classList.remove('hidden');
 }
 

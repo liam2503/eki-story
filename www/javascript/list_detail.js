@@ -5,6 +5,7 @@ import { startCamera, stopCamera } from './stamp_camera.js';
 import { startCrop, handleCropInput, finalizeWarp } from './stamp_crop.js';
 import { setupRefinement, handleRefineDraw, processFinalStamp, applyLiveContrast, triggerUndo, toggleInvert } from './stamp_refine.js';
 import { playReturnSound } from './audio.js';
+import { getLanguage, t } from './i18n.js';
 
 let currentStationId = null, currentLineId = null, viewingStationId = null, isFlipped = false, currentTool = 'brush';
 let currentOriginalImage = null;
@@ -22,7 +23,10 @@ export async function showLineDetail(lineId) {
     const visitedCount = stations.filter(s => isVisited(s.id) || userStamps[String(s.id)]).length;
     const totalCount = line.total_stations || stations.length;
 
-    selectors.detailLineName.innerText = line.name_en;
+    const lang = getLanguage();
+    const lineName = lang === 'ja' ? (line.name_jp || line.name_en) : (line.name_en || line.name_jp);
+
+    selectors.detailLineName.innerText = lineName;
     selectors.detailLineName.onclick = () => {
         window.filterToLine?.(lineId);
         if (stations?.length && window.map) {
@@ -33,7 +37,7 @@ export async function showLineDetail(lineId) {
         
         const filterPill = document.getElementById('active-filter-pill');
         if (filterPill) {
-            document.getElementById('active-filter-name').innerText = line.name_en;
+            document.getElementById('active-filter-name').innerText = lineName;
             document.getElementById('active-filter-color').style.backgroundColor = line.color || '#000';
             filterPill.classList.remove('hidden');
         }
@@ -49,10 +53,12 @@ export async function showLineDetail(lineId) {
     selectors.detailStationsList.innerHTML = stations.map(s => {
         const visited = isVisited(s.id) || userStamps[String(s.id)];
         const stampHtml = userStamps[String(s.id)] ? `<div class="mt-4 mb-2 cursor-pointer stamp-image-preview transition-transform active:scale-95 w-max relative z-10" data-station-id="${s.id}"><img src="${userStamps[String(s.id)]}" class="w-32 h-32 object-cover border-[4px] border-black rounded-[20px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white -rotate-2 pointer-events-none"></div>` : '';
+        const stationName = lang === 'ja' ? (s.station_name_jp || s.station_name_en) : (s.station_name_en || s.station_name_jp);
+        
         return `<div class="flex items-start gap-6 ml-1 station-item">
             <div class="station-dot w-8 h-8 rounded-full border-[4px] border-black shrink-0 mt-1 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]" style="background-color: ${visited ? '#B2FF59' : '#FFF'}"></div>
             <div class="flex flex-col gap-2 w-full">
-<span class="station-name-click cursor-pointer hover:text-gray-500 transition-colors text-xl font-black uppercase tracking-tight pt-2" data-station-id="${s.id}" data-lat="${s.lat || s.displayLat}" data-lon="${s.lon || s.displayLon}">${s.station_name_en || s.station_name_jp}</span>                <button class="add-stamp-btn bg-white border-[3px] border-black px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-max mt-1" data-station-id="${s.id}" data-station-name="${s.station_name_en}" data-line-color="${line.color || '#B2FF59'}">+ Add Stamp</button>
+<span class="station-name-click cursor-pointer hover:text-gray-500 transition-colors text-xl font-black uppercase tracking-tight pt-2" data-station-id="${s.id}" data-lat="${s.lat || s.displayLat}" data-lon="${s.lon || s.displayLon}">${stationName}</span>                <button class="add-stamp-btn bg-white border-[3px] border-black px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-max mt-1" data-station-id="${s.id}" data-station-name="${stationName}" data-line-color="${line.color || '#B2FF59'}">+ ${t('camera.newStamp')}</button>
                 ${stampHtml}
             </div>
         </div>`;
@@ -81,10 +87,10 @@ export async function showLineDetail(lineId) {
         selectors.detailStationsList.classList.add('hidden');
         selectors.detailTrackLine.classList.add('hidden');
         if (selectors.detailModelsList) selectors.detailModelsList.classList.remove('hidden');
-        renderModelsList(lineId, line);
+        renderModelsList(lineId, line, lineName);
     };
 
-    renderModelsList(lineId, line);
+    renderModelsList(lineId, line, lineName);
 
     requestAnimationFrame(() => {
         const dots = selectors.detailStationsList.querySelectorAll('.station-dot');
@@ -100,18 +106,18 @@ export async function showLineDetail(lineId) {
     });
 }
 
-function renderModelsList(lineId, line) {
+function renderModelsList(lineId, line, localizedLineName) {
     if (!selectors.detailModelsList) return;
     const modelsForLine = Object.entries(userModels || {}).filter(([k, v]) => String(v.line_id) === String(lineId));
     
     let html = `
         <div class="flex flex-col gap-4 w-full">
-            <button class="add-model-btn bg-white border-[4px] border-black px-6 py-4 rounded-[20px] text-lg font-black uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-full mb-4" data-line-id="${lineId}" data-line-name="${line.name_en}" data-line-color="${line.color || '#B2FF59'}">+ Add Train Model</button>
+            <button class="add-model-btn bg-white border-[4px] border-black px-6 py-4 rounded-[20px] text-lg font-black uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-full mb-4" data-line-id="${lineId}" data-line-name="${localizedLineName}" data-line-color="${line.color || '#B2FF59'}">+ ${t('camera.newModel')}</button>
             <div class="grid grid-cols-2 gap-4">
     `;
     
     modelsForLine.forEach(([modelId, data]) => {
-        const modelName = data.name || "Unknown Model";
+        const modelName = data.name || t('common.unknown');
         html += `
             <div class="cursor-pointer model-image-preview transition-transform active:scale-95 flex flex-col items-center gap-2" data-model-id="${modelId}">
                 <img src="${data.image}" class="w-full aspect-square object-cover border-[4px] border-black rounded-[20px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white pointer-events-none">
@@ -176,7 +182,7 @@ export function initStampScanner() {
                     const ts = userStampDates[viewingStationId];
                     if (ts) {
                         const d = new Date(ts);
-                        els.modalDate.innerText = `Date Stamped: ${d.toLocaleDateString()}`;
+                        els.modalDate.innerText = `${t('book.dateStamped')} ${d.toLocaleDateString()}`;
                     } else {
                         els.modalDate.innerText = "";
                     }
@@ -204,7 +210,9 @@ export function initStampScanner() {
 
             const filterPill = document.getElementById('active-filter-pill');
             if (filterPill && line) {
-                document.getElementById('active-filter-name').innerText = line.name_en;
+                const lang = getLanguage();
+                const localizedLineName = lang === 'ja' ? (line.name_jp || line.name_en) : (line.name_en || line.name_jp);
+                document.getElementById('active-filter-name').innerText = localizedLineName;
                 document.getElementById('active-filter-color').style.backgroundColor = line.color || '#000';
                 filterPill.classList.remove('hidden');
             }
@@ -213,10 +221,14 @@ export function initStampScanner() {
             window.resetUI?.();
 
             if (window.showTooltip && station) {
+                const lang = getLanguage();
+                const stationName = lang === 'ja' ? (station.station_name_jp || station.station_name_en) : (station.station_name_en || station.station_name_jp);
+                const lineName = lang === 'ja' ? (line?.name_jp || line?.name_en) : (line?.name_en || line?.name_jp);
+                
                 window.showTooltip({ lat, lng: lon }, {
                     stationId: station.id,
-                    stationName: station.station_name_en || station.station_name_jp || "Unknown Station",
-                    lineName: line?.name_en || `Line ${currentLineId}`,
+                    stationName: stationName || t('common.unknown'),
+                    lineName: lineName || `Line ${currentLineId}`,
                     color: line?.color || "#000000",
                     isVisited: isVisited(station.id)
                 }, 'station');
@@ -238,11 +250,7 @@ export function initStampScanner() {
     if (clearFilterBtn) {
         clearFilterBtn.onclick = () => {
             document.getElementById('active-filter-pill').classList.add('hidden');
-            
-            // Pass an empty string instead of null to prevent accidental "null" string conversions
             window.filterToLine?.(""); 
-            
-            // Force the map to re-evaluate and draw all visible markers again
             if (window.map) {
                 google.maps.event.trigger(window.map, 'idle');
             }

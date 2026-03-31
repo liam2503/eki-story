@@ -1,5 +1,6 @@
 import { userStamps, userStampDates } from './user.js';
 import { state } from './list_state.js';
+import { getLanguage, t } from './i18n.js';
 
 let currentPage = 0;
 let sortedStamps = [];
@@ -53,16 +54,18 @@ export function initStampBook() {
 
 function openBook() {
     const cont = document.getElementById('stamp-book-container');
+    const lang = getLanguage();
     
-    // Convert object to array, attach metadata, and sort newest first
     sortedStamps = Object.keys(userStamps).map(stationId => {
         const ts = userStampDates[stationId] || 0;
         const station = state.localStations.find(s => String(s.id) === String(stationId));
+        const stationName = station ? (lang === 'ja' ? (station.station_name_jp || station.station_name_en) : (station.station_name_en || station.station_name_jp)) : t('common.unknown');
+        
         return {
             stationId,
             image: userStamps[stationId],
             date: ts ? new Date(ts).toLocaleDateString() : 'Unknown Date',
-            name: station ? (station.station_name_en || station.station_name_jp) : 'Unknown Station',
+            name: stationName,
             ts: ts
         };
     }).sort((a, b) => b.ts - a.ts);
@@ -99,7 +102,6 @@ function renderPage() {
     emptyState.classList.add('hidden');
     const current = sortedStamps[currentPage];
 
-    // Give each stamp a slight randomized rotation for a realistic handmade look
     const randomRotation = (Math.random() * 8 - 4).toFixed(1);
     imgEl.style.transform = `rotate(${randomRotation}deg)`;
     

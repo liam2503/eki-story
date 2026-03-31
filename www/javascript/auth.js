@@ -347,7 +347,7 @@ export function initAuth() {
         try {
             if (Capacitor.isNativePlatform()) {
                 GoogleAuth.initialize({
-                  clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+                  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
                   scopes: ['profile', 'email'],
                   grantOfflineAccess: true,
                 });

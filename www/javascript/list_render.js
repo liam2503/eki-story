@@ -2,9 +2,9 @@ import { state, selectors, RENDER_CHUNK_SIZE } from './list_state.js';
 import { showLineDetail } from './list_detail.js';
 import { isVisited, userStamps, userModels } from './user.js';
 import { idbGet } from './idb.js';
+import { getLanguage } from './i18n.js';
 
 export async function renderLines() {
-    // ALWAYS pull fresh data directly from the window before evaluating
     state.localStations = window.allStations || await idbGet('stationData') || [];
     state.localLines = window.lineData || window.lineColors || await idbGet('lineData') || {};
 
@@ -53,6 +53,8 @@ export function renderNextChunk() {
         selectors.sentinel.remove();
     }
 
+    const lang = getLanguage();
+
     chunk.forEach(lineId => {
         const line = state.localLines[lineId];
         const stationsOnLine = state.localStations.filter(s => String(s.line_id) === String(lineId));
@@ -60,6 +62,7 @@ export function renderNextChunk() {
 
         const total = line.total_stations || stationsOnLine.length;
         const visited = stationsOnLine.filter(s => isVisited(s.id) || userStamps[String(s.id)]).length;
+        const lineName = lang === 'ja' ? (line.name_jp || line.name_en) : (line.name_en || line.name_jp);
 
         const card = document.createElement('div');
         card.id = `line-card-${lineId}`;
@@ -71,7 +74,7 @@ export function renderNextChunk() {
 
         card.innerHTML = `
             <div class="flex items-center justify-between gap-3 pointer-events-none">
-                <h3 class="text-black font-black text-lg leading-tight uppercase tracking-tight break-words flex-1">${line.name_en}</h3>
+                <h3 class="text-black font-black text-lg leading-tight uppercase tracking-tight break-words flex-1">${lineName}</h3>
                 <div class="w-14 h-14 shrink-0 bg-white border-[3px] border-black rounded-full flex items-center justify-center text-black font-black italic" style="box-shadow: 3px 3px 0px 0px ${line.color || '#000'}">
                     <div class="flex items-baseline mt-0.5">
                         <span class="text-xl leading-none">${visited}</span>

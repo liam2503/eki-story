@@ -1,4 +1,5 @@
 import { lightenColor } from './map_utils.js';
+import { getLanguage, t } from './i18n.js';
 
 export const markers = {};
 export const decoMarkers = {};
@@ -14,6 +15,8 @@ export function renderVisibleMarkers(map, allStations, lineColors, activeLineFil
     const currentScale = Math.max(8, currentZoom - 4);
     const currentStroke = Math.max(5, currentZoom * 0.5);
 
+    const lang = getLanguage();
+
     allStations.forEach(station => {
         const inView = station.displayLat >= sw.lat() && station.displayLat <= ne.lat() && station.displayLon >= sw.lng() && station.displayLon <= ne.lng();
         
@@ -23,6 +26,9 @@ export function renderVisibleMarkers(map, allStations, lineColors, activeLineFil
             const markerColor = lineData?.color || "#000000";
             const visited = window.isVisited?.(station.id);
             const isVisible = !(activeLineFilter && String(station.line_id) !== activeLineFilter);
+
+            const stationName = lang === 'ja' ? (station.station_name_jp || station.station_name_en) : (station.station_name_en || station.station_name_jp);
+            const lineName = lang === 'ja' ? (lineData?.name_jp || lineData?.name_en) : (lineData?.name_en || lineData?.name_jp);
 
             if (!markers[station.id]) {
                 const size = currentScale * 2;
@@ -42,15 +48,15 @@ export function renderVisibleMarkers(map, allStations, lineColors, activeLineFil
                     map: isVisible ? map : null,
                     content: el,
                     zIndex: 2,
-                    title: station.station_name_en || "Station"
+                    title: stationName || "Station"
                 });
 
                 marker.addListener('gmp-click', () => {
                     const currentVisited = window.isVisited?.(station.id);
                     showTooltip({ lat: station.displayLat, lng: station.displayLon }, {
                         stationId: station.id,
-                        stationName: station.station_name_en || "Unknown Station",
-                        lineName: lineData?.name_en || `Line ${lineKey}`,
+                        stationName: stationName || t('common.unknown'),
+                        lineName: lineName || `Line ${lineKey}`,
                         color: lineData?.color || "#000000",
                         isVisited: currentVisited 
                     }, 'station');
