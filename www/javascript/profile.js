@@ -1,5 +1,5 @@
 import { auth, db } from './firebase.js';
-import { collection, query, where, getDocs, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
 import { showAuthScreen } from './auth.js';
 import { getVisitedStations, userStamps, CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
 import { applyTranslations, t } from './i18n.js';
@@ -156,8 +156,29 @@ export async function initProfileFrame() {
                 </div>
             `;
 
-            reqEl.querySelector('.accept-btn').onclick = async () => {
-                await updateDoc(doc(db, 'friend_requests', reqDoc.id), { status: 'accepted' });
+            reqEl.querySelector('.accept-btn').onclick = async (e) => {
+                const btn = e.currentTarget;
+                if (btn.disabled) return;
+                btn.disabled = true;
+                const fromId = data.from;
+                const toId = data.to;
+                try {
+                    await Promise.all([
+                        updateDoc(doc(db, 'users', toId), { friends: arrayUnion(fromId) }),
+                        updateDoc(doc(db, 'users', fromId), { friends: arrayUnion(toId) }),
+                        deleteDoc(doc(db, 'friend_requests', reqDoc.id)),
+                    ]);
+                    if (messageEl) {
+                        messageEl.innerText = '';
+                        messageEl.classList.add('hidden');
+                    }
+                } catch (err) {
+                    btn.disabled = false;
+                    if (messageEl) {
+                        messageEl.innerText = 'Failed to accept request. Please try again.';
+                        messageEl.classList.remove('hidden');
+                    }
+                }
             };
 
             reqEl.querySelector('.decline-btn').onclick = async () => {
