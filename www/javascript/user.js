@@ -77,10 +77,18 @@ export async function updateUserSetting(key, value) {
     await setDoc(userRef, { settings: { [key]: value } }, { merge: true });
 }
 
+let userUnsub = null;
+let stampsUnsub = null;
+let modelsUnsub = null;
+
 export function initProfileSync() {
     if (!CURRENT_USER_ID) return;
     
-    onSnapshot(doc(db, 'users', CURRENT_USER_ID), (docSnap) => {
+    if (userUnsub) userUnsub();
+    if (stampsUnsub) stampsUnsub();
+    if (modelsUnsub) modelsUnsub();
+    
+    userUnsub = onSnapshot(doc(db, 'users', CURRENT_USER_ID), (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
             visitedStations = data.visited_stations || [];
@@ -98,7 +106,7 @@ export function initProfileSync() {
     });
 
     const stampsRef = collection(db, 'users', CURRENT_USER_ID, 'stamps');
-    onSnapshot(stampsRef, (snapshot) => {
+    stampsUnsub = onSnapshot(stampsRef, (snapshot) => {
         Object.keys(userStamps).forEach(key => delete userStamps[key]);
         Object.keys(userStampOriginals).forEach(key => delete userStampOriginals[key]);
         Object.keys(userStampDates).forEach(key => delete userStampDates[key]);
@@ -114,7 +122,7 @@ export function initProfileSync() {
     });
 
     const modelsRef = collection(db, 'users', CURRENT_USER_ID, 'models');
-    onSnapshot(modelsRef, (snapshot) => {
+    modelsUnsub = onSnapshot(modelsRef, (snapshot) => {
         Object.keys(userModels).forEach(key => delete userModels[key]);
         snapshot.forEach((doc) => {
             userModels[doc.id] = doc.data();

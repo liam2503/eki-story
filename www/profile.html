@@ -11,7 +11,7 @@
 <body>
 <turbo-frame id="profile-frame" class="block px-6 pb-32">
     
-    <h2 class="text-black dark:text-[#B2FF59] font-black text-4xl uppercase tracking-tighter mb-6 mt-8">Profile</h2>
+    <h2 data-i18n="profile.title" class="text-black dark:text-[#B2FF59] font-black text-4xl uppercase tracking-tighter mb-6 mt-8">Profile</h2>
 
     <div class="flex flex-col gap-6 w-full max-w-md mx-auto">
         
@@ -28,21 +28,21 @@
             <div class="grid grid-cols-2 gap-3 mt-2">
                 <div class="bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                     <span id="profile-stations-count" class="text-2xl font-black tracking-tighter dark:text-white">0</span>
-                    <span class="text-[9px] font-black uppercase text-gray-500 dark:text-gray-400 tracking-widest">Stations</span>
+                    <span data-i18n="profile.stations" class="text-[9px] font-black uppercase text-gray-500 dark:text-gray-400 tracking-widest">Stations</span>
                 </div>
                 <div class="bg-[#FF80AB] border-[3px] border-black dark:border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                     <span id="profile-stamps-count" class="text-2xl font-black tracking-tighter text-black dark:text-white">0</span>
-                    <span class="text-[9px] font-black uppercase text-black dark:text-white tracking-widest">Stamps</span>
+                    <span data-i18n="profile.stamps" class="text-[9px] font-black uppercase text-black dark:text-white tracking-widest">Stamps</span>
                 </div>
             </div>
         </div>
 
         <div class="bg-white dark:bg-slate-800 border-[5px] border-black dark:border-slate-600 rounded-[32px] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-4 relative">
-            <h3 class="text-xl font-black uppercase tracking-tighter dark:text-white">Friends List</h3>
+            <h3 data-i18n="profile.friendsList" class="text-xl font-black uppercase tracking-tighter dark:text-white">Friends List</h3>
             
             <div class="flex gap-2 relative">
-                <input type="text" id="friend-search-input" placeholder="Add by username" class="flex-1 bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-black uppercase placeholder-gray-400 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-slate-600 transition-colors" />
-                <button id="send-friend-request-btn" class="bg-[#B2FF59] border-[3px] border-black dark:border-slate-600 rounded-xl px-4 py-3 text-black font-black text-sm uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all shrink-0 flex items-center justify-center">
+                <input type="text" id="friend-search-input" data-i18n="profile.searchPlaceholder" placeholder="Add by username" class="flex-1 bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-black uppercase placeholder-gray-400 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-slate-600 transition-colors" />
+                <button id="send-friend-request-btn" data-i18n="profile.addFriend" class="bg-[#B2FF59] border-[3px] border-black dark:border-slate-600 rounded-xl px-4 py-3 text-black font-black text-sm uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all shrink-0 flex items-center justify-center">
                     Add
                 </button>
                 
@@ -54,9 +54,9 @@
             <div class="w-full h-[4px] bg-black dark:bg-slate-600 my-2"></div>
 
             <div class="flex flex-col gap-4">
-                <h4 class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Requests</h4>
+                <h4 data-i18n="profile.requests" class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Requests</h4>
                 <div id="friend-requests-list" class="flex flex-col gap-3 empty:hidden"></div>
-                <div id="no-requests-msg" class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center py-4">No pending requests</div>
+                <div id="no-requests-msg" data-i18n="profile.noRequests" class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center py-4">No pending requests</div>
             </div>
         </div>
     </div>

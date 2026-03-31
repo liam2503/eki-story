@@ -5,6 +5,7 @@ import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { showAuthScreen } from './auth.js';
 import { updateUserSetting } from './user.js';
+import { applyTranslations, getLanguage, setLanguage, t } from './i18n.js';
 
 const DARK_MODE_KEY = 'eki-dark-mode';
 const SOUND_KEY = 'eki-sound';
@@ -13,6 +14,7 @@ const DECLINE_REQUESTS_KEY = 'eki-decline-requests';
 const LIGHT_STYLES = [
     { featureType: 'all', elementType: 'labels', stylers: [{ visibility: 'off' }] },
     { featureType: 'landscape', stylers: [{ color: '#A5D6A7' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#90CAF9' }] },
     { featureType: 'transit', stylers: [{ visibility: 'off' }] },
     { featureType: 'poi', stylers: [{ visibility: 'off' }] },
     { featureType: 'administrative', stylers: [{ visibility: 'off' }] },
@@ -79,14 +81,52 @@ export function initSettings() {
 let authUnsubscribe = null;
 
 export function initSettingsFrame() {
+    applyTranslations();
+
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     const soundToggle = document.getElementById('sound-toggle');
     const declineRequestsToggle = document.getElementById('decline-requests-toggle');
     const refreshBtn = document.getElementById('refresh-db-btn');
+    const langEnBtn = document.getElementById('lang-en-btn');
+    const langJaBtn = document.getElementById('lang-ja-btn');
 
     const savedDark = localStorage.getItem(DARK_MODE_KEY) === 'true';
     const savedSound = localStorage.getItem(SOUND_KEY) !== 'false';
     const savedDeclineRequests = localStorage.getItem(DECLINE_REQUESTS_KEY) === 'true';
+
+    function updateSettingsLangUI(lang) {
+        if (lang === 'en') {
+            langEnBtn.classList.add('bg-[#B2FF59]', 'text-black');
+            langEnBtn.classList.remove('bg-transparent', 'text-gray-600');
+            langJaBtn.classList.add('bg-transparent', 'text-gray-600');
+            langJaBtn.classList.remove('bg-[#B2FF59]', 'text-black');
+        } else {
+            langJaBtn.classList.add('bg-[#B2FF59]', 'text-black');
+            langJaBtn.classList.remove('bg-transparent', 'text-gray-600');
+            langEnBtn.classList.add('bg-transparent', 'text-gray-600');
+            langEnBtn.classList.remove('bg-[#B2FF59]', 'text-black');
+        }
+    }
+
+    if (langEnBtn && langJaBtn) {
+        updateSettingsLangUI(getLanguage());
+        
+        langEnBtn.onclick = async function() {
+            if (getLanguage() !== 'en') {
+                setLanguage('en');
+                await updateUserSetting('language', 'en');
+                window.location.reload();
+            }
+        };
+        
+        langJaBtn.onclick = async function() {
+            if (getLanguage() !== 'ja') {
+                setLanguage('ja');
+                await updateUserSetting('language', 'ja');
+                window.location.reload();
+            }
+        };
+    }
 
     if (darkModeToggle) {
         setToggle(darkModeToggle, savedDark);
@@ -126,13 +166,13 @@ export function initSettingsFrame() {
 
         if (currentSignOutBtn) {
             if (!user || user.isAnonymous) {
-                currentSignOutBtn.innerText = "Sign In / Create An Account";
+                currentSignOutBtn.innerText = t('settings.loginOrSignUp') || "Sign In / Create An Account";
                 currentSignOutBtn.onclick = () => {
                     window.resetUI?.();
                     showAuthScreen();
                 };
             } else {
-                currentSignOutBtn.innerText = "Sign Out";
+                currentSignOutBtn.innerText = t('settings.signOut') || "Sign Out";
                 currentSignOutBtn.onclick = async () => {
                     try {
                         localStorage.clear();
@@ -159,8 +199,8 @@ export function initSettingsFrame() {
                     const confirmModal = document.getElementById('generic-confirm-modal');
                     const confirmBox = document.getElementById('generic-confirm-box');
                     
-                    document.getElementById('generic-confirm-title').innerText = "Delete Account?";
-                    document.getElementById('generic-confirm-message').innerText = "This will permanently delete your data and cannot be undone. Are you absolutely sure?";
+                    document.getElementById('generic-confirm-title').innerText = t('settings.deleteAccountTitle') || "Delete Account?";
+                    document.getElementById('generic-confirm-message').innerText = t('settings.deleteAccountMessage') || "This will permanently delete your data and cannot be undone. Are you absolutely sure?";
                     
                     confirmModal.classList.remove('opacity-0', 'pointer-events-none');
                     confirmBox.classList.remove('scale-95');
@@ -186,8 +226,8 @@ export function initSettingsFrame() {
                         } catch (err) {
                             const alertModal = document.getElementById('generic-alert-modal');
                             const alertBox = document.getElementById('generic-alert-box');
-                            document.getElementById('generic-alert-title').innerText = "Action Failed";
-                            document.getElementById('generic-alert-message').innerText = "Failed to delete account. You may need to sign out and sign back in to verify your identity before deleting.";
+                            document.getElementById('generic-alert-title').innerText = t('settings.actionFailedTitle') || "Action Failed";
+                            document.getElementById('generic-alert-message').innerText = t('settings.actionFailedMessage') || "Failed to delete account. You may need to sign out and sign back in to verify your identity before deleting.";
                             
                             alertModal.classList.remove('opacity-0', 'pointer-events-none');
                             alertBox.classList.remove('scale-95');
@@ -243,8 +283,25 @@ window.addEventListener('settingsSynced', () => {
     if (declineRequestsToggle) setToggle(declineRequestsToggle, localStorage.getItem(DECLINE_REQUESTS_KEY) === 'true');
 });
 
-document.addEventListener('turbo:frame-load', (e) => {
-    if (e.target.id === 'settings-frame') {
+let settingsFrameInitialized = false;
+
+function checkAndInitSettings() {
+    if (settingsFrameInitialized) return;
+    if (document.getElementById('dark-mode-toggle')) {
+        settingsFrameInitialized = true;
         initSettingsFrame();
     }
+}
+
+document.addEventListener('turbo:frame-load', (e) => {
+    if (e.target.id === 'settings-frame') {
+        settingsFrameInitialized = false;
+        checkAndInitSettings();
+    }
 });
+
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    setTimeout(checkAndInitSettings, 100);
+} else {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(checkAndInitSettings, 100));
+}

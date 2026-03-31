@@ -3,6 +3,7 @@ import { collection, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arra
 import { startCamera, stopCamera } from './stamp_camera.js';
 import { CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
 import { showAuthScreen } from './auth.js';
+import { applyTranslations, t } from './i18n.js';
 
 let postsUnsubscribe = null;
 let commentsUnsubscribe = null;
@@ -16,6 +17,8 @@ let currentUserFriends = [];
 
 export async function initFeedFrame() {
     if (!CURRENT_USER_ID) return;
+
+    applyTranslations();
 
     const newPostBtn = document.getElementById('new-post-btn');
     const feedList = document.getElementById('feed-posts-list');
@@ -101,7 +104,7 @@ function renderFeed() {
     });
 
     if (list.innerHTML === '') {
-        list.innerHTML = `<div class="text-center text-gray-400 font-bold text-sm uppercase mt-10 tracking-widest">No posts to show</div>`;
+        list.innerHTML = `<div class="text-center text-gray-400 font-bold text-sm uppercase mt-10 tracking-widest">${t('feed.noPosts')}</div>`;
     }
 }
 
@@ -165,11 +168,11 @@ function createPostElement(id, data, isDetail = false) {
         <div class="flex gap-4 mt-6">
             <button class="yeah-btn flex-1 ${yeahColor} border-[4px] border-black dark:border-slate-600 rounded-xl py-3 ${yeahText} font-black text-base uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all flex items-center justify-center gap-2" data-id="${id}">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h-2.514"></path></svg>
-                YEAH! <span class="ml-1">${yeahs.length}</span>
+                ${t('feed.yeah')} <span class="ml-1">${yeahs.length}</span>
             </button>
             <button class="${isDetail ? 'opacity-50 pointer-events-none' : 'talk-btn post-detail-trigger'} flex-1 bg-white dark:bg-slate-700 border-[4px] border-black dark:border-slate-600 rounded-xl py-3 text-black dark:text-white font-black text-base uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all flex items-center justify-center gap-2" data-id="${id}">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                TALK <span class="ml-1">${data.commentsCount || 0}</span>
+                ${t('post.talk')} <span class="ml-1">${data.commentsCount || 0}</span>
             </button>
         </div>
     `;
@@ -236,7 +239,7 @@ function initFeedStationSearch() {
             const gid = s.station_g_id || s.id;
             if (!stationGroups[gid]) {
                 stationGroups[gid] = {
-                    name: s.station_name_en || s.station_name_jp || 'Unknown',
+                    name: s.station_name_en || s.station_name_jp || t('common.unknown'),
                     stations: []
                 };
             }
@@ -246,7 +249,7 @@ function initFeedStationSearch() {
         const entries = Object.entries(stationGroups).slice(0, 10);
         
         if (entries.length === 0) {
-            searchResults.innerHTML = '<div class="px-5 py-4 text-xs font-black uppercase text-gray-400">No results</div>';
+            searchResults.innerHTML = `<div class="px-5 py-4 text-xs font-black uppercase text-gray-400">${t('common.noResults')}</div>`;
             searchResults.classList.remove('hidden');
             return;
         }

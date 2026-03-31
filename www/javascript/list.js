@@ -5,9 +5,12 @@ import { state, selectors } from './list_state.js';
 import { renderLines, renderNextChunk } from './list_render.js';
 import { populatePrefectures, populateCompanies, handleSearch } from './list_search.js';
 import { playReturnSound } from './audio.js';
+import { applyTranslations } from './i18n.js';
 
 async function initList() {
     if (!selectors.listFrame) return;
+
+    applyTranslations();
 
     state.localStations = window.allStations || await idbGet('stationData') || [];
     state.localLines = window.lineData || window.lineColors || await idbGet('lineData') || {};
@@ -78,6 +81,12 @@ document.addEventListener('click', (e) => {
     }
     if (selectors.compSelector && !selectors.compSelector.contains(e.target) && selectors.compMenu) {
         selectors.compMenu.classList.add('hidden');
+    }
+});
+
+document.addEventListener('turbo:frame-load', (e) => {
+    if (e.target.id === 'list-frame') {
+        applyTranslations();
     }
 });
 

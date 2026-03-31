@@ -1,7 +1,8 @@
 import { auth, db } from './firebase.js';
-import { collection, query, where, getDocs, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { showAuthScreen } from './auth.js';
-import { getVisitedStations, userStamps } from './user.js';
+import { getVisitedStations, userStamps, CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
+import { applyTranslations, t } from './i18n.js';
 
 export function updateProfileCounts() {
     const stationsCount = document.getElementById('profile-stations-count');
@@ -17,10 +18,11 @@ export function updateProfileCounts() {
     }
 }
 
-// Listen for the custom event your app already fires when Firestore data syncs
 window.addEventListener('visitedDataUpdated', updateProfileCounts);
 
 export async function initProfileFrame() {
+    applyTranslations();
+
     const profileContainer = document.getElementById('profile-container');
     const closeBtn = document.getElementById('close-profile-btn');
     
@@ -39,26 +41,10 @@ export async function initProfileFrame() {
     const requestsList = document.getElementById('friend-requests-list');
     const noRequestsMsg = document.getElementById('no-requests-msg');
 
-    const user = auth.currentUser;
-    const isGuest = !user || user.isAnonymous;
-
-    if (isGuest) {
-        if (usernameEl) usernameEl.innerText = "Guest";
-    } else {
-        if (usernameEl && user) {
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists() && userDoc.data().username) {
-                usernameEl.innerText = userDoc.data().username;
-            } else {
-                usernameEl.innerText = user.displayName || user.email?.split('@')[0] || "Collector";
-            }
-        }
-    }
-
-    // Set the initial counts
     updateProfileCounts();
 
-    if (isGuest) {
+    if (IS_ANONYMOUS || !CURRENT_USER_ID) {
+        if (usernameEl) usernameEl.innerText = "Guest";
         if (guestOverlay) {
             guestOverlay.classList.remove('hidden');
             guestOverlay.onclick = () => {
@@ -67,9 +53,10 @@ export async function initProfileFrame() {
             };
         }
         return; 
-    } else {
-        if (guestOverlay) guestOverlay.classList.add('hidden');
     }
+
+    if (guestOverlay) guestOverlay.classList.add('hidden');
+    if (usernameEl) usernameEl.innerText = CURRENT_USERNAME;
 
     if (sendBtn) {
         sendBtn.onclick = async () => {
@@ -78,13 +65,10 @@ export async function initProfileFrame() {
 
             messageEl.classList.remove('hidden', 'text-[#FF5252]', 'text-[#B2FF59]');
             messageEl.classList.add('text-gray-500');
-            messageEl.innerText = "Searching...";
+            messageEl.innerText = t('common.loading') || "Searching...";
 
             try {
-                const currentUserDoc = await getDoc(doc(db, 'users', user.uid));
-                const currentUsername = currentUserDoc.data()?.username;
-
-                if (currentUsername === targetUsername) {
+                if (CURRENT_USERNAME === targetUsername) {
                     throw new Error("You cannot add yourself.");
                 }
 
@@ -100,7 +84,7 @@ export async function initProfileFrame() {
                 const targetUserId = targetUser.id;
 
                 const reqQuery = query(collection(db, 'friend_requests'), 
-                    where("from", "==", user.uid), 
+                    where("from", "==", CURRENT_USER_ID), 
                     where("to", "==", targetUserId)
                 );
                 const reqSnapshot = await getDocs(reqQuery);
@@ -109,8 +93,8 @@ export async function initProfileFrame() {
                 }
 
                 await addDoc(collection(db, 'friend_requests'), {
-                    from: user.uid,
-                    fromUsername: currentUsername || user.email,
+                    from: CURRENT_USER_ID,
+                    fromUsername: CURRENT_USERNAME,
                     to: targetUserId,
                     status: 'pending',
                     timestamp: new Date()
@@ -133,11 +117,15 @@ export async function initProfileFrame() {
 
     const incomingQuery = query(
         collection(db, 'friend_requests'), 
-        where("to", "==", user.uid), 
+        where("to", "==", CURRENT_USER_ID), 
         where("status", "==", "pending")
     );
 
-    onSnapshot(incomingQuery, (snapshot) => {
+    if (window.profileRequestsUnsub) {
+        window.profileRequestsUnsub();
+    }
+
+    window.profileRequestsUnsub = onSnapshot(incomingQuery, (snapshot) => {
         if (requestsList) requestsList.innerHTML = '';
         
         if (snapshot.empty) {

@@ -1,13 +1,13 @@
 import { auth, db, googleProvider } from './firebase.js';
 import { 
     onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
-    signInAnonymously, linkWithCredential, linkWithPopup, EmailAuthProvider 
+    signInAnonymously, linkWithCredential, linkWithPopup, EmailAuthProvider,
+    GoogleAuthProvider, signInWithCredential, signInWithPopup, deleteUser, signOut
 } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { setCurrentUser, initProfileSync } from './user.js';
 import { initFeedFrame } from './feed.js';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
-import { GoogleAuthProvider, signInWithCredential, signInWithPopup } from "firebase/auth";
 import { Capacitor } from '@capacitor/core';
 
 let isSignUpMode = false;
@@ -125,33 +125,29 @@ export function initAuth() {
                     });
 
                     if (isDuplicateEmail) {
-                        import('firebase/auth').then(async ({ deleteUser, signOut }) => {
-                            try { await deleteUser(user); } catch(e) {}
-                            await signOut(auth);
-                            if (errorMsg) {
-                                errorMsg.innerText = "An account with this email already exists. Please log in with your original method.";
-                                errorMsg.classList.remove('hidden');
-                            }
-                        });
-                        return;
-                    }
+    try { await deleteUser(user); } catch(e) {}
+    await signOut(auth);
+    if (errorMsg) {
+        errorMsg.innerText = "An account with this email already exists. Please log in with your original method.";
+        errorMsg.classList.remove('hidden');
+    }
+    return;
+}
 
                     if (isSignUpMode && authUsername && authUsername.value.trim()) {
-                        const proposedName = authUsername.value.trim();
-                        const nameQuery = query(collection(db, 'users'), where("username", "==", proposedName));
-                        const nameSnap = await getDocs(nameQuery);
-                        
-                        if (!nameSnap.empty) {
-                            import('firebase/auth').then(async ({ deleteUser, signOut }) => {
-                                try { await deleteUser(user); } catch(e) {}
-                                await signOut(auth);
-                                if (errorMsg) {
-                                    errorMsg.innerText = "This username is already taken. Please try another one.";
-                                    errorMsg.classList.remove('hidden');
-                                }
-                            });
-                            return;
-                        }
+    const proposedName = authUsername.value.trim();
+    const nameQuery = query(collection(db, 'users'), where("username", "==", proposedName));
+    const nameSnap = await getDocs(nameQuery);
+    
+    if (!nameSnap.empty) {
+        try { await deleteUser(user); } catch(e) {}
+        await signOut(auth);
+        if (errorMsg) {
+            errorMsg.innerText = "This username is already taken. Please try another one.";
+            errorMsg.classList.remove('hidden');
+        }
+        return;
+    }
 
                         username = proposedName;
                         await setDoc(doc(db, 'users', user.uid), { username: username, email: user.email }, { merge: true });
@@ -177,8 +173,14 @@ export function initAuth() {
                             authUsername.placeholder = "Choose a Username";
                         }
                         
-                        if(authIdentifier) authIdentifier.classList.add('hidden');
-                        if(authPassword) authPassword.classList.add('hidden');
+                        if(authIdentifier) {
+                            authIdentifier.classList.add('hidden');
+                            authIdentifier.required = false;
+                        }
+                        if(authPassword) {
+                            authPassword.classList.add('hidden');
+                            authPassword.required = false;
+                        }
                         if(authGoogleBtn) authGoogleBtn.classList.add('hidden');
                         if(authAnonBtn) authAnonBtn.classList.add('hidden');
                         if(authToggleMode) authToggleMode.classList.add('hidden');
@@ -391,4 +393,44 @@ export function initAuth() {
             errorMsg.classList.remove('hidden');
         }
     };
+}
+
+import { applyTranslations, getLanguage, setLanguage } from './i18n.js';
+
+export function initAuthLanguageSelector() {
+    const authLangEnBtn = document.getElementById('auth-lang-en-btn');
+    const authLangJaBtn = document.getElementById('auth-lang-ja-btn');
+
+    function updateAuthLangUI(lang) {
+        if (lang === 'en') {
+            authLangEnBtn.classList.add('bg-[#B2FF59]', 'text-black');
+            authLangEnBtn.classList.remove('bg-transparent', 'text-gray-500');
+            authLangJaBtn.classList.add('bg-transparent', 'text-gray-500');
+            authLangJaBtn.classList.remove('bg-[#B2FF59]', 'text-black');
+        } else {
+            authLangJaBtn.classList.add('bg-[#B2FF59]', 'text-black');
+            authLangJaBtn.classList.remove('bg-transparent', 'text-gray-500');
+            authLangEnBtn.classList.add('bg-transparent', 'text-gray-500');
+            authLangEnBtn.classList.remove('bg-[#B2FF59]', 'text-black');
+        }
+    }
+
+    if (authLangEnBtn && authLangJaBtn) {
+        updateAuthLangUI(getLanguage());
+        applyTranslations();
+        
+        authLangEnBtn.onclick = () => {
+            if (getLanguage() !== 'en') {
+                setLanguage('en');
+                updateAuthLangUI('en');
+            }
+        };
+        
+        authLangJaBtn.onclick = () => {
+            if (getLanguage() !== 'ja') {
+                setLanguage('ja');
+                updateAuthLangUI('ja');
+            }
+        };
+    }
 }

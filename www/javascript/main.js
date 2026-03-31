@@ -8,13 +8,26 @@ import { initAuth } from './auth.js';
 import { Capacitor } from '@capacitor/core';
 import { initStampBook } from './stamp_book.js';
 import './profile.js';
+import { t } from './i18n.js';
 
 const platform = Capacitor.getPlatform();
 document.documentElement.classList.add(platform);
 
 window.isVisited = isVisited;
 
+// State lock to prevent double-firing if both events manage to trigger
+let isInitialized = false;
+
 function initAll() {
+    if (isInitialized) return;
+    isInitialized = true;
+
+    const alertTitle = document.getElementById('generic-alert-title');
+    const alertMsg = document.getElementById('generic-alert-message');
+    
+    if (alertTitle) alertTitle.innerText = t('settings.actionFailedTitle');
+    if (alertMsg) alertMsg.innerText = t('settings.actionFailedMessage');
+
     initSettings();
     initButtons();
     initSearch();
@@ -27,5 +40,16 @@ function initAll() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", initAll);
-document.addEventListener("turbo:load", initAll);
+// 1. If the DOM is already parsed (common for module scripts), run immediately.
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    initAll();
+} else {
+    // 2. Otherwise, wait for it.
+    document.addEventListener("DOMContentLoaded", initAll);
+}
+
+// 3. Handle Hotwire Turbo page navigations.
+document.addEventListener("turbo:load", () => {
+    isInitialized = false; // Release the lock for the new page
+    initAll();
+});

@@ -8,7 +8,7 @@
 </head>
 <body>
     <turbo-frame id="list-frame" class="w-full space-y-6 block px-6 pb-6 pt-8">
-<h2 class="text-black dark:text-[#40C4FF] font-black text-4xl uppercase tracking-tighter mb-4">Progress</h2>
+        <h2 data-i18n="list.title" class="text-black dark:text-[#40C4FF] font-black text-4xl uppercase tracking-tighter mb-4">Progress</h2>
         <div class="relative w-full mb-2 z-50">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
@@ -16,20 +16,20 @@
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
             </div>
-            <input id="list-search-input" type="text" placeholder="SEARCH STATIONS OR LINES..." class="w-full bg-white border-[4px] border-black rounded-2xl pl-11 pr-4 py-3 text-xs font-black uppercase placeholder-gray-400 focus:outline-none focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all" />
+            <input id="list-search-input" data-i18n="list.searchPlaceholder" type="text" placeholder="SEARCH STATIONS OR LINES..." class="w-full bg-white border-[4px] border-black rounded-2xl pl-11 pr-4 py-3 text-xs font-black uppercase placeholder-gray-400 focus:outline-none focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all" />
             <div id="list-search-dropdown" class="absolute top-full left-0 right-0 mt-2 bg-white border-[4px] border-black rounded-[20px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hidden z-50 max-h-72 overflow-y-auto"></div>
         </div>
 
         <div class="flex gap-3 w-full mb-6 z-40 relative">
             <div class="flex-1" id="pref-dropdown-container">
                 <div id="pref-selector" class="w-full bg-[#B2FF59] border-[4px] border-black rounded-xl pl-4 pr-8 py-3 text-[10px] font-black uppercase text-black cursor-pointer truncate shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all select-none flex items-center h-[44px]">
-                    <span id="pref-selected-text" class="truncate">All Prefectures</span>
+                    <span id="pref-selected-text" data-i18n="list.allPrefectures" class="truncate">All Prefectures</span>
                 </div>
                 <div id="pref-dropdown-menu" class="absolute top-full left-1/2 -translate-x-1/2 w-[90vw] max-w-lg mt-2 bg-white border-[4px] border-black rounded-[20px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hidden z-50 max-h-[60vh] overflow-y-auto"></div>
             </div>
             <div class="flex-1" id="comp-dropdown-container">
                 <div id="comp-selector" class="w-full bg-[#FF80AB] border-[4px] border-black rounded-xl pl-4 pr-8 py-3 text-[10px] font-black uppercase text-black cursor-pointer truncate shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all select-none flex items-center h-[44px]">
-                    <span id="comp-selected-text" class="truncate">All Companies</span>
+                    <span id="comp-selected-text" data-i18n="list.allCompanies" class="truncate">All Companies</span>
                 </div>
                 <div id="comp-dropdown-menu" class="absolute top-full left-1/2 -translate-x-1/2 w-[90vw] max-w-lg mt-2 bg-white border-[4px] border-black rounded-[20px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hidden z-50 max-h-[60vh] overflow-y-auto"></div>
             </div>
