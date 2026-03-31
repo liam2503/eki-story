@@ -1,5 +1,5 @@
 import { auth, db } from './firebase.js';
-import { collection, query, where, getDocs, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
 import { showAuthScreen } from './auth.js';
 import { getVisitedStations, userStamps, CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
 import { applyTranslations, t } from './i18n.js';
@@ -157,7 +157,13 @@ export async function initProfileFrame() {
             `;
 
             reqEl.querySelector('.accept-btn').onclick = async () => {
-                await updateDoc(doc(db, 'friend_requests', reqDoc.id), { status: 'accepted' });
+                const fromId = reqDoc.data().from;
+                const toId = reqDoc.data().to;
+                await Promise.all([
+                    updateDoc(doc(db, 'users', toId), { friends: arrayUnion(fromId) }),
+                    updateDoc(doc(db, 'users', fromId), { friends: arrayUnion(toId) }),
+                    deleteDoc(doc(db, 'friend_requests', reqDoc.id)),
+                ]);
             };
 
             reqEl.querySelector('.decline-btn').onclick = async () => {
