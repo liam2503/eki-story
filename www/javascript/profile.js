@@ -174,3 +174,7 @@ document.addEventListener('turbo:frame-load', (e) => {
         initProfileFrame();
     }
 });
+
+window.addEventListener('authResolved', () => {
+    initProfileFrame();
+});

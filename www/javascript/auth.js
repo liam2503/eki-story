@@ -114,7 +114,8 @@ export function initAuth() {
                     setCurrentUser(user.uid, username, user.isAnonymous);
                     initProfileSync();
                     initFeedFrame();
-                    
+                    window.dispatchEvent(new CustomEvent('authResolved'));
+
                 } else if (!user.isAnonymous) {
                     const emailQuery = query(collection(db, 'users'), where("email", "==", user.email));
                     const emailSnap = await getDocs(emailQuery);
@@ -160,6 +161,7 @@ export function initAuth() {
                         setCurrentUser(user.uid, username, user.isAnonymous);
                         initProfileSync();
                         initFeedFrame();
+                        window.dispatchEvent(new CustomEvent('authResolved'));
                     } else {
                         authContainer.style.transition = 'none';
                         authContainer.classList.remove('hidden', 'translate-y-full');
@@ -228,6 +230,7 @@ export function initAuth() {
                     setCurrentUser(user.uid, username, user.isAnonymous);
                     initProfileSync();
                     initFeedFrame();
+                    window.dispatchEvent(new CustomEvent('authResolved'));
                 }
             } catch (e) {
             }
