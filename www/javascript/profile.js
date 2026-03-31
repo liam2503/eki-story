@@ -156,14 +156,25 @@ export async function initProfileFrame() {
                 </div>
             `;
 
-            reqEl.querySelector('.accept-btn').onclick = async () => {
+            reqEl.querySelector('.accept-btn').onclick = async (e) => {
+                const btn = e.currentTarget;
+                if (btn.disabled) return;
+                btn.disabled = true;
                 const fromId = reqDoc.data().from;
                 const toId = reqDoc.data().to;
-                await Promise.all([
-                    updateDoc(doc(db, 'users', toId), { friends: arrayUnion(fromId) }),
-                    updateDoc(doc(db, 'users', fromId), { friends: arrayUnion(toId) }),
-                    deleteDoc(doc(db, 'friend_requests', reqDoc.id)),
-                ]);
+                try {
+                    await Promise.all([
+                        updateDoc(doc(db, 'users', toId), { friends: arrayUnion(fromId) }),
+                        updateDoc(doc(db, 'users', fromId), { friends: arrayUnion(toId) }),
+                        deleteDoc(doc(db, 'friend_requests', reqDoc.id)),
+                    ]);
+                } catch (err) {
+                    btn.disabled = false;
+                    if (messageEl) {
+                        messageEl.innerText = 'Failed to accept request. Please try again.';
+                        messageEl.classList.remove('hidden');
+                    }
+                }
             };
 
             reqEl.querySelector('.decline-btn').onclick = async () => {
