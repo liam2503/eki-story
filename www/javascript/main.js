@@ -6,6 +6,7 @@ import { initModelUI } from './model_ui.js';
 import { initSettings } from './settings.js';
 import { initAuth } from './auth.js';
 import { Capacitor } from '@capacitor/core';
+import { initStampBook } from './stamp_book.js';
 import './profile.js';
 
 const platform = Capacitor.getPlatform();
@@ -19,6 +20,7 @@ function initAll() {
     initSearch();
     initAuth();
     initStampScanner();
+    initStampBook();
     initModelUI(() => {
         const lineId = getCurrentLineId();
         if (lineId) showLineDetail(lineId);

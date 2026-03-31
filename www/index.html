@@ -113,22 +113,25 @@
         </div>
     </div>
 
-<div id="top-bar" class="w-[92%] max-w-xl bg-white border-[4px] border-black flex items-center gap-4 px-6 py-4 fixed top-[calc(2rem+env(safe-area-inset-top))] ios:top-[calc(0.5rem+env(safe-area-inset-top))] left-1/2 transform -translate-x-1/2 rounded-[24px] z-20 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-     <div class="flex flex-col shrink-0">
-            <span class="text-black font-black text-sm leading-none uppercase tracking-tighter">Eki Story</span>
-            <span class="text-gray-400 font-bold text-[10px] uppercase">v0.5</span>
-        </div>
-        <div class="relative flex-1">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-            </div>
-            <input id="station-search" type="text" placeholder="SEARCH STATIONS..." class="w-full bg-gray-100 border-[3px] border-black rounded-xl pl-11 pr-4 py-2 text-xs font-black uppercase placeholder-gray-400 focus:outline-none focus:bg-white transition-colors" />
-            <div id="search-results" class="absolute top-full left-0 right-0 mt-2 bg-white border-[4px] border-black rounded-[20px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hidden z-50 max-h-72 overflow-y-auto" style="overscroll-behavior: contain;"></div>
-        </div>
+<div id="top-bar" class="w-[92%] max-w-xl bg-white border-[4px] border-black flex items-center gap-3 px-5 py-4 fixed top-[calc(2rem+env(safe-area-inset-top))] ios:top-[calc(0.5rem+env(safe-area-inset-top))] left-1/2 transform -translate-x-1/2 rounded-[24px] z-20 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+    <div class="flex flex-col shrink-0">
+        <span class="text-black font-black text-sm leading-none uppercase tracking-tighter">Eki Story</span>
+        <span class="text-gray-400 font-bold text-[10px] uppercase">v0.9</span>
     </div>
+    <div class="relative flex-1 min-w-0">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+        </div>
+        <input id="station-search" type="text" placeholder="SEARCH..." class="w-full bg-gray-100 border-[3px] border-black rounded-xl pl-9 pr-3 py-2 text-xs font-black uppercase placeholder-gray-400 focus:outline-none focus:bg-white transition-colors truncate" />
+        <div id="search-results" class="absolute top-full left-0 right-0 mt-2 bg-white border-[4px] border-black rounded-[20px] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hidden z-50 max-h-72 overflow-y-auto" style="overscroll-behavior: contain;"></div>
+    </div>
+    <button id="stamp-book-btn" class="w-11 h-11 shrink-0 bg-[#FF80AB] border-[3px] border-black rounded-xl flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none transition-all hover:bg-[#ff6b9d]">
+        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+    </button>
+</div>
 
     <div id="active-filter-pill" class="fixed top-[calc(6rem+env(safe-area-inset-top))] left-1/2 transform -translate-x-1/2 bg-white border-[3px] border-black rounded-full px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-20 flex items-center gap-2 hidden transition-all">
         <div class="w-3 h-3 rounded-full border-[2px] border-black" id="active-filter-color"></div>
@@ -576,6 +579,59 @@
             </button>
         </div>
     </div>
+
+    <div id="stamp-book-container" class="fixed inset-0 z-[150] bg-gray-900/90 backdrop-blur-sm translate-y-full transition-transform duration-500 flex flex-col items-center justify-center p-4 sm:p-6 pointer-events-none">
+    <button id="close-book-btn" class="absolute top-[calc(1.5rem+env(safe-area-inset-top))] right-6 w-12 h-12 bg-white border-[4px] border-black rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-50 active:translate-y-1 active:shadow-none transition-all pointer-events-auto">
+        <svg class="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+
+    <div class="relative w-full max-w-sm aspect-[3/4] bg-[#FDFBF7] border-[4px] border-black rounded-r-3xl rounded-l-md shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col p-6 pointer-events-auto overflow-hidden">
+        <div class="absolute left-0 top-0 bottom-0 w-8 bg-gray-200 border-r-[2px] border-black/20 flex flex-col justify-evenly items-center shadow-[inset_-2px_0_4px_rgba(0,0,0,0.1)]">
+            <div class="w-3 h-3 rounded-full bg-gray-400 border-[2px] border-black"></div>
+            <div class="w-3 h-3 rounded-full bg-gray-400 border-[2px] border-black"></div>
+            <div class="w-3 h-3 rounded-full bg-gray-400 border-[2px] border-black"></div>
+            <div class="w-3 h-3 rounded-full bg-gray-400 border-[2px] border-black"></div>
+        </div>
+
+        <div class="ml-8 flex-1 flex flex-col relative h-full">
+            <div class="relative z-10">
+                <div class="w-12 h-1 bg-black mx-auto mb-1"></div>
+                <h2 id="book-station-name" class="text-xl font-black uppercase tracking-tighter text-center mb-4 text-black border-b-[3px] border-black pb-2"></h2>
+            </div>
+            
+            <div class="flex-1 flex items-center justify-center min-h-0 mb-4 relative z-0">
+                <img id="book-stamp-image" class="max-w-full max-h-full object-contain filter drop-shadow-md transition-transform duration-300" src="">
+            </div>
+
+            <div class="mt-auto border-t-[3px] border-black pt-3 relative z-10 bg-[#FDFBF7]">
+                <div class="text-[10px] font-black uppercase tracking-widest text-black mb-2 flex justify-between">
+                    <span>Date Stamped:</span>
+                    <span id="book-stamp-date" class="text-gray-600"></span>
+                </div>
+                <div class="text-[10px] font-black uppercase tracking-widest text-black mb-1">Memo:</div>
+                <textarea id="book-stamp-memo" rows="3" class="w-full bg-transparent border-none resize-none focus:outline-none text-sm font-bold text-gray-700 leading-relaxed bg-[linear-gradient(transparent_27px,#ccc_28px)] bg-[length:100%_28px] p-0 m-0" placeholder="Write a memory..."></textarea>
+            </div>
+            
+            <div id="book-empty-state" class="absolute inset-0 z-20 bg-[#FDFBF7] flex flex-col items-center justify-center text-center hidden">
+                 <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <h3 class="text-xl font-black uppercase tracking-tighter text-gray-400">Empty Pages</h3>
+                <p class="text-sm font-bold text-gray-400 mt-2 px-4">Go explore and collect some station stamps!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-between w-full max-w-sm mt-8 pointer-events-auto px-4">
+        <button id="book-prev-btn" class="w-14 h-14 bg-white border-[4px] border-black rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <svg class="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <div id="book-page-indicator" class="bg-white border-[4px] border-black rounded-xl px-4 flex items-center justify-center font-black text-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">1 / 1</div>
+        <button id="book-next-btn" class="w-14 h-14 bg-white border-[4px] border-black rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <svg class="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+    </div>
+</div>
 
     <script type="module" src="javascript/firebase.js"></script>
     <script type="module" src="javascript/user.js"></script>
