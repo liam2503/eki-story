@@ -5,6 +5,7 @@ import { startCamera, stopCamera } from './stamp_camera.js';
 import { startCrop, handleCropInput, finalizeWarp } from './stamp_crop.js';
 import { setupRefinement, handleRefineDraw, processFinalStamp, applyLiveContrast, triggerUndo, toggleInvert } from './stamp_refine.js';
 import { playReturnSound } from './audio.js';
+import { t } from './i18n.js';
 
 let currentStationId = null;
 let viewingStationId = null;
@@ -64,7 +65,7 @@ export function initStampUI(refreshCallback) {
                     const ts = userStampDates[viewingStationId];
                     if (ts) {
                         const d = new Date(ts);
-                        els.modalDate.innerText = `Date Stamped: ${d.toLocaleDateString()}`;
+                        els.modalDate.innerText = `${t('book.dateStamped')} ${d.toLocaleDateString()}`;
                     } else {
                         els.modalDate.innerText = "";
                     }

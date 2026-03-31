@@ -28,7 +28,12 @@ export const translations = {
             addFriend: "Add",
             requests: "Requests",
             noRequests: "No pending requests",
-            searchPlaceholder: "Add by username"
+            searchPlaceholder: "Add by username",
+            guest: "Guest",
+            requestSent: "Request sent!",
+            errorCannotAddSelf: "You cannot add yourself.",
+            errorUserNotFound: "User not found.",
+            errorRequestSent: "Request already sent."
         },
         common: {
             cancel: "Cancel",
@@ -44,7 +49,8 @@ export const translations = {
             notice: "Notice",
             okay: "Okay",
             noResults: "No results",
-            unknown: "Unknown"
+            unknown: "Unknown",
+            searching: "Searching..."
         },
         map: {
             fetchingData: "Fetching Station Data"
@@ -144,7 +150,12 @@ export const translations = {
             addFriend: "追加",
             requests: "リクエスト",
             noRequests: "保留中のリクエストはありません",
-            searchPlaceholder: "ユーザー名で追加"
+            searchPlaceholder: "ユーザー名で追加",
+            guest: "ゲスト",
+            requestSent: "リクエストを送信しました！",
+            errorCannotAddSelf: "自分自身を追加することはできません。",
+            errorUserNotFound: "ユーザーが見つかりません。",
+            errorRequestSent: "リクエストは既に送信されています。"
         },
         common: {
             cancel: "キャンセル",
@@ -160,7 +171,8 @@ export const translations = {
             notice: "お知らせ",
             okay: "OK",
             noResults: "結果がありません",
-            unknown: "不明"
+            unknown: "不明",
+            searching: "検索中..."
         },
         map: {
             fetchingData: "駅データを取得中"
@@ -272,11 +284,9 @@ export function applyTranslations() {
                 el.value = translation;
             }
         } else {
-            // Keep child elements (like SVGs in buttons) intact
             const childElements = Array.from(el.children).filter(child => child.tagName !== 'BR');
             
             if (childElements.length > 0) {
-                // If it's a button with an SVG, we just want to replace the text node
                 let textNodeFound = false;
                 Array.from(el.childNodes).forEach(node => {
                     if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
@@ -284,7 +294,6 @@ export function applyTranslations() {
                         textNodeFound = true;
                     }
                 });
-                // Fallback if text node was heavily nested or structured differently
                 if (!textNodeFound) {
                     const textSpan = el.querySelector('span:not([class*="toggle"])');
                     if (textSpan) textSpan.innerText = translation;

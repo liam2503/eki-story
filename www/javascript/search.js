@@ -1,10 +1,14 @@
 import { db } from './firebase.js';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { idbGet, idbSet } from './idb.js';
+import { getLanguage, t } from './i18n.js';
 
 async function syncSearchIndex() {
     const cached = await idbGet('searchIndex');
-    if (cached) return cached;
+    // If we have a cached version but it's missing Japanese names (from the old version), force a refresh
+    if (cached && cached.lines && Object.values(cached.lines)[0]?.name_jp) {
+        return cached;
+    }
 
     const [stationSnap, lineSnap] = await Promise.all([
         getDocs(collection(db, 'stations')),
@@ -28,7 +32,8 @@ async function syncSearchIndex() {
         const d = docSnap.data();
         const colorValue = d.color || d.line_color_c || d.line_color;
         lines[docSnap.id] = {
-            name_en: d.line_name_en || `Line ${docSnap.id}`,
+            name_en: d.line_name_en || d.name_en || `Line ${docSnap.id}`,
+            name_jp: d.line_name_jp || d.name_jp || d.line_name_en || d.name_en || `Line ${docSnap.id}`,
             color: colorValue
                 ? (String(colorValue).startsWith('#') ? String(colorValue) : '#' + colorValue)
                 : '#000000'
@@ -48,8 +53,11 @@ export async function initSearch() {
     searchInitialized = true;
 
     const index = await syncSearchIndex();
+    
     searchInput.addEventListener('input', function() {
         const query = this.value.trim().toLowerCase();
+        const lang = getLanguage();
+        
         if (!query) {
             searchResults.classList.add('hidden');
             searchResults.innerHTML = '';
@@ -59,7 +67,7 @@ export async function initSearch() {
 
         const { stations, lines } = index;
         const matchedLines = Object.entries(lines)
-            .filter(([, d]) => (d.name_en || '').toLowerCase().includes(query))
+            .filter(([, d]) => (d.name_en || '').toLowerCase().includes(query) || (d.name_jp || '').toLowerCase().includes(query))
             .slice(0, 5);
 
         const stationGroups = {};
@@ -70,7 +78,7 @@ export async function initSearch() {
             const gid = s.station_g_id || s.id;
             if (!stationGroups[gid]) {
                 stationGroups[gid] = {
-                    name: s.station_name_en || s.station_name_jp || 'Unknown',
+                    name: lang === 'ja' ? (s.station_name_jp || s.station_name_en) : (s.station_name_en || s.station_name_jp || 'Unknown'),
                     stations: []
                 };
             }
@@ -79,19 +87,19 @@ export async function initSearch() {
 
         const stationEntries = Object.entries(stationGroups).slice(0, 15);
         if (matchedLines.length === 0 && stationEntries.length === 0) {
-            searchResults.innerHTML = '<div class="px-5 py-4 text-xs font-black uppercase text-gray-400">No results</div>';
+            searchResults.innerHTML = `<div class="px-5 py-4 text-xs font-black uppercase text-gray-400">${t('common.noResults')}</div>`;
             searchResults.classList.remove('hidden');
             return;
         }
 
         let html = '';
         matchedLines.forEach(([lineId, lineData]) => {
+            const lineName = lang === 'ja' ? (lineData.name_jp || lineData.name_en) : (lineData.name_en || lineData.name_jp);
             html += `
                 <div class="search-result flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0"
                      data-type="line" data-id="${lineId}">
                     <div class="w-10 h-3 rounded-full border-[2px] border-black shrink-0" style="background-color:${lineData.color}"></div>
-                    <span class="text-xs font-black uppercase">${lineData.name_en}</span>
-                    <span class="ml-auto text-[10px] font-black uppercase text-gray-400">Line</span>
+                    <span class="text-xs font-black uppercase">${lineName}</span>
                 </div>
             `;
         });
@@ -100,12 +108,13 @@ export async function initSearch() {
             if (group.stations.length === 1) {
                 const s = group.stations[0];
                 const line = lines[String(s.line_id)];
+                const lineName = line ? (lang === 'ja' ? (line.name_jp || line.name_en) : (line.name_en || line.name_jp)) : '';
                 html += `
                     <div class="search-result flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0"
                          data-type="station" data-id="${s.station_id || s.id}">
                         <div class="w-4 h-4 rounded-full border-[3px] border-black shrink-0 bg-white" style="border-color:${line?.color || '#000'}"></div>
                         <span class="text-xs font-black uppercase">${group.name}</span>
-                        <span class="ml-auto text-[10px] font-black uppercase text-gray-400">${line?.name_en || ''}</span>
+                        <span class="ml-auto text-[10px] font-black uppercase text-gray-400">${lineName}</span>
                     </div>
                 `;
             } else {
@@ -115,11 +124,12 @@ export async function initSearch() {
                 }).join('');
                 const subItems = group.stations.map(s => {
                     const line = lines[String(s.line_id)];
+                    const lineName = line ? (lang === 'ja' ? (line.name_jp || line.name_en) : (line.name_en || line.name_jp)) : `Line ${s.line_id}`;
                     return `
                         <div class="search-result flex items-center gap-2 px-5 py-2 cursor-pointer hover:bg-gray-50"
                              data-type="station" data-id="${s.station_id || s.id}">
                             <div class="w-3 h-3 rounded-full border-[2px] border-black shrink-0" style="background-color:${line?.color || '#000'}"></div>
-                            <span class="text-[10px] font-black uppercase">${line?.name_en || `Line ${s.line_id}`}</span>
+                            <span class="text-[10px] font-black uppercase">${lineName}</span>
                         </div>
                     `;
                 }).join('');
@@ -128,8 +138,7 @@ export async function initSearch() {
                         <div class="multi-station-header flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50">
                             <div class="flex gap-1">${colorDots}</div>
                             <span class="text-xs font-black uppercase">${group.name}</span>
-                            <span class="ml-auto text-[10px] font-black uppercase text-gray-400">${group.stations.length} Lines</span>
-                            <svg class="multi-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="multi-chevron ml-auto w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M6 9l6 6 6-6"/>
                             </svg>
                         </div>

@@ -3,7 +3,7 @@ import { collection, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arra
 import { startCamera, stopCamera } from './stamp_camera.js';
 import { CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
 import { showAuthScreen } from './auth.js';
-import { applyTranslations, t } from './i18n.js';
+import { applyTranslations, t, getLanguage } from './i18n.js';
 
 let postsUnsubscribe = null;
 let commentsUnsubscribe = null;
@@ -230,7 +230,9 @@ function initFeedStationSearch() {
 
         if (!window.allStations) return;
 
+        const lang = getLanguage();
         const stationGroups = {};
+
         window.allStations.forEach(s => {
             const nameEn = (s.station_name_en || '').toLowerCase();
             const nameJp = (s.station_name_jp || '').toLowerCase();
@@ -239,7 +241,7 @@ function initFeedStationSearch() {
             const gid = s.station_g_id || s.id;
             if (!stationGroups[gid]) {
                 stationGroups[gid] = {
-                    name: s.station_name_en || s.station_name_jp || t('common.unknown'),
+                    name: lang === 'ja' ? (s.station_name_jp || s.station_name_en || t('common.unknown')) : (s.station_name_en || s.station_name_jp || t('common.unknown')),
                     stations: []
                 };
             }
@@ -372,8 +374,11 @@ document.addEventListener('DOMContentLoaded', () => {
             let stationName = '';
             
             if (stationId && window.allStations) {
+                const lang = getLanguage();
                 const s = window.allStations.find(x => String(x.id) === String(stationId));
-                if (s) stationName = s.station_name_en || s.station_name_jp;
+                if (s) {
+                    stationName = lang === 'ja' ? (s.station_name_jp || s.station_name_en) : (s.station_name_en || s.station_name_jp);
+                }
             }
 
             if (!pendingPostImage && !caption) return;
