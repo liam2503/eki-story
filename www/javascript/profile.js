@@ -168,6 +168,10 @@ export async function initProfileFrame() {
                         updateDoc(doc(db, 'users', fromId), { friends: arrayUnion(toId) }),
                         deleteDoc(doc(db, 'friend_requests', reqDoc.id)),
                     ]);
+                    if (messageEl) {
+                        messageEl.innerText = '';
+                        messageEl.classList.add('hidden');
+                    }
                 } catch (err) {
                     btn.disabled = false;
                     if (messageEl) {
