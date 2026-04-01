@@ -274,6 +274,15 @@ export function showTooltip(latLng, data, type) {
                     <span class="text-xs opacity-60 leading-none" style="color:${lineText}">${data.totalCount}</span>
                 </div>
             `;
+            fractionEl.style.cursor = 'pointer';
+            fractionEl.onclick = () => {
+                hideTooltip();
+                const listContainer = document.getElementById('list-container');
+                if (listContainer && listContainer.classList.contains('translate-x-full')) {
+                    document.getElementById('icon-shell-2')?.click();
+                }
+                window.showLineDetail?.(data.lineId);
+            };
         }
 
         if (progressEl) {

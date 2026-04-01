@@ -14,6 +14,7 @@ const platform = Capacitor.getPlatform();
 document.documentElement.classList.add(platform);
 
 window.isVisited = isVisited;
+window.showLineDetail = showLineDetail;
 
 // State lock to prevent double-firing if both events manage to trigger
 let isInitialized = false;

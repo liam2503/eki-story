@@ -85,10 +85,11 @@ export function renderPolylines(map, allJoins, stationLookup, lineColors, showTo
                 const lineName = lang === 'ja' ? (lineData?.name_jp || lineData?.name_en) : (lineData?.name_en || lineData?.name_jp);
 
                 showTooltip(e.latLng, {
-                    stationName: lineName || t('common.unknown'), 
+                    stationName: lineName || t('common.unknown'),
                     color: lineData?.color || "#000000",
                     visitedCount: visitedCount,
-                    totalCount: totalCount
+                    totalCount: totalCount,
+                    lineId: lineKey
                 }, 'line');
             });
             
