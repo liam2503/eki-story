@@ -49,7 +49,6 @@ export async function initProfileFrame() {
     }
     if (window.profileRequestsUnsub) {
         window.profileRequestsUnsub();
-        window.profileRequestsUnsub = null;
     }
     const friendsContainer = document.getElementById('friends-list-container');
     if (friendsContainer) friendsContainer.classList.add('hidden');
@@ -168,7 +167,7 @@ export async function initProfileFrame() {
                     <div class="w-8 h-8 bg-[#40C4FF] border-[2px] border-black rounded-full shrink-0 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="3"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </div>
-                    <span class="font-black uppercase tracking-tighter truncate text-sm">${data.fromUsername || t('common.unknown')}</span>
+                    <span class="font-black uppercase tracking-tighter truncate text-sm"></span>
                 </div>
                 <div class="flex gap-2 shrink-0">
                     <button class="accept-btn w-8 h-8 bg-[#B2FF59] border-[2px] border-black rounded-lg flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all">
@@ -179,6 +178,7 @@ export async function initProfileFrame() {
                     </button>
                 </div>
             `;
+            reqEl.querySelector('span').textContent = data.fromUsername || t('common.unknown');
 
             reqEl.querySelector('.accept-btn').onclick = async (e) => {
                 const btn = e.currentTarget;
