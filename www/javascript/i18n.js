@@ -53,7 +53,9 @@ export const translations = {
             searching: "Searching..."
         },
         map: {
-            fetchingData: "Fetching Station Data"
+            fetchingData: "Fetching Station Data",
+            markAsVisited: "Mark as Visited?",
+            visited: "Visited"
         },
         camera: {
             newStamp: "New Stamp",
@@ -175,7 +177,9 @@ export const translations = {
             searching: "検索中..."
         },
         map: {
-            fetchingData: "駅データを取得中"
+            fetchingData: "駅データを取得中",
+            markAsVisited: "訪問済みにする？",
+            visited: "訪問済み"
         },
         camera: {
             newStamp: "新しいスタンプ",
