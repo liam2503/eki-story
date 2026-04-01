@@ -18,14 +18,22 @@ async function initList() {
     let prefs = await idbGet('prefecturesData');
     let comps = await idbGet('companiesData');
 
-    if (!prefs || !comps) {
+    // Force re-fetch if cached data is missing Japanese names (stale cache).
+    // TODO: remove this guard after all clients have refreshed stale caches (post-deploy).
+    const hasJapanesePrefNames = prefs && prefs.some(p =>
+        p.pref_name_jp && /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]/.test(p.pref_name_jp)
+    );
+    const hasJapaneseCompNames = comps && comps.some(c =>
+        c.company_name_jp && /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]/.test(c.company_name_jp)
+    );
+    if (!prefs || !comps || !hasJapanesePrefNames || !hasJapaneseCompNames) {
         const [prefSnap, compSnap] = await Promise.all([
             getDocs(collection(db, 'prefectures')),
             getDocs(collection(db, 'companies'))
         ]);
         prefs = prefSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         comps = compSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-        
+
         await idbSet('prefecturesData', prefs);
         await idbSet('companiesData', comps);
     }
