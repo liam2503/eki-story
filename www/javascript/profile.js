@@ -1,5 +1,5 @@
 import { auth, db } from './firebase.js';
-import { collection, query, where, getDocs, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
 import { showAuthScreen } from './auth.js';
 import { getVisitedStations, userStamps, CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
 import { applyTranslations, t } from './i18n.js';
@@ -115,9 +115,18 @@ export async function initProfileFrame() {
         };
     }
 
+    if (window.profileUserUnsub) {
+        window.profileUserUnsub();
+    }
+
+    window.profileUserUnsub = onSnapshot(doc(db, 'users', CURRENT_USER_ID), async (userSnap) => {
+        const friendIds = userSnap.exists() ? (userSnap.data().friends || []) : [];
+        await renderFriendsList(friendIds);
+    });
+
     const incomingQuery = query(
-        collection(db, 'friend_requests'), 
-        where("to", "==", CURRENT_USER_ID), 
+        collection(db, 'friend_requests'),
+        where("to", "==", CURRENT_USER_ID),
         where("status", "==", "pending")
     );
 
@@ -187,6 +196,38 @@ export async function initProfileFrame() {
 
             if (requestsList) requestsList.appendChild(reqEl);
         });
+    });
+}
+
+async function renderFriendsList(friendIds) {
+    const container = document.getElementById('friends-list-container');
+    const list = document.getElementById('friends-list');
+    const noMsg = document.getElementById('no-friends-msg');
+
+    if (!container || !list) return;
+    container.classList.remove('hidden');
+    list.innerHTML = '';
+
+    if (friendIds.length === 0) {
+        if (noMsg) noMsg.classList.remove('hidden');
+        return;
+    }
+    if (noMsg) noMsg.classList.add('hidden');
+
+    const friendDocs = await Promise.all(friendIds.map(id => getDoc(doc(db, 'users', id))));
+
+    friendDocs.forEach(friendSnap => {
+        if (!friendSnap.exists()) return;
+        const data = friendSnap.data();
+        const el = document.createElement('div');
+        el.className = "flex items-center gap-3 bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-xl p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]";
+        el.innerHTML = `
+            <div class="w-8 h-8 bg-[#B2FF59] border-[2px] border-black dark:border-slate-500 rounded-full shrink-0 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="3"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <span class="font-black uppercase tracking-tighter truncate text-sm dark:text-white">${data.username || t('common.unknown')}</span>
+        `;
+        list.appendChild(el);
     });
 }
 
