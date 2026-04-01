@@ -126,8 +126,6 @@ export async function initProfileFrame() {
         };
     }
 
-    if (!CURRENT_USER_ID) return;
-
     let lastFriendIdsJson = null;
     let renderSeq = 0;
 
