@@ -119,6 +119,8 @@ export async function initProfileFrame() {
         window.profileUserUnsub();
     }
 
+    if (!CURRENT_USER_ID) return;
+
     window.profileUserUnsub = onSnapshot(doc(db, 'users', CURRENT_USER_ID), async (userSnap) => {
         const friendIds = userSnap.exists() ? (userSnap.data().friends || []) : [];
         await renderFriendsList(friendIds);
@@ -225,8 +227,9 @@ async function renderFriendsList(friendIds) {
             <div class="w-8 h-8 bg-[#B2FF59] border-[2px] border-black dark:border-slate-500 rounded-full shrink-0 flex items-center justify-center">
                 <svg class="w-4 h-4" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="3"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
-            <span class="font-black uppercase tracking-tighter truncate text-sm dark:text-white">${data.username || t('common.unknown')}</span>
+            <span class="font-black uppercase tracking-tighter truncate text-sm dark:text-white"></span>
         `;
+        el.querySelector('span').textContent = data.username || t('common.unknown');
         list.appendChild(el);
     });
 }
