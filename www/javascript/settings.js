@@ -270,13 +270,25 @@ export function initSettingsFrame() {
                     const dark = localStorage.getItem(DARK_MODE_KEY);
                     const sound = localStorage.getItem(SOUND_KEY);
                     const decline = localStorage.getItem(DECLINE_REQUESTS_KEY);
-                    
+
+                    // Preserve Firebase Auth session tokens so the user is not logged out
+                    const firebaseEntries = {};
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && key.startsWith('firebase:')) {
+                            firebaseEntries[key] = localStorage.getItem(key);
+                        }
+                    }
+
                     localStorage.clear();
-                    
+
                     if (lang) localStorage.setItem(LANG_KEY, lang);
                     if (dark) localStorage.setItem(DARK_MODE_KEY, dark);
                     if (sound) localStorage.setItem(SOUND_KEY, sound);
                     if (decline) localStorage.setItem(DECLINE_REQUESTS_KEY, decline);
+                    for (const [key, val] of Object.entries(firebaseEntries)) {
+                        localStorage.setItem(key, val);
+                    }
 
                     await idbClear();
                 } catch (err) {}
