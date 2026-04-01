@@ -134,6 +134,8 @@ window.initMap = async function() {
         hideTooltip();
     });
 
+    map.addListener('zoom_changed', hideTooltip);
+
     map.addListener('click', hideTooltip);
 
     document.getElementById('map-tooltip').addEventListener('click', async (e) => {
