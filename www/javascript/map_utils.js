@@ -20,8 +20,8 @@ export async function syncLineData() {
             const colorStr = String(colorValue);
             lines[String(docSnap.id)] = {
                 color: colorStr.startsWith('#') ? colorStr : '#' + colorStr,
-                name_en: data.line_name_en || `Line ${docSnap.id}`,
-                name_jp: data.name_jp || `Line ${docSnap.id}`,
+                name_en: data.line_name_en || data.name_en || `Line ${docSnap.id}`,
+                name_jp: data.line_name_jp || data.name_jp || data.line_name_en || data.name_en || `Line ${docSnap.id}`,
                 total_stations: data.station_count || data.total_stations || 0,
                 company_id: data.company_id || data.company_cd || ""
             };
