@@ -95,6 +95,8 @@ export const translations = {
             talk: "Talk",
             saySomething: "Say something...",
             send: "Send",
+            shareToFeedTitle: "Post to Feed?",
+            shareToFeedMsg: "Would you like to share this to the feed?",
             tags: {
                 none: "No Tag",
                 stamp: "New Stamp Collected",
@@ -221,6 +223,8 @@ export const translations = {
             talk: "トーク",
             saySomething: "コメントを入力...",
             send: "送信",
+            shareToFeedTitle: "フィードに投稿しますか？",
+            shareToFeedMsg: "フィードでシェアしますか？",
             tags: {
                 none: "タグなし",
                 stamp: "新しいスタンプをゲット",

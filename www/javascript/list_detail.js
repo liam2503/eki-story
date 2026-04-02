@@ -6,6 +6,7 @@ import { startCrop, handleCropInput, finalizeWarp } from './stamp_crop.js';
 import { setupRefinement, handleRefineDraw, processFinalStamp, applyLiveContrast, triggerUndo, toggleInvert } from './stamp_refine.js';
 import { playReturnSound } from './audio.js';
 import { getLanguage, t } from './i18n.js';
+import { showPostToFeedPrompt } from './feed.js';
 
 let currentStationId = null, currentLineId = null, viewingStationId = null, isFlipped = false, currentTool = 'brush';
 let currentOriginalImage = null;
@@ -326,10 +327,12 @@ export function initStampScanner() {
             customTs = new Date(dateVal + 'T12:00:00').getTime(); 
         }
 
-        await saveStamp(currentStationId, processFinalStamp(els.refineBase, els.refineMask, els.ink.value, isFlipped), currentOriginalImage, customTs);
+        const processedImage = processFinalStamp(els.refineBase, els.refineMask, els.ink.value, isFlipped);
+        await saveStamp(currentStationId, processedImage, currentOriginalImage, customTs);
         els.refineCont.classList.add('translate-y-full', 'pointer-events-none');
         isFlipped = false; els.refineBase.style.transform = els.refineMask.style.transform = 'scaleX(1)';
         showLineDetail(currentLineId);
+        showPostToFeedPrompt(processedImage, 'stamp');
     };
 
     document.getElementById("close-stamp-btn").onclick = () => { els.addCont.classList.add("translate-y-full", "pointer-events-none"); stopCamera(els.video, els.place); };

@@ -645,3 +645,75 @@ function initCustomTagSelect() {
         }
     });
 }
+
+export function openCreatePostWith(imageData, tag) {
+    if (IS_ANONYMOUS) return;
+
+    const cont = document.getElementById('create-post-container');
+    const video = document.getElementById('feed-camera-feed');
+    const place = document.getElementById('feed-camera-placeholder');
+    const img = document.getElementById('feed-preview-image');
+    const capBtn = document.getElementById('feed-capture-actions');
+    const retakeBtn = document.getElementById('retake-feed-btn');
+    const caption = document.getElementById('post-caption-input');
+    const tagInput = document.getElementById('post-tag-input');
+    const tagDisplay = document.getElementById('post-tag-display');
+    const searchInput = document.getElementById('post-station-search-input');
+    const hiddenId = document.getElementById('post-station-id-hidden');
+
+    caption.value = '';
+    if (searchInput) searchInput.value = '';
+    if (hiddenId) hiddenId.value = '';
+
+    stopCamera(video, place);
+
+    pendingPostImage = imageData;
+    img.src = imageData;
+    img.classList.remove('hidden');
+    capBtn.classList.add('hidden');
+    retakeBtn.classList.remove('hidden');
+
+    if (tag && tagInput) {
+        tagInput.value = tag;
+        const i18nKey = `post.tags.${tag}`;
+        if (tagDisplay) {
+            tagDisplay.setAttribute('data-i18n', i18nKey);
+            tagDisplay.innerText = t(i18nKey);
+        }
+    } else {
+        if (tagInput) tagInput.value = '';
+        if (tagDisplay) {
+            tagDisplay.setAttribute('data-i18n', 'post.tags.none');
+            tagDisplay.innerText = t('post.tags.none');
+        }
+    }
+
+    cont.classList.remove('translate-y-full', 'pointer-events-none');
+}
+
+export function showPostToFeedPrompt(imageData, tag) {
+    if (IS_ANONYMOUS) return;
+
+    const modal = document.getElementById('generic-confirm-modal');
+    const box = document.getElementById('generic-confirm-box');
+
+    document.getElementById('generic-confirm-title').innerText = t('post.shareToFeedTitle');
+    document.getElementById('generic-confirm-message').innerText = t('post.shareToFeedMsg');
+
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    box.classList.remove('scale-95');
+    box.classList.add('scale-100');
+
+    document.getElementById('generic-confirm-cancel').onclick = () => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        box.classList.add('scale-95');
+        box.classList.remove('scale-100');
+    };
+
+    document.getElementById('generic-confirm-ok').onclick = () => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        box.classList.add('scale-95');
+        box.classList.remove('scale-100');
+        openCreatePostWith(imageData, tag);
+    };
+}

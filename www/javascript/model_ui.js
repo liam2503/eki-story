@@ -2,6 +2,8 @@ import { selectors } from './list_state.js';
 import { userModels, saveModel, deleteModel } from './user.js';
 import { startCamera, stopCamera } from './stamp_camera.js';
 import { playReturnSound } from './audio.js';
+import { t } from './i18n.js';
+import { showPostToFeedPrompt } from './feed.js';
 
 let viewingModelId = null;
 let currentLineId = null;
@@ -135,9 +137,11 @@ export function initModelUI(refreshCallback) {
             customTs = new Date(dateVal + 'T12:00:00').getTime(); 
         }
         
+        const savedImage = pendingModelImageData;
         modelEls.addCont.classList.add("translate-y-full", "pointer-events-none");
-        await saveModel(currentLineId, pendingModelImageData, modelName, customTs, editingModelId);
+        await saveModel(currentLineId, savedImage, modelName, customTs, editingModelId);
         refreshCallback();
+        showPostToFeedPrompt(savedImage, 'model');
     };
 
     document.getElementById("edit-model-btn").onclick = () => {
