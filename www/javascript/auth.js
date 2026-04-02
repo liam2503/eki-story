@@ -2,7 +2,7 @@ import { auth, db, googleProvider } from './firebase.js';
 import { 
     onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
     signInAnonymously, linkWithCredential, linkWithPopup, EmailAuthProvider,
-    GoogleAuthProvider, signInWithCredential, signInWithPopup, deleteUser, signOut
+    GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRedirect, deleteUser, signOut, sendPasswordResetEmail
 } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { setCurrentUser, initProfileSync } from './user.js';
@@ -60,6 +60,9 @@ export function initAuth() {
     const authGoogleBtn = document.getElementById('auth-google-btn');
     const authAnonBtn = document.getElementById('auth-anon-btn');
     const errorMsg = document.getElementById('auth-error-message');
+    const authForgotBtn = document.getElementById('auth-forgot-password');
+
+    // Strip non-alphanumeric characters instantly as the user types
 
     if (authUsername) {
         authUsername.addEventListener('input', (e) => {
@@ -280,6 +283,7 @@ window.dispatchEvent(new CustomEvent('authResolved'));
     authToggleMode.onclick = () => {
         isSignUpMode = !isSignUpMode;
         if (isSignUpMode) {
+            if (authForgotBtn) authForgotBtn.classList.add('hidden');
             authUsername.classList.remove('hidden');
             authUsername.required = true;
             authIdentifier.placeholder = "Email Address";
@@ -291,6 +295,7 @@ window.dispatchEvent(new CustomEvent('authResolved'));
                 authToggleMode.innerText = "Already have an account? Log In";
             }
         } else {
+            if (authForgotBtn) authForgotBtn.classList.remove('hidden');
             authUsername.classList.add('hidden');
             authUsername.required = false;
             if (auth.currentUser && auth.currentUser.isAnonymous) {
@@ -418,6 +423,43 @@ window.dispatchEvent(new CustomEvent('authResolved'));
             errorMsg.classList.remove('hidden');
         }
     };
+
+    if (authForgotBtn) {
+        authForgotBtn.onclick = async () => {
+            errorMsg.classList.add('hidden');
+            const identifier = authIdentifier.value.trim();
+            
+            if (!identifier) {
+                errorMsg.innerText = "Please enter your email address in the field above to reset your password.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            
+            if (!identifier.includes('@')) {
+                errorMsg.innerText = "Please enter a valid email address to reset your password.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                await sendPasswordResetEmail(auth, identifier);
+                
+                // Temporarily change the text to show success without an alert popup
+                const originalText = authForgotBtn.innerText;
+                authForgotBtn.innerText = "Reset Email Sent!";
+                authForgotBtn.classList.add('text-green-500');
+                
+                setTimeout(() => {
+                    authForgotBtn.innerText = originalText;
+                    authForgotBtn.classList.remove('text-green-500');
+                }, 4000);
+                
+            } catch (err) {
+                errorMsg.innerText = err.message;
+                errorMsg.classList.remove('hidden');
+            }
+        };
+    }
 }
 
 export function initAuthLanguageSelector() {

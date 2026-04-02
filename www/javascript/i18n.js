@@ -18,7 +18,8 @@ export const translations = {
             needAccount: "Need an account? Sign Up",
             username: "Username (For Sign Up)",
             identifier: "Email or Username",
-            password: "Password"
+            password: "Password",
+            forgotPassword: "Forgot Password?"
         },
         profile: {
             title: "Profile",
@@ -144,7 +145,8 @@ export const translations = {
             needAccount: "アカウントが必要ですか？ 登録",
             username: "ユーザー名 (登録用)",
             identifier: "メールアドレスまたはユーザー名",
-            password: "パスワード"
+            password: "パスワード",
+            forgotPassword: "パスワードをお忘れですか？"
         },
         profile: {
             title: "プロフィール",

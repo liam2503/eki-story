@@ -38,8 +38,10 @@
             
             <input type="text" id="auth-identifier" data-i18n="auth.identifier" placeholder="Email or Username" class="w-full bg-gray-100 border-[4px] border-black rounded-xl px-4 py-3 text-sm font-black uppercase placeholder-gray-400 focus:outline-none focus:bg-white transition-colors" required />
             
-            <input type="password" id="auth-password" data-i18n="auth.password" placeholder="Password" class="w-full bg-gray-100 border-[4px] border-black rounded-xl px-4 py-3 text-sm font-black uppercase placeholder-gray-400 focus:outline-none focus:bg-white transition-colors" required />
-            
+<div class="w-full flex flex-col gap-1">
+                <input type="password" id="auth-password" data-i18n="auth.password" placeholder="Password" class="w-full bg-gray-100 border-[4px] border-black rounded-xl px-4 py-3 text-sm font-black uppercase placeholder-gray-400 focus:outline-none focus:bg-white transition-colors" required />
+                <button type="button" id="auth-forgot-password" data-i18n="auth.forgotPassword" class="text-[10px] font-black text-gray-500 hover:text-black uppercase tracking-widest text-right w-full mt-1 transition-colors">Forgot Password?</button>
+            </div>            
             <button type="submit" id="auth-submit-btn" data-i18n="auth.login" class="w-full bg-[#B2FF59] border-[4px] border-black rounded-xl py-4 text-black font-black text-xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all mt-2">
                 Log In
             </button>
