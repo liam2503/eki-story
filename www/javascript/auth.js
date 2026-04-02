@@ -46,7 +46,7 @@ export function showAuthScreen() {
 }
 
 export function initAuth() {
-    // Initialize the language selector buttons for the auth screen
+    
     initAuthLanguageSelector();
 
     const authContainer = document.getElementById('auth-container');
@@ -136,6 +136,7 @@ export function initAuth() {
                             errorMsg.innerText = "An account with this email already exists. Please log in with your original method.";
                             errorMsg.classList.remove('hidden');
                         }
+                        window.dispatchEvent(new CustomEvent('authResolved'));
                         return;
                     }
 
@@ -151,6 +152,7 @@ export function initAuth() {
                                 errorMsg.innerText = "This username is already taken. Please try another one.";
                                 errorMsg.classList.remove('hidden');
                             }
+                            window.dispatchEvent(new CustomEvent('authResolved'));
                             return;
                         }
 
@@ -200,7 +202,7 @@ export function initAuth() {
                         if(titleEl) titleEl.innerText = "Complete Profile";
                         
                         if(authSubmitBtn) authSubmitBtn.innerText = "Save Username";
-
+window.dispatchEvent(new CustomEvent('authResolved'));
                         authForm.onsubmit = async (e) => {
                             e.preventDefault();
                             if(errorMsg) errorMsg.classList.add('hidden');
@@ -265,6 +267,7 @@ export function initAuth() {
             if(authIdentifier) authIdentifier.placeholder = "Email or Username";
             if(authSubmitBtn) authSubmitBtn.innerText = "Log In";
             if(authToggleMode) authToggleMode.innerText = "Need an account? Sign Up";
+            window.dispatchEvent(new CustomEvent('authResolved'));
         }
     });
 

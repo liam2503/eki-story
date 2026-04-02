@@ -230,11 +230,18 @@ function openCreatePost() {
     const retakeBtn = document.getElementById('retake-feed-btn');
     const caption = document.getElementById('post-caption-input');
     const tag = document.getElementById('post-tag-input');
+    const tagDisplay = document.getElementById('post-tag-display');
     const searchInput = document.getElementById('post-station-search-input');
     const hiddenId = document.getElementById('post-station-id-hidden');
 
     caption.value = '';
     tag.value = '';
+    
+    if (tagDisplay) {
+        tagDisplay.setAttribute('data-i18n', 'post.tags.none');
+        tagDisplay.innerText = t('post.tags.none');
+    }
+
     if (searchInput) searchInput.value = '';
     if (hiddenId) hiddenId.value = '';
     pendingPostImage = null;
@@ -343,6 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitCommentBtn = document.getElementById('submit-comment-btn');
 
     initFeedStationSearch();
+    initCustomTagSelect();
 
     if (closePostBtn) {
         closePostBtn.onclick = () => {
@@ -587,4 +595,53 @@ function resizeCanvasImage(canvas, maxSize) {
         return finalCanvas;
     }
     return canvas;
+}
+
+function initCustomTagSelect() {
+    const trigger = document.getElementById('post-tag-trigger');
+    const optionsContainer = document.getElementById('post-tag-options');
+    const hiddenInput = document.getElementById('post-tag-input');
+    const display = document.getElementById('post-tag-display');
+    const arrow = trigger?.querySelector('svg');
+
+    if (!trigger || !optionsContainer) return;
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = optionsContainer.classList.contains('hidden');
+        if (isHidden) {
+            optionsContainer.classList.remove('hidden');
+            if (arrow) arrow.classList.add('rotate-180');
+        } else {
+            optionsContainer.classList.add('hidden');
+            if (arrow) arrow.classList.remove('rotate-180');
+        }
+    });
+
+    const options = optionsContainer.querySelectorAll('.tag-option');
+    options.forEach(opt => {
+        opt.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hiddenInput.value = opt.getAttribute('data-value');
+            
+            const i18nKey = opt.getAttribute('data-i18n');
+            if (i18nKey) {
+                display.setAttribute('data-i18n', i18nKey);
+                display.innerText = t(i18nKey);
+            } else {
+                display.removeAttribute('data-i18n');
+                display.innerText = opt.innerText;
+            }
+            
+            optionsContainer.classList.add('hidden');
+            if (arrow) arrow.classList.remove('rotate-180');
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!trigger.contains(e.target) && !optionsContainer.contains(e.target)) {
+            optionsContainer.classList.add('hidden');
+            if (arrow) arrow.classList.remove('rotate-180');
+        }
+    });
 }

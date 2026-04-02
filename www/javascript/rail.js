@@ -48,9 +48,9 @@ window.initMap = async function() {
         let lines = await idbGet('lineData');
         let joins = await idbGet('joinData');
 
-        // Force re-fetch if cached line data is missing Japanese names (stale cache from old bug
-        // where syncLineData used data.name_jp instead of data.line_name_jp).
-        // TODO: remove this guard after all clients have refreshed stale caches (post-deploy).
+        
+        
+        
         const hasJapaneseLineNames = lines && Object.values(lines).some(l =>
             l.name_jp && /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]/.test(l.name_jp)
         );
@@ -111,11 +111,7 @@ window.initMap = async function() {
     } catch (error) {
         console.error(error);
     } finally {
-        const overlay = document.getElementById('app-loading-overlay');
-        if (overlay) {
-            overlay.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => overlay.remove(), 500); 
-        }
+        window.dispatchEvent(new CustomEvent('mapInitialized'));
     }
 
     const overlay = document.getElementById('app-loading-overlay');

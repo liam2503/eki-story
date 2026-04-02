@@ -16,8 +16,33 @@ document.documentElement.classList.add(platform);
 window.isVisited = isVisited;
 window.showLineDetail = showLineDetail;
 
-// State lock to prevent double-firing if both events manage to trigger
+
 let isInitialized = false;
+
+
+let isAuthResolved = false;
+let isMapInitialized = false;
+
+function checkAppReady() {
+    if (isAuthResolved && isMapInitialized) {
+        const overlay = document.getElementById('app-loading-overlay');
+        if (overlay) {
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => overlay.remove(), 500);
+        }
+    }
+}
+
+window.addEventListener('authResolved', () => {
+    isAuthResolved = true;
+    checkAppReady();
+});
+
+window.addEventListener('mapInitialized', () => {
+    isMapInitialized = true;
+    checkAppReady();
+});
+
 
 function initAll() {
     if (isInitialized) return;
@@ -32,7 +57,7 @@ function initAll() {
     initSettings();
     initButtons();
     initSearch();
-    initAuth();
+    initAuth(); 
     initStampScanner();
     initStampBook();
     initModelUI(() => {
@@ -41,16 +66,16 @@ function initAll() {
     });
 }
 
-// 1. If the DOM is already parsed (common for module scripts), run immediately.
+
 if (document.readyState === 'interactive' || document.readyState === 'complete') {
     initAll();
 } else {
-    // 2. Otherwise, wait for it.
+    
     document.addEventListener("DOMContentLoaded", initAll);
 }
 
-// 3. Handle Hotwire Turbo page navigations.
+
 document.addEventListener("turbo:load", () => {
-    isInitialized = false; // Release the lock for the new page
+    isInitialized = false; 
     initAll();
 });
