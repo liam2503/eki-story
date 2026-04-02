@@ -61,6 +61,12 @@ export function initAuth() {
     const authAnonBtn = document.getElementById('auth-anon-btn');
     const errorMsg = document.getElementById('auth-error-message');
 
+    if (authUsername) {
+        authUsername.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+        });
+    }
+
     if (authCloseBtn) {
         authCloseBtn.onclick = () => {
             authContainer.classList.add('translate-y-full');
@@ -208,9 +214,9 @@ window.dispatchEvent(new CustomEvent('authResolved'));
                             if(errorMsg) errorMsg.classList.add('hidden');
                             
                             const chosenName = authUsername.value.trim();
-                            if (!chosenName) {
+                            if (!chosenName || chosenName.length < 6) {
                                 if(errorMsg) {
-                                    errorMsg.innerText = "Please enter a valid username to continue.";
+                                    errorMsg.innerText = "Username must be at least 6 characters long.";
                                     errorMsg.classList.remove('hidden');
                                 }
                                 return;
@@ -309,9 +315,10 @@ window.dispatchEvent(new CustomEvent('authResolved'));
 
         try {
             if (isSignUpMode) {
+                if (username.length < 6) throw new Error("Username must be at least 6 characters long.");
+                
                 let currentEmail = identifier;
                 if (!currentEmail.includes('@')) throw new Error("Please enter a valid email address for signup.");
-
                 const emailQuery = query(collection(db, 'users'), where("email", "==", currentEmail));
                 const emailSnap = await getDocs(emailQuery);
                 if (!emailSnap.empty) throw new Error("An account with this email already exists.");
@@ -348,10 +355,18 @@ window.dispatchEvent(new CustomEvent('authResolved'));
     authGoogleBtn.onclick = async () => {
         errorMsg.classList.add('hidden');
         
-        if (isSignUpMode && !authUsername.value.trim()) {
-            errorMsg.innerText = "Please enter a username first to sign up with Google.";
-            errorMsg.classList.remove('hidden');
-            return;
+        if (isSignUpMode) {
+            const currentUname = authUsername.value.trim();
+            if (!currentUname) {
+                errorMsg.innerText = "Please enter a username first to sign up with Google.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            if (currentUname.length < 6) {
+                errorMsg.innerText = "Username must be at least 6 characters long.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
         }
 
         try {
