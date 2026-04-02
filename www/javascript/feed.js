@@ -132,6 +132,20 @@ function renderFeed() {
 }
 
 function handleFeedClick(e) {
+    const stationTagBtn = e.target.closest('.station-tag-btn');
+    if (stationTagBtn) {
+        const stationId = stationTagBtn.dataset.id;
+        if (stationId && window.allStations && window.map) {
+            const targetStation = window.allStations.find(s => String(s.id) === String(stationId) || String(s.station_id) === String(stationId));
+            if (targetStation) {
+                if (window.resetUI) window.resetUI();
+                if (window.filterToLine) window.filterToLine(targetStation.line_id);
+                window.map.panTo({ lat: Number(targetStation.lat), lng: Number(targetStation.lon) });
+            }
+        }
+        return;
+    }
+
     const friendBtn = e.target.closest('.friend-btn');
     if (friendBtn) {
         if (IS_ANONYMOUS) {
@@ -210,7 +224,11 @@ function createPostElement(id, data, isDetail = false) {
             }
         }
         if (stationLabel) {
-            tagsHtml.push(`<span class="bg-[#40C4FF] border-[3px] border-black dark:border-slate-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter text-black">${escapeHtml(stationLabel)}</span>`);
+            if (data.stationId) {
+                tagsHtml.push(`<button class="station-tag-btn relative z-10 bg-[#40C4FF] border-[3px] border-black dark:border-slate-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter text-black hover:-translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0 active:shadow-none transition-all cursor-pointer" data-id="${data.stationId}">${escapeHtml(stationLabel)}</button>`);
+            } else {
+                tagsHtml.push(`<span class="bg-[#40C4FF] border-[3px] border-black dark:border-slate-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter text-black">${escapeHtml(stationLabel)}</span>`);
+            }
         }
     }
     const tagContainer = tagsHtml.length ? `<div class="flex flex-wrap gap-2 mt-4">${tagsHtml.join('')}</div>` : '';
