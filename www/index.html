@@ -16,7 +16,7 @@
 
 <body class="min-h-screen relative font-sans overflow-x-hidden overflow-y-hidden">
 
-<div id="auth-container" class="fixed inset-0 z-[300] bg-[#40C4FF] flex flex-col items-center justify-center overflow-y-auto hidden transition-transform duration-500 ease-in-out translate-y-full">    
+<div id="auth-container" class="fixed inset-0 z-[300] bg-[#40C4FF] bg-cover bg-center portrait:bg-[url('graphics/splash.png')] landscape:bg-[url('graphics/splash-h.png')] flex flex-col items-center justify-center overflow-y-auto hidden transition-transform duration-500 ease-in-out translate-y-full">    
     
     <div class="absolute top-[calc(2rem+env(safe-area-inset-top))] left-1/2 transform -translate-x-1/2 z-50">
         <div class="flex bg-white border-[4px] border-black rounded-xl overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -29,7 +29,10 @@
         <svg class="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="4"><path d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
     <div class="w-[90%] max-w-sm bg-white border-[5px] border-black rounded-[32px] p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center gap-4 my-8 relative z-40 mt-20">
-        <h1 class="text-4xl font-black uppercase tracking-tighter text-center mb-2">Eki Story</h1>
+        <div class="flex items-center justify-center gap-4 mb-2">
+            <img src="/graphics/icon.png" alt="Eki Story Logo" class="w-12 h-12 rounded-xl border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] object-cover bg-white">
+            <h1 class="text-4xl font-black uppercase tracking-tighter m-0">Eki Story</h1>
+        </div>
         
         <div id="auth-error-message" class="w-full text-center text-[#FF5252] font-bold text-xs hidden"></div>
 
