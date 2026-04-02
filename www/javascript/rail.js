@@ -6,6 +6,7 @@ import { renderVisibleMarkers, updateUserMarker } from './map_markers.js';
 import { toggleStation } from './user.js';
 import { idbSet, idbGet } from './idb.js';
 import { playReturnSound } from './audio.js';
+import { t } from './i18n.js';
 
 let map;
 let allStations = [];
@@ -219,7 +220,7 @@ export function showTooltip(latLng, data, type) {
             if (visited) {
                 statusContainer.innerHTML = `
                     <div class="flex items-center justify-center gap-2">
-                        <span class="bg-[#B2FF59] border-[3px] border-black px-6 py-2 rounded-2xl text-xs font-black uppercase text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">Visited</span>
+                        <span data-i18n="map.visited" class="bg-[#B2FF59] border-[3px] border-black px-6 py-2 rounded-2xl text-xs font-black uppercase text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">${t("map.visited")}</span>
                         <button id="unmark-station-btn" data-station-id="${data.stationId}" class="w-9 h-9 bg-[#FF5252] border-[3px] border-black rounded-full flex items-center justify-center text-white font-black hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
@@ -227,8 +228,8 @@ export function showTooltip(latLng, data, type) {
                 `;
             } else {
                 statusContainer.innerHTML = `
-                    <button id="mark-visited-btn" data-station-id="${data.stationId}" class="bg-[#40C4FF] border-[3px] border-black px-6 py-2 rounded-2xl text-xs font-black uppercase text-black hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all">
-                        Mark as Visited?
+                    <button id="mark-visited-btn" data-i18n="map.markAsVisited" data-station-id="${data.stationId}" class="bg-[#40C4FF] border-[3px] border-black px-6 py-2 rounded-2xl text-xs font-black uppercase text-black hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all">
+                        ${t("map.markAsVisited")}
                     </button>
                 `;
             }
