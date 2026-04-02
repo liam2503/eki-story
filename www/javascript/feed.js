@@ -1,5 +1,6 @@
-import { db } from './firebase.js';
+import { db, storage } from './firebase.js';
 import { collection, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, addDoc, query, orderBy, increment, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { startCamera, stopCamera } from './stamp_camera.js';
 import { CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
 import { showAuthScreen } from './auth.js';
@@ -220,6 +221,7 @@ function createPostElement(id, data, isDetail = false) {
     const yeahText = hasYeahed ? 'text-black' : 'text-black dark:text-white';
 
     const triggerClass = isDetail ? '' : 'post-detail-trigger cursor-pointer';
+    const displayImage = data.imageUrl || data.image;
 
     div.innerHTML = `
         <div class="flex items-center justify-between mb-5">
@@ -232,8 +234,8 @@ function createPostElement(id, data, isDetail = false) {
                 ${deleteBtnHtml}
             </div>
         </div>
-        ${data.image ? `<div class="w-full aspect-square bg-gray-200 dark:bg-slate-700 mb-5 border-[4px] border-black dark:border-slate-600 overflow-hidden rounded-2xl ${triggerClass}" data-id="${id}"><img src="${data.image}" class="w-full h-full object-cover"></div>` : ''}
-<p class="text-base font-bold dark:text-gray-200 ${triggerClass}" data-id="${id}">${data.caption || ''}</p>
+        ${displayImage ? `<div class="w-full aspect-square bg-gray-200 dark:bg-slate-700 mb-5 border-[4px] border-black dark:border-slate-600 overflow-hidden rounded-2xl ${triggerClass}" data-id="${id}"><img src="${displayImage}" loading="lazy" class="w-full h-full object-cover"></div>` : ''}
+        <p class="text-base font-bold dark:text-gray-200 ${triggerClass}" data-id="${id}">${data.caption || ''}</p>
         ${tagContainer}
         <div class="flex gap-4 mt-6">
             <button class="yeah-btn flex-1 ${yeahColor} border-[4px] border-black dark:border-slate-600 rounded-xl py-3 ${yeahText} font-black text-base uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all flex items-center justify-center gap-2" data-id="${id}">
@@ -464,21 +466,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!pendingPostImage && !caption) return;
 
-            const postData = {
-                userId: CURRENT_USER_ID,
-                username: CURRENT_USERNAME,
-                image: pendingPostImage || '',
-                caption: caption,
-                tag: tag,
-                stationId: stationId,
-                stationName: stationName,
-                timestamp: Date.now(),
-                yeahs: [],
-                commentsCount: 0
-            };
-
             submitBtn.disabled = true;
             try {
+                let finalImageUrl = '';
+
+                if (pendingPostImage) {
+                    const imageRef = ref(storage, `posts/${CURRENT_USER_ID}_${Date.now()}.jpg`);
+                    await uploadString(imageRef, pendingPostImage, 'data_url');
+                    finalImageUrl = await getDownloadURL(imageRef);
+                }
+
+                const postData = {
+                    userId: CURRENT_USER_ID,
+                    username: CURRENT_USERNAME,
+                    imageUrl: finalImageUrl,
+                    caption: caption,
+                    tag: tag,
+                    stationId: stationId,
+                    stationName: stationName,
+                    timestamp: Date.now(),
+                    yeahs: [],
+                    commentsCount: 0
+                };
+
                 await addDoc(collection(db, 'posts'), postData);
                 document.getElementById('create-post-container').classList.add('translate-y-full', 'pointer-events-none');
             } catch (err) {
