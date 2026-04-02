@@ -229,7 +229,7 @@ export const translations = {
             unmarkMsg: "この駅の訪問済みマークを解除してもよろしいですか？"
         },
         feed: {
-            title: "フィード",
+            title: "ソーシャル",
             all: "すべて",
             friends: "フレンド",
             addPost: "+ 投稿",
