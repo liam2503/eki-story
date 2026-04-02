@@ -8,12 +8,14 @@ import { applyTranslations, t, getLanguage } from './i18n.js';
 let postsUnsubscribe = null;
 let commentsUnsubscribe = null;
 let detailPostUnsubscribe = null;
+let userDocUnsubscribe = null;
 let pendingPostImage = null;
 let currentDetailPostId = null;
 
 let currentFeedFilter = 'all';
 let latestPosts = [];
 let currentUserFriends = [];
+let currentUserOutRequests = [];
 
 // Maps legacy English tag values (stored in old posts) to i18n keys.
 const TAG_LEGACY_MAP = {
@@ -50,14 +52,18 @@ export async function initFeedFrame() {
         filterFriendsBtn.onclick = () => setFeedFilter('friends');
     }
 
-    if (!IS_ANONYMOUS) {
-        try {
-            const userDoc = await getDoc(doc(db, 'users', CURRENT_USER_ID));
-            if (userDoc.exists()) {
-                currentUserFriends = userDoc.data().friends || [];
-            }
-        } catch (e) {
-            console.error(e);
+   if (!IS_ANONYMOUS) {
+        if (!userDocUnsubscribe) {
+            userDocUnsubscribe = onSnapshot(doc(db, 'users', CURRENT_USER_ID), (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    currentUserFriends = data.friends || [];
+                    currentUserOutRequests = data.out_requests || [];
+                    if (latestPosts.length > 0) {
+                        renderFeed();
+                    }
+                }
+            }, (e) => console.error(e));
         }
     }
 
@@ -125,6 +131,16 @@ function renderFeed() {
 }
 
 function handleFeedClick(e) {
+    const friendBtn = e.target.closest('.friend-btn');
+    if (friendBtn) {
+        if (IS_ANONYMOUS) {
+            showAuthScreen();
+            return;
+        }
+        toggleFriendRequest(friendBtn.dataset.id, friendBtn.dataset.action);
+        return;
+    }
+
     const yeahBtn = e.target.closest('.yeah-btn');
     if (yeahBtn) {
         if (IS_ANONYMOUS) {
@@ -153,6 +169,20 @@ function createPostElement(id, data, isDetail = false) {
 
     const isOwner = data.userId === CURRENT_USER_ID;
     const deleteBtnHtml = isOwner ? `<button class="delete-post-btn w-10 h-10 bg-[#FF5252] border-[3px] border-black dark:border-slate-600 rounded-full flex items-center justify-center text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all" data-id="${id}"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>` : '';
+
+    let friendBtnHtml = '';
+    if (!isOwner && !IS_ANONYMOUS) {
+        const isFriend = currentUserFriends.includes(data.userId);
+        const hasRequested = currentUserOutRequests.includes(data.userId);
+
+        if (!isFriend) {
+            if (hasRequested) {
+                friendBtnHtml = `<button class="friend-btn w-10 h-10 bg-gray-400 dark:bg-slate-600 border-[3px] border-black dark:border-slate-500 rounded-full flex items-center justify-center text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all" data-id="${data.userId}" data-action="cancel"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12h-6m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg></button>`;
+            } else {
+                friendBtnHtml = `<button class="friend-btn w-10 h-10 bg-[#40C4FF] border-[3px] border-black dark:border-slate-600 rounded-full flex items-center justify-center text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all" data-id="${data.userId}" data-action="add"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg></button>`;
+            }
+        }
+    }
 
     const tagsHtml = [];
     if (data.tag) {
@@ -197,10 +227,13 @@ function createPostElement(id, data, isDetail = false) {
                 <h3 class="font-black text-2xl uppercase tracking-tighter dark:text-white">${data.username}</h3>
                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">${new Date(data.timestamp).toLocaleString()}</span>
             </div>
-            ${deleteBtnHtml}
+            <div class="flex gap-2">
+                ${friendBtnHtml}
+                ${deleteBtnHtml}
+            </div>
         </div>
         ${data.image ? `<div class="w-full aspect-square bg-gray-200 dark:bg-slate-700 mb-5 border-[4px] border-black dark:border-slate-600 overflow-hidden rounded-2xl ${triggerClass}" data-id="${id}"><img src="${data.image}" class="w-full h-full object-cover"></div>` : ''}
-        <p class="text-base font-bold dark:text-gray-200 ${triggerClass}" data-id="${id}">${data.caption || ''}</p>
+<p class="text-base font-bold dark:text-gray-200 ${triggerClass}" data-id="${id}">${data.caption || ''}</p>
         ${tagContainer}
         <div class="flex gap-4 mt-6">
             <button class="yeah-btn flex-1 ${yeahColor} border-[4px] border-black dark:border-slate-600 rounded-xl py-3 ${yeahText} font-black text-base uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all flex items-center justify-center gap-2" data-id="${id}">
@@ -644,4 +677,23 @@ function initCustomTagSelect() {
             if (arrow) arrow.classList.remove('rotate-180');
         }
     });
+}
+
+async function toggleFriendRequest(targetId, action) {
+    if (IS_ANONYMOUS || !targetId) return;
+
+    const currentUserRef = doc(db, 'users', CURRENT_USER_ID);
+    const targetUserRef = doc(db, 'users', targetId);
+
+    try {
+        if (action === 'add') {
+            await setDoc(currentUserRef, { out_requests: arrayUnion(targetId) }, { merge: true });
+            await setDoc(targetUserRef, { in_requests: arrayUnion(CURRENT_USER_ID) }, { merge: true });
+        } else if (action === 'cancel') {
+            await setDoc(currentUserRef, { out_requests: arrayRemove(targetId) }, { merge: true });
+            await setDoc(targetUserRef, { in_requests: arrayRemove(CURRENT_USER_ID) }, { merge: true });
+        }
+    } catch (e) {
+        console.error(e);
+    }
 }

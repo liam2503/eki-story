@@ -6,7 +6,7 @@ import { renderVisibleMarkers, updateUserMarker } from './map_markers.js';
 import { toggleStation } from './user.js';
 import { idbSet, idbGet } from './idb.js';
 import { playReturnSound } from './audio.js';
-import { t } from './i18n.js';
+import { t, getLanguage } from './i18n.js';
 
 let map;
 let allStations = [];
@@ -19,6 +19,19 @@ let currentPosition = null;
 window.filterToLine = function(lineId) {
     activeLineFilter = String(lineId);
     window.renderVisibleMarkers();
+
+    const pill = document.getElementById('active-filter-pill');
+    const colorEl = document.getElementById('active-filter-color');
+    const nameEl = document.getElementById('active-filter-name');
+
+    if (pill && lineColors[lineId]) {
+        const line = lineColors[lineId];
+        const lang = getLanguage();
+        
+        nameEl.innerText = lang === 'ja' ? (line.name_jp || line.name_en) : (line.name_en || line.name_jp);
+        colorEl.style.backgroundColor = line.color || '#000000';
+        pill.classList.remove('hidden');
+    }
 };
 
 window.clearLineFilter = function() {
@@ -328,6 +341,12 @@ window.hideTooltip = hideTooltip;
 document.addEventListener('DOMContentLoaded', () => {
     const cancelUnmarkBtn = document.getElementById('cancel-unmark-btn');
     const confirmUnmarkBtn = document.getElementById('confirm-unmark-btn');
+    const clearFilterBtn = document.getElementById('clear-filter-btn');
+    if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', () => {
+            window.clearLineFilter();
+        });
+    }
     
     if (cancelUnmarkBtn && confirmUnmarkBtn) {
         cancelUnmarkBtn.addEventListener('click', () => {
