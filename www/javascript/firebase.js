@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver, browserLocalPersistence, GoogleAuthProvider } from "firebase/auth";
-import { getStorage } from "firebase/storage";
 import { Capacitor } from "@capacitor/core";
 
 const firebaseConfig = {
@@ -36,6 +35,5 @@ if (Capacitor.isNativePlatform()) {
 }
 
 const googleProvider = new GoogleAuthProvider();
-const storage = getStorage(app);
 
-export { db, auth, googleProvider, storage };
+export { db, auth, googleProvider };
