@@ -366,9 +366,9 @@ function initFeedStationSearch() {
 
             html += `
                 <div class="feed-station-result flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 border-b-[2px] border-black dark:border-slate-600 last:border-b-0"
-                     data-id="${sId}" data-name="${name}">
+                     data-id="${sId}" data-name="${escapeHtml(name)}">
                     <div class="flex gap-1">${colorDots}</div>
-                    <span class="text-xs font-black uppercase dark:text-white">${name}</span>
+                    <span class="text-xs font-black uppercase dark:text-white">${escapeHtml(name)}</span>
                 </div>
             `;
         });
