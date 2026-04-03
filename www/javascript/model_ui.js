@@ -2,7 +2,6 @@ import { selectors } from './list_state.js';
 import { userModels, saveModel, deleteModel } from './user.js';
 import { startCamera, stopCamera } from './stamp_camera.js';
 import { playReturnSound } from './audio.js';
-import { t } from './i18n.js';
 import { showPostToFeedPrompt } from './feed.js';
 
 let viewingModelId = null;

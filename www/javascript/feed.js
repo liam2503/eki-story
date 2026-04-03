@@ -722,6 +722,8 @@ export function openCreatePostWith(imageData, tag) {
     const searchInput = document.getElementById('post-station-search-input');
     const hiddenId = document.getElementById('post-station-id-hidden');
 
+    if (!cont || !img || !capBtn || !retakeBtn || !caption) return;
+
     caption.value = '';
     if (searchInput) searchInput.value = '';
     if (hiddenId) hiddenId.value = '';
