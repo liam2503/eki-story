@@ -76,6 +76,5 @@ if (document.readyState === 'interactive' || document.readyState === 'complete')
 
 
 document.addEventListener("turbo:load", () => {
-    isInitialized = false; 
     initAll();
 });
