@@ -211,7 +211,6 @@ export function initAuth() {
                         if(titleEl) titleEl.innerText = "Complete Profile";
                         
                         if(authSubmitBtn) authSubmitBtn.innerText = "Save Username";
-window.dispatchEvent(new CustomEvent('authResolved'));
                         authForm.onsubmit = async (e) => {
                             e.preventDefault();
                             if(errorMsg) errorMsg.classList.add('hidden');
