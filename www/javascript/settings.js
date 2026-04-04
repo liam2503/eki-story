@@ -178,7 +178,8 @@ export function initSettingsFrame() {
                     try {
                         localStorage.clear();
                         sessionStorage.clear();
-                        import('./idb.js').then(m => m.idbClear());
+                        const { idbClear } = await import('./idb.js');
+                        await idbClear();
                         
                         if (Capacitor.isNativePlatform()) {
     try {
@@ -222,7 +223,8 @@ export function initSettingsFrame() {
                             await deleteUser(user);
                             localStorage.clear();
                             sessionStorage.clear();
-                            import('./idb.js').then(m => m.idbClear());
+                            const { idbClear } = await import('./idb.js');
+                            await idbClear();
                             window.location.reload();
                         } catch (err) {
                             const alertModal = document.getElementById('generic-alert-modal');
