@@ -408,17 +408,30 @@ window.dispatchEvent(new CustomEvent('authResolved'));
                 
                 const credential = GoogleAuthProvider.credential(googleUser.result.idToken);
 
-                if (auth.currentUser && auth.currentUser.isAnonymous) {
+                // ONLY link if the user is in Sign Up mode
+                if (auth.currentUser && auth.currentUser.isAnonymous && isSignUpMode) {
                     await linkWithCredential(auth.currentUser, credential);
                     window.location.reload();
                 } else {
+                    // Otherwise, just log in (this abandons the guest session)
                     await signInWithCredential(auth, credential);
                 }
             } else {
-                if (auth.currentUser && auth.currentUser.isAnonymous) {
-                    await linkWithRedirect(auth.currentUser, googleProvider);
+                // ONLY link if the user is in Sign Up mode
+                if (auth.currentUser && auth.currentUser.isAnonymous && isSignUpMode) {
+                    try {
+                        await linkWithPopup(auth.currentUser, googleProvider);
+                        window.location.reload();
+                    } catch (linkErr) {
+                        if (linkErr.code === 'auth/credential-already-in-use') {
+                            throw new Error("This Google account is already registered. To access it, switch to 'Log In' below (your Guest data will be left behind).");
+                        } else {
+                            throw linkErr;
+                        }
+                    }
                 } else {
-                    await signInWithRedirect(auth, googleProvider);
+                    // Otherwise, just log in normally
+                    await signInWithPopup(auth, googleProvider);
                 }
             }
         } catch (err) {
