@@ -312,6 +312,31 @@ export function initSettingsFrame() {
             }, 150);
         };
     }
+
+    const legalFooter = document.createElement('div');
+    legalFooter.className = "mt-12 px-6 pb-8 text-[10px] text-gray-400 dark:text-gray-500 font-bold leading-relaxed border-t-[2px] border-black/5 dark:border-white/5 pt-6";
+    legalFooter.innerHTML = `
+        <div class="mb-4">
+            <h4 class="uppercase tracking-widest mb-1 text-black dark:text-white">Privacy Policy</h4>
+            <p>This app uses location data for navigation and station tracking. User content is stored securely via Google Firebase and is never sold. Use is subject to Google’s Privacy Policy. You may delete your account and data at any time in Settings.</p>
+        </div>
+        <div class="mb-4">
+            <h4 class="uppercase tracking-widest mb-1 text-black dark:text-white">Terms of Use</h4>
+            <p>Provided "as-is" for entertainment. This is an independent project and is not affiliated with any railway operator. Station data is sourced from Eki-Data. All railway logos and trademarks are the property and copyright of their respective owners. Use at your own risk; always remain aware of your physical surroundings.</p>
+        </div>
+        <div class="mb-4">
+            <h4 class="uppercase tracking-widest mb-1 text-black dark:text-white">Credits</h4>
+            <p>This project was developed by Liam Persad, Cassady Mead and Soraha Ebara as a final project for the "CIS 3296 - Software Design" class. The project code is distributed under the MIT License.</p>
+        </div>
+    `;
+
+    const settingsFrame = document.getElementById('settings-frame');
+    if (settingsFrame) {
+        const existingFooter = settingsFrame.querySelector('.legal-footer');
+        if (existingFooter) existingFooter.remove();
+        legalFooter.classList.add('legal-footer');
+        settingsFrame.appendChild(legalFooter);
+    }
 }
 
 window.addEventListener('settingsSynced', () => {
