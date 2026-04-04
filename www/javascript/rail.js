@@ -2,7 +2,7 @@ import { syncStationData, syncLineData, syncJoinData } from './map_utils.js';
 import { db, auth } from './firebase.js';
 import { doc, getDoc } from 'firebase/firestore';
 import { renderPolylines, polylines } from './map_layers.js';
-import { renderVisibleMarkers, updateUserMarker } from './map_markers.js';
+import { markers, renderVisibleMarkers as renderVisibleMarkersOnMap, updateUserMarker } from './map_markers.js';
 import { toggleStation } from './user.js';
 import { idbSet, idbGet } from './idb.js';
 import { playReturnSound, playOkSound } from './audio.js';
@@ -15,6 +15,26 @@ let stationLookup = {};
 let activeLineFilter = null;
 let isFollowingUser = true;
 let currentPosition = null;
+
+const JAPAN_BOUNDS = {
+    north: 46.5,
+    south: 18.0,
+    west: 121.0,
+    east: 154.5
+};
+const MARKER_MIN_ZOOM = 12;
+
+function hideAllStationMarkers() {
+    Object.values(markers).forEach(markerObj => {
+        if (markerObj?.instance?.map !== null) {
+            markerObj.instance.map = null;
+        }
+    });
+}
+
+function shouldShowStationMarkers() {
+    return map && map.getZoom() >= MARKER_MIN_ZOOM;
+}
 
 window.filterToLine = function(lineId) {
     activeLineFilter = String(lineId);
@@ -46,10 +66,13 @@ window.initMap = async function() {
     map = new google.maps.Map(document.getElementById("map"), {
         mapId: "c1670ec5a2e905485de80c27",
         colorScheme: isDark ? "DARK" : "LIGHT",
-        zoom: 14.8, 
-        minZoom: 11,
+        zoom: 14.8,
         isFractionalZoomEnabled: true,
         center: centerView,
+        restriction: {
+            latLngBounds: JAPAN_BOUNDS,
+            strictBounds: true
+        },
         disableDefaultUI: true
     });
 
@@ -146,17 +169,22 @@ window.initMap = async function() {
     }
 
     map.addListener('idle', () => {
-        renderVisibleMarkers(map, allStations, lineColors, activeLineFilter, showTooltip);
+        window.renderVisibleMarkers();
     });
 
-    renderVisibleMarkers(map, allStations, lineColors, activeLineFilter, showTooltip);
+    window.renderVisibleMarkers();
 
     map.addListener('dragstart', () => {
         isFollowingUser = false;
         hideTooltip();
     });
 
-    map.addListener('zoom_changed', hideTooltip);
+    map.addListener('zoom_changed', () => {
+        hideTooltip();
+        if (!shouldShowStationMarkers()) {
+            hideAllStationMarkers();
+        }
+    });
 
     map.addListener('click', hideTooltip);
 
@@ -207,7 +235,13 @@ window.centerOnUser = function() {
 
 window.renderVisibleMarkers = () => {
     if (!map) return; 
-    renderVisibleMarkers(map, allStations, lineColors, activeLineFilter, showTooltip);
+
+    if (!shouldShowStationMarkers()) {
+        hideAllStationMarkers();
+        return;
+    }
+
+    renderVisibleMarkersOnMap(map, allStations, lineColors, activeLineFilter, showTooltip);
 };
 
 export function showTooltip(latLng, data, type) {

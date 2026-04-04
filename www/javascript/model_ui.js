@@ -25,7 +25,8 @@ export function initModelUI(refreshCallback) {
         modalCont: document.getElementById("model-modal-container"),
         modalImg: document.getElementById("model-modal-image"),
         modalName: document.getElementById("model-modal-name"),
-        modalDate: document.getElementById("model-modal-date")
+        modalDate: document.getElementById("model-modal-date"),
+        captureBtn: document.getElementById("capture-model-btn")
     };
 
     const deleteModelConfirmModal = document.getElementById("delete-model-confirm-modal");
@@ -50,7 +51,10 @@ export function initModelUI(refreshCallback) {
                 pendingModelImageData = null;
 
                 modelEls.addCont.classList.remove("translate-y-full", "pointer-events-none");
-                startCamera(modelEls.video, modelEls.place, async () => {});
+                setCaptureEnabled(modelEls.captureBtn, true);
+                startCamera(modelEls.video, modelEls.place, async () => {}).then(stream => {
+                    setCaptureEnabled(modelEls.captureBtn, !!stream);
+                });
                 return;
             }
 
@@ -129,7 +133,10 @@ export function initModelUI(refreshCallback) {
         modelEls.previewImg.src = '';
         modelEls.captureActions.classList.remove('hidden');
         modelEls.saveActions.classList.add('hidden');
-        startCamera(modelEls.video, modelEls.place, async () => {});
+        setCaptureEnabled(modelEls.captureBtn, true);
+        startCamera(modelEls.video, modelEls.place, async () => {}).then(stream => {
+            setCaptureEnabled(modelEls.captureBtn, !!stream);
+        });
     };
 
     document.getElementById("save-model-btn").onclick = async () => {
@@ -214,6 +221,15 @@ export function initModelUI(refreshCallback) {
         modelEls.modalCont.classList.add('opacity-0', 'pointer-events-none');
         refreshCallback();
     };
+
+    function setCaptureEnabled(btn, enabled) {
+        btn.disabled = !enabled;
+        if (enabled) {
+            btn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        } else {
+            btn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        }
+    }
 
     function resizeCanvasImage(canvas, maxSize) {
         if (canvas.width > maxSize || canvas.height > maxSize) {

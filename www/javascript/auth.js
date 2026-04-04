@@ -222,7 +222,6 @@ export function initAuth() {
                         if(titleEl) titleEl.innerText = "Complete Profile";
                         
                         if(authSubmitBtn) authSubmitBtn.innerText = "Save Username";
-window.dispatchEvent(new CustomEvent('authResolved'));
                         authForm.onsubmit = async (e) => {
                             e.preventDefault();
                             if(errorMsg) errorMsg.classList.add('hidden');
@@ -260,10 +259,18 @@ window.dispatchEvent(new CustomEvent('authResolved'));
                 }
             } catch (e) {
                 console.error("Post-Login Database Error:", e);
+                
+                authContainer.style.transition = 'none';
+                authContainer.classList.remove('hidden', 'translate-y-full');
+                void authContainer.offsetWidth;
+                authContainer.style.transition = '';
+                
                 if (errorMsg) {
                     errorMsg.innerText = "Database connection error during login: " + e.message;
                     errorMsg.classList.remove('hidden');
                 }
+                
+                window.dispatchEvent(new CustomEvent('authResolved'));
             }
 
         } else {
