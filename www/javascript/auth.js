@@ -2,7 +2,8 @@ import { auth, db, googleProvider } from './firebase.js';
 import { 
     onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
     signInAnonymously, linkWithCredential, linkWithPopup, EmailAuthProvider,
-    GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRedirect, deleteUser, signOut, sendPasswordResetEmail
+    GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRedirect, deleteUser, signOut, sendPasswordResetEmail,
+    getRedirectResult
 } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { setCurrentUser, initProfileSync } from './user.js';
@@ -46,6 +47,17 @@ export function showAuthScreen() {
 }
 
 export function initAuth() {
+
+    const errorMsg = document.getElementById('auth-error-message');
+    getRedirectResult(auth).then((result) => {
+        if (result) console.log("Redirect success:", result.user);
+    }).catch((error) => {
+        console.error("Redirect failed:", error);
+        if (errorMsg) {
+            errorMsg.innerText = "Google Sign-In Error: " + error.message;
+            errorMsg.classList.remove('hidden');
+        }
+    });
     
     initAuthLanguageSelector();
 
@@ -59,7 +71,6 @@ export function initAuth() {
     const authToggleMode = document.getElementById('auth-toggle-mode');
     const authGoogleBtn = document.getElementById('auth-google-btn');
     const authAnonBtn = document.getElementById('auth-anon-btn');
-    const errorMsg = document.getElementById('auth-error-message');
     const authForgotBtn = document.getElementById('auth-forgot-password');
 
     // Strip non-alphanumeric characters instantly as the user types
@@ -248,6 +259,11 @@ window.dispatchEvent(new CustomEvent('authResolved'));
                     window.dispatchEvent(new CustomEvent('authResolved'));
                 }
             } catch (e) {
+                console.error("Post-Login Database Error:", e);
+                if (errorMsg) {
+                    errorMsg.innerText = "Database connection error during login: " + e.message;
+                    errorMsg.classList.remove('hidden');
+                }
             }
 
         } else {
