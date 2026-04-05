@@ -608,9 +608,9 @@ function renderDetailPost() {
     
     const delBtn = content.querySelector('.delete-post-btn');
     if (delBtn) {
-        delBtn.onclick = () => {
-            deletePost(currentDetailPostId);
-            cont.classList.add('translate-x-full', 'pointer-events-none');
+        delBtn.onclick = async () => {
+            const ok = await deletePost(currentDetailPostId);
+            if (ok) cont.classList.add('translate-x-full', 'pointer-events-none');
         };
     }
 
@@ -718,8 +718,10 @@ async function deletePost(id) {
     playReturnSound();
     try {
         await deleteDoc(doc(db, 'posts', id));
+        return true;
     } catch (e) {
         showToast('Failed to delete post. Please try again.');
+        return false;
     }
 }
 
