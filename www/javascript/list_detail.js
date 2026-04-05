@@ -5,6 +5,7 @@ import { startCamera, stopCamera } from './stamp_camera.js';
 import { startCrop, handleCropInput, finalizeWarp } from './stamp_crop.js';
 import { setupRefinement, handleRefineDraw, processFinalStamp, applyLiveContrast, triggerUndo, toggleInvert } from './stamp_refine.js';
 import { playReturnSound, playSlideSound, playOkSound, playCameraSound, playConfirm3Sound } from './audio.js';
+import { showToast } from './ui.js';
 import { getLanguage, t } from './i18n.js';
 import { showPostToFeedPrompt } from './feed.js';
 
@@ -363,11 +364,15 @@ export function initStampScanner() {
         }
 
         const processedImage = processFinalStamp(els.refineBase, els.refineMask, els.ink.value, isFlipped);
-        await saveStamp(currentStationId, processedImage, currentOriginalImage, customTs);
-        els.refineCont.classList.add('translate-y-full', 'pointer-events-none');
-        isFlipped = false; els.refineBase.style.transform = els.refineMask.style.transform = 'scaleX(1)';
-        showLineDetail(currentLineId);
-        showPostToFeedPrompt(processedImage, 'stamp');
+        try {
+            await saveStamp(currentStationId, processedImage, currentOriginalImage, customTs);
+            els.refineCont.classList.add('translate-y-full', 'pointer-events-none');
+            isFlipped = false; els.refineBase.style.transform = els.refineMask.style.transform = 'scaleX(1)';
+            showLineDetail(currentLineId);
+            showPostToFeedPrompt(processedImage, 'stamp');
+        } catch (e) {
+            showToast('Failed to save stamp. Please try again.');
+        }
     };
 
     document.getElementById("close-stamp-btn").onclick = () => { playReturnSound(); els.addCont.classList.add("translate-y-full", "pointer-events-none"); stopCamera(els.video, els.place); };
