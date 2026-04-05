@@ -6,6 +6,7 @@ import { CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
 import { showAuthScreen } from './auth.js';
 import { applyTranslations, t, getLanguage } from './i18n.js';
 import { playSlideSound, playOkSound, playReturnSound, playConfirm3Sound, playCameraSound, playConfirm2Sound } from './audio.js';
+import { showToast } from './ui.js';
 
 let postsUnsubscribe = null;
 let commentsUnsubscribe = null;
@@ -607,9 +608,9 @@ function renderDetailPost() {
     
     const delBtn = content.querySelector('.delete-post-btn');
     if (delBtn) {
-        delBtn.onclick = () => {
-            deletePost(currentDetailPostId);
-            cont.classList.add('translate-x-full', 'pointer-events-none');
+        delBtn.onclick = async () => {
+            const ok = await deletePost(currentDetailPostId);
+            if (ok) cont.classList.add('translate-x-full', 'pointer-events-none');
         };
     }
 
@@ -698,20 +699,30 @@ window.deleteComment = async (postId, commentId) => {
     });
 };
 
-function toggleYeah(id, hasYeahed) {
+async function toggleYeah(id, hasYeahed) {
     const ref = doc(db, 'posts', id);
-    if (hasYeahed) {
-        playReturnSound();
-        updateDoc(ref, { yeahs: arrayRemove(CURRENT_USER_ID) });
-    } else {
-        playConfirm2Sound();
-        updateDoc(ref, { yeahs: arrayUnion(CURRENT_USER_ID) });
+    try {
+        if (hasYeahed) {
+            playReturnSound();
+            await updateDoc(ref, { yeahs: arrayRemove(CURRENT_USER_ID) });
+        } else {
+            playConfirm2Sound();
+            await updateDoc(ref, { yeahs: arrayUnion(CURRENT_USER_ID) });
+        }
+    } catch (e) {
+        showToast('Failed to update. Please check your connection.');
     }
 }
 
-function deletePost(id) {
+async function deletePost(id) {
     playReturnSound();
-    deleteDoc(doc(db, 'posts', id));
+    try {
+        await deleteDoc(doc(db, 'posts', id));
+        return true;
+    } catch (e) {
+        showToast('Failed to delete post. Please try again.');
+        return false;
+    }
 }
 
 function resizeCanvasImage(canvas, maxSize) {

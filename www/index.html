@@ -572,6 +572,7 @@
                     <input type="hidden" id="post-station-id-hidden">
                 </div>
                 </div>
+                <div id="post-submit-error" class="text-[#FF5252] font-bold text-xs hidden w-full text-center"></div>
                 <button id="submit-post-btn" data-i18n="post.postIt" class="w-full bg-[#FF80AB] border-[5px] border-black rounded-2xl py-4 text-black font-black text-2xl uppercase tracking-tighter shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-y-[6px] active:translate-x-[6px] active:shadow-none transition-all mt-4">
                     Post It!
                 </button>
@@ -694,8 +695,11 @@
     <script type="module" src="./javascript/ui.js"></script>
     <script type="module" src="./javascript/search.js"></script>
     <script type="module" src="./javascript/list.js"></script>
+    <div id="error-toast" class="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-4 right-4 z-[400] bg-[#FF5252] border-[4px] border-black rounded-2xl p-4 text-black font-black text-sm uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-y-full opacity-0 transition-all duration-300 pointer-events-none"></div>
+
     <script type="module" src="./javascript/settings.js"></script>
     <script type="module" src="./javascript/feed.js"></script>
     <script type="module" src="./javascript/main.js"></script>
 </body>
+
 </html>
