@@ -65,6 +65,15 @@
                 <div id="no-requests-msg" data-i18n="profile.noRequests" class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center py-4">No pending requests</div>
             </div>
         </div>
+        <div id="profile-posts-section" class="bg-white dark:bg-slate-800 border-[5px] border-black dark:border-slate-600 rounded-[32px] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-4 hidden">
+            <h3 data-i18n="feed.myPosts" class="text-xl font-black uppercase tracking-tighter dark:text-white">My Posts</h3>
+            <div id="profile-posts-list" class="flex flex-col gap-6"></div>
+            <div class="flex justify-center mt-2">
+                <button id="profile-posts-load-more" data-i18n="feed.loadMore" class="hidden bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-xl px-6 py-2.5 font-black uppercase text-sm tracking-tighter shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-[3px] active:translate-x-[3px] transition-all dark:text-white disabled:opacity-50">
+                    Load More
+                </button>
+            </div>
+        </div>
     </div>
 </turbo-frame>
 </body>
