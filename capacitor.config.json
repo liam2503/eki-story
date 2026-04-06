@@ -5,7 +5,7 @@
   "plugins": {
     "GoogleAuth": {
       "scopes": ["profile", "email"],
-      "iosClientId": "YOUR_ACTUAL_CLIENT_ID.apps.googleusercontent.com",
+      "iosClientId": "30607912305-8sjnev1fl3v0v33vesir7idsqdgfs9bc.apps.googleusercontent.com",
       "forceCodeForRefreshToken": true
     }
   }
