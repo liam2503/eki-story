@@ -1,5 +1,5 @@
 import { auth, db } from './firebase.js';
-import { collection, query, where, getDocs, getDoc, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion, orderBy, limit, startAfter } from 'firebase/firestore';
 import { showAuthScreen } from './auth.js';
 import { getVisitedStations, userStamps, CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
 import { applyTranslations, t } from './i18n.js';
@@ -54,6 +54,11 @@ export async function initProfileFrame() {
     }
     const friendsContainer = document.getElementById('friends-list-container');
     if (friendsContainer) friendsContainer.classList.add('hidden');
+
+    // Reset pagination state on each frame load
+    myPostsLast = null;
+    myPostsHasMore = false;
+    myPostsLoading = false;
 
     if (IS_ANONYMOUS || !CURRENT_USER_ID) {
         if (usernameEl) usernameEl.innerText = t('profile.guest');
@@ -221,6 +226,88 @@ export async function initProfileFrame() {
             if (requestsList) requestsList.appendChild(reqEl);
         });
     });
+
+    const postsSection = document.getElementById('profile-posts-section');
+    if (postsSection) {
+        postsSection.classList.remove('hidden');
+        const loadMoreBtn = document.getElementById('profile-posts-load-more');
+        if (loadMoreBtn) loadMoreBtn.onclick = () => loadMyPosts(false);
+        await loadMyPosts(true);
+    }
+}
+
+const MY_POSTS_PAGE_SIZE = 15;
+let myPostsLast = null;
+let myPostsHasMore = false;
+let myPostsLoading = false;
+
+async function loadMyPosts(reset = false) {
+    if (myPostsLoading || !CURRENT_USER_ID) return;
+    myPostsLoading = true;
+
+    const list = document.getElementById('profile-posts-list');
+    const loadMoreBtn = document.getElementById('profile-posts-load-more');
+    if (!list) { myPostsLoading = false; return; }
+
+    if (reset) {
+        list.innerHTML = '';
+        myPostsLast = null;
+        myPostsHasMore = false;
+    }
+
+    if (loadMoreBtn) {
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.classList.add('hidden');
+    }
+
+    try {
+        const postsRef = collection(db, 'posts');
+        let q;
+        if (myPostsLast) {
+            q = query(postsRef, where('userId', '==', CURRENT_USER_ID), orderBy('timestamp', 'desc'), startAfter(myPostsLast), limit(MY_POSTS_PAGE_SIZE + 1));
+        } else {
+            q = query(postsRef, where('userId', '==', CURRENT_USER_ID), orderBy('timestamp', 'desc'), limit(MY_POSTS_PAGE_SIZE + 1));
+        }
+        const snapshot = await getDocs(q);
+        myPostsHasMore = snapshot.docs.length > MY_POSTS_PAGE_SIZE;
+        const docs = snapshot.docs.slice(0, MY_POSTS_PAGE_SIZE);
+        if (docs.length > 0) myPostsLast = docs[docs.length - 1];
+
+        if (docs.length === 0 && reset) {
+            list.innerHTML = `<div class="text-center text-gray-400 font-bold text-xs uppercase mt-4 tracking-widest">${t('feed.noPosts')}</div>`;
+        } else {
+            docs.forEach(docSnap => {
+                const data = docSnap.data();
+                const el = document.createElement('div');
+                el.className = 'bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-2xl p-4 flex flex-col gap-2';
+                const img = data.imageUrl || data.image;
+                el.innerHTML = `
+                    ${img ? `<div class="w-full aspect-square bg-gray-200 dark:bg-slate-600 border-[2px] border-black dark:border-slate-500 overflow-hidden rounded-xl mb-1"><img src="${escapeHtml(img)}" loading="lazy" class="w-full h-full object-cover"></div>` : ''}
+                    <p class="text-sm font-bold dark:text-gray-200 leading-snug">${escapeHtml(data.caption || '')}</p>
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">${new Date(data.timestamp).toLocaleString()}</span>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        if (loadMoreBtn) {
+            loadMoreBtn.classList.toggle('hidden', !myPostsHasMore);
+            loadMoreBtn.disabled = false;
+        }
+    } catch (err) {
+        console.error('Failed to load posts:', err);
+    } finally {
+        myPostsLoading = false;
+    }
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 async function renderFriendsList(friendIds, seq, getSeq) {

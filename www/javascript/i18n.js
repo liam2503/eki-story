@@ -121,7 +121,9 @@ export const translations = {
             friends: "Friends",
             addPost: "+ Post",
             noPosts: "No posts to show",
-            yeah: "YEAH!"
+            yeah: "YEAH!",
+            loadMore: "Load More",
+            myPosts: "My Posts"
         },
         list: {
             title: "Progress",
@@ -252,7 +254,9 @@ export const translations = {
             friends: "フレンド",
             addPost: "+ 投稿",
             noPosts: "表示する投稿がありません",
-            yeah: "いいね！"
+            yeah: "いいね！",
+            loadMore: "もっと見る",
+            myPosts: "マイ投稿"
         },
         list: {
             title: "進行状況",

@@ -1,5 +1,5 @@
 import { db, storage } from './firebase.js';
-import { collection, onSnapshot, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, addDoc, query, orderBy, increment, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, getDocs, doc, getDoc, setDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove, addDoc, query, orderBy, where, limit, startAfter, increment, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { startCamera, stopCamera } from './stamp_camera.js';
 import { CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
@@ -8,7 +8,8 @@ import { applyTranslations, t, getLanguage } from './i18n.js';
 import { playSlideSound, playOkSound, playReturnSound, playConfirm3Sound, playCameraSound, playConfirm2Sound } from './audio.js';
 import { showToast } from './ui.js';
 
-let postsUnsubscribe = null;
+const PAGE_SIZE = 15;
+
 let commentsUnsubscribe = null;
 let detailPostUnsubscribe = null;
 let userDocUnsubscribe = null;
@@ -17,9 +18,15 @@ let currentDetailPostId = null;
 let currentDetailPostData = null;
 
 let currentFeedFilter = 'all';
-let latestPosts = [];
 let currentUserFriends = [];
 let currentUserOutRequests = [];
+
+let lastVisibleAll = null;
+let hasMoreAll = false;
+let lastTimestampFriends = null;
+let hasMoreFriends = false;
+let isLoadingFeed = false;
+let feedLoadVersion = 0;
 
 const TAG_LEGACY_MAP = {
     'New Stamp Collected': 'stamp',
@@ -40,12 +47,14 @@ export async function initFeedFrame() {
     if (!CURRENT_USER_ID) return;
 
     applyTranslations();
+    currentFeedFilter = 'all';
 
     const newPostBtn = document.getElementById('new-post-btn');
     const feedList = document.getElementById('feed-posts-list');
     const filterAllBtn = document.getElementById('feed-filter-all');
     const filterFriendsBtn = document.getElementById('feed-filter-friends');
-    
+    const loadMoreBtn = document.getElementById('feed-load-more-btn');
+
     if (newPostBtn) {
         newPostBtn.onclick = openCreatePost;
     }
@@ -55,16 +64,17 @@ export async function initFeedFrame() {
         filterFriendsBtn.onclick = () => setFeedFilter('friends');
     }
 
-   if (!IS_ANONYMOUS) {
+    if (loadMoreBtn) {
+        loadMoreBtn.onclick = () => loadFeed(currentFeedFilter, false);
+    }
+
+    if (!IS_ANONYMOUS) {
         if (!userDocUnsubscribe) {
             userDocUnsubscribe = onSnapshot(doc(db, 'users', CURRENT_USER_ID), (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     currentUserFriends = data.friends || [];
                     currentUserOutRequests = data.out_requests || [];
-                    if (latestPosts.length > 0) {
-                        renderFeed();
-                    }
                     if (currentDetailPostId && currentDetailPostData) {
                         renderDetailPost();
                     }
@@ -78,15 +88,7 @@ export async function initFeedFrame() {
         feedList.addEventListener('click', handleFeedClick);
     }
 
-    if (feedList && !postsUnsubscribe) {
-        const postsRef = collection(db, 'posts');
-        const q = query(postsRef, orderBy('timestamp', 'desc'));
-
-        postsUnsubscribe = onSnapshot(q, (snapshot) => {
-            latestPosts = snapshot.docs;
-            renderFeed();
-        });
-    }
+    await loadFeed('all', true);
 }
 
 document.addEventListener('turbo:frame-load', (e) => {
@@ -102,10 +104,10 @@ function setFeedFilter(filter) {
     }
     playOkSound();
     currentFeedFilter = filter;
-    
+
     const btnAll = document.getElementById('feed-filter-all');
     const btnFriends = document.getElementById('feed-filter-friends');
-    
+
     if (filter === 'all') {
         btnAll.className = "px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-lg bg-white dark:bg-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black dark:text-white transition-all cursor-pointer";
         btnFriends.className = "px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-lg text-gray-500 hover:text-black dark:hover:text-white transition-all cursor-pointer";
@@ -113,30 +115,96 @@ function setFeedFilter(filter) {
         btnFriends.className = "px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-lg bg-white dark:bg-slate-800 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black dark:text-white transition-all cursor-pointer";
         btnAll.className = "px-3 py-1 text-[10px] font-black uppercase tracking-tighter rounded-lg text-gray-500 hover:text-black dark:hover:text-white transition-all cursor-pointer";
     }
-    
-    renderFeed();
+
+    loadFeed(filter, true);
 }
 
-function renderFeed() {
-    const list = document.getElementById('feed-posts-list');
-    if (!list) return;
-    
-    list.innerHTML = '';
-    
-    latestPosts.forEach(docSnap => {
-        const data = docSnap.data();
-        
-        if (currentFeedFilter === 'friends') {
-            if (data.userId !== CURRENT_USER_ID && !currentUserFriends.includes(data.userId)) {
-                return; 
-            }
-        }
-        
-        list.appendChild(createPostElement(docSnap.id, data));
-    });
+async function loadFeed(filter, reset = false) {
+    // Allow reset loads to supersede in-flight non-reset loads (C2 fix)
+    if (isLoadingFeed && !reset) return;
+    isLoadingFeed = true;
+    const version = ++feedLoadVersion;
 
-    if (list.innerHTML === '') {
-        list.innerHTML = `<div class="text-center text-gray-400 font-bold text-sm uppercase mt-10 tracking-widest">${t('feed.noPosts')}</div>`;
+    const list = document.getElementById('feed-posts-list');
+    const loadMoreBtn = document.getElementById('feed-load-more-btn');
+    if (!list) { isLoadingFeed = false; return; }
+
+    if (reset) {
+        list.innerHTML = '';
+        lastVisibleAll = null;
+        lastTimestampFriends = null;
+        hasMoreAll = false;
+        hasMoreFriends = false;
+    }
+
+    if (loadMoreBtn) {
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.classList.add('hidden');
+    }
+
+    try {
+        let docs = [];
+        const postsRef = collection(db, 'posts');
+
+        if (filter === 'all') {
+            let q;
+            if (lastVisibleAll) {
+                q = query(postsRef, orderBy('timestamp', 'desc'), startAfter(lastVisibleAll), limit(PAGE_SIZE + 1));
+            } else {
+                q = query(postsRef, orderBy('timestamp', 'desc'), limit(PAGE_SIZE + 1));
+            }
+            const snapshot = await getDocs(q);
+            if (version !== feedLoadVersion) return; // superseded by a newer load
+            hasMoreAll = snapshot.docs.length > PAGE_SIZE;
+            docs = snapshot.docs.slice(0, PAGE_SIZE);
+            if (docs.length > 0) lastVisibleAll = docs[docs.length - 1];
+        } else {
+            // friends tab — Firestore query with userId in [...friends, self]
+            if (IS_ANONYMOUS) { isLoadingFeed = false; return; }
+
+            const friendIds = [...currentUserFriends, CURRENT_USER_ID].filter(Boolean);
+            const allDocs = [];
+
+            // chunk into groups of 30 (Firestore 'in' operator limit)
+            // pagination uses a timestamp cursor since multiple parallel queries
+            // can't share a single DocumentSnapshot; duplicate-ms skips are
+            // extremely rare given Date.now() granularity
+            for (let i = 0; i < friendIds.length; i += 30) {
+                const chunk = friendIds.slice(i, i + 30);
+                let q;
+                if (lastTimestampFriends !== null) {
+                    q = query(postsRef, where('userId', 'in', chunk), orderBy('timestamp', 'desc'), where('timestamp', '<', lastTimestampFriends), limit(PAGE_SIZE + 1));
+                } else {
+                    q = query(postsRef, where('userId', 'in', chunk), orderBy('timestamp', 'desc'), limit(PAGE_SIZE + 1));
+                }
+                const snapshot = await getDocs(q);
+                allDocs.push(...snapshot.docs);
+            }
+
+            if (version !== feedLoadVersion) return; // superseded by a newer load
+            allDocs.sort((a, b) => b.data().timestamp - a.data().timestamp);
+            hasMoreFriends = allDocs.length > PAGE_SIZE;
+            docs = allDocs.slice(0, PAGE_SIZE);
+            if (docs.length > 0) lastTimestampFriends = docs[docs.length - 1].data().timestamp;
+        }
+
+        if (docs.length === 0 && reset) {
+            list.innerHTML = `<div class="text-center text-gray-400 font-bold text-sm uppercase mt-10 tracking-widest">${t('feed.noPosts')}</div>`;
+        } else {
+            docs.forEach(docSnap => {
+                list.appendChild(createPostElement(docSnap.id, docSnap.data()));
+            });
+        }
+
+        const hasMore = filter === 'all' ? hasMoreAll : hasMoreFriends;
+        if (loadMoreBtn) {
+            loadMoreBtn.classList.toggle('hidden', !hasMore);
+            loadMoreBtn.disabled = false;
+        }
+    } catch (err) {
+        console.error('Failed to load feed:', err);
+    } finally {
+        if (version === feedLoadVersion) isLoadingFeed = false;
     }
 }
 
@@ -531,6 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 await addDoc(collection(db, 'posts'), postData);
                 document.getElementById('create-post-container').classList.add('translate-y-full', 'pointer-events-none');
+                await loadFeed(currentFeedFilter, true);
             } catch (err) {
                 if (errorEl) {
                     errorEl.innerText = 'Failed to post. Please check your connection and try again.';
