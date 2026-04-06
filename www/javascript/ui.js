@@ -1,5 +1,16 @@
 import { playInSound, playOutSound, playOkSound } from './audio.js';
 
+export function showToast(message) {
+    const el = document.getElementById('error-toast');
+    if (!el) return;
+    el.textContent = message;
+    el.classList.remove('translate-y-full', 'opacity-0');
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => {
+        el.classList.add('translate-y-full', 'opacity-0');
+    }, 3000);
+}
+
 export function initButtons() {
     const feedBtn = document.getElementById("icon-shell-0");
     const heartBtn = document.getElementById("icon-shell-1");
