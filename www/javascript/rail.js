@@ -15,6 +15,7 @@ let stationLookup = {};
 let activeLineFilter = null;
 let isFollowingUser = true;
 let currentPosition = null;
+let activeTooltipLatLng = null;
 
 const JAPAN_BOUNDS = {
     north: 49.5,
@@ -169,14 +170,16 @@ window.initMap = async function() {
 
     map.addListener('dragstart', () => {
         isFollowingUser = false;
-        hideTooltip();
     });
 
     map.addListener('zoom_changed', () => {
-        hideTooltip();
         if (!shouldShowStationMarkers()) {
             hideAllStationMarkers();
         }
+    });
+
+    map.addListener('bounds_changed', () => {
+        updateTooltipPosition();
     });
 
     map.addListener('click', hideTooltip);
@@ -363,8 +366,10 @@ export function showTooltip(latLng, data, type) {
     const mapDiv = document.getElementById('map');
     const rect = mapDiv.getBoundingClientRect();
     
+    activeTooltipLatLng = latLng;
     tooltip.style.opacity = '1';
     tooltip.classList.remove('pointer-events-none');
+    updateTooltipPosition();
     const tooltipRect = tooltip.getBoundingClientRect();
     tooltip.style.left = `${x + rect.left - (tooltipRect.width / 2)}px`;
     tooltip.style.top = `${y + rect.top - tooltipRect.height - 14}px`;
@@ -376,6 +381,7 @@ export function hideTooltip() {
         tooltip.style.opacity = '0';
         tooltip.classList.add('pointer-events-none');
         window.activeStationId = null;
+        activeTooltipLatLng = null;
     }
 }
 window.hideTooltip = hideTooltip;
@@ -413,6 +419,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+export function updateTooltipPosition() {
+    const tooltip = document.getElementById('map-tooltip');
+    if (!tooltip || !activeTooltipLatLng || !map) return;
+
+    const projection = map.getProjection();
+    const bounds = map.getBounds();
+    if (!projection || !bounds) return;
+
+    const scale = Math.pow(2, map.getZoom());
+    const topRight = projection.fromLatLngToPoint(bounds.getNorthEast());
+    const bottomLeft = projection.fromLatLngToPoint(bounds.getSouthWest());
+    const worldPoint = projection.fromLatLngToPoint(activeTooltipLatLng);
+
+    const x = (worldPoint.x - bottomLeft.x) * scale;
+    const y = (worldPoint.y - topRight.y) * scale;
+
+    const mapDiv = document.getElementById('map');
+    const rect = mapDiv.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    
+    tooltip.style.left = `${x + rect.left - (tooltipRect.width / 2)}px`;
+    tooltip.style.top = `${y + rect.top - tooltipRect.height - 14}px`;
+}
 
 const gScript = document.createElement('script');
 gScript.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}&callback=initMap&libraries=places,marker&loading=async`;

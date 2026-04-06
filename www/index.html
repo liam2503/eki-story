@@ -273,7 +273,7 @@
 
             <div class="w-full max-w-sm aspect-square bg-gray-100 border-[5px] border-black rounded-[40px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center relative overflow-hidden">
                 <video id="model-camera-feed" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline muted></video>
-                <img id="model-preview-image" class="absolute inset-0 w-full h-full object-cover hidden z-10" />
+                <img id="model-preview-image" class="absolute inset-0 w-full h-full object-cover hidden" />
                 <canvas id="model-camera-canvas" class="hidden"></canvas>
                 
                 <div id="model-camera-placeholder" class="flex flex-col items-center justify-center">
@@ -520,7 +520,7 @@
         <div class="flex-1 p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] flex flex-col items-center gap-6 bg-white dark:bg-slate-900 w-full max-w-md mx-auto">
             <div class="w-full aspect-square bg-gray-100 dark:bg-slate-800 border-[5px] border-black dark:border-slate-600 rounded-[32px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center relative overflow-hidden">
                 <video id="feed-camera-feed" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline muted></video>
-                <img id="feed-preview-image" class="absolute inset-0 w-full h-full object-cover hidden z-10" />
+                <img id="feed-preview-image" class="absolute inset-0 w-full h-full object-cover hidden" />
                 <canvas id="feed-camera-canvas" class="hidden"></canvas>
                 <div id="feed-camera-placeholder" class="flex flex-col items-center justify-center">
                     <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
