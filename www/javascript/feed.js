@@ -266,7 +266,7 @@ function createPostElement(id, data, isDetail = false) {
 
     const isOwner = data.userId === CURRENT_USER_ID;
     const btnSize = isDetail ? 'w-7 h-7' : 'w-9 h-9';
-    const svgSize = isDetail ? 'w-3.5 h-3.5' : 'w-4.5 h-4.5';
+    const svgSize = isDetail ? 'w-3.5 h-3.5' : 'w-4 h-4';
 
     const deleteBtnHtml = isOwner ? `<button class="delete-post-btn ${btnSize} bg-[#FF5252] border-[3px] border-black dark:border-slate-600 rounded-full flex items-center justify-center text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all" data-id="${id}"><svg class="${svgSize}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>` : '';
 
