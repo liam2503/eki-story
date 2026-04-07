@@ -2,11 +2,12 @@
   "dependencies": {
     "@capacitor/android": "^8.2.0",
     "@capacitor/camera": "^8.0.2",
-    "@capacitor/cli": "^8.1.0",
-    "@capacitor/core": "^8.2.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
     "@capacitor/geolocation": "^8.1.0",
     "@capacitor/ios": "^8.2.0",
     "@capgo/capacitor-social-login": "^8.3.9",
+    "@capgo/capacitor-updater": "^8.45.1",
     "@google/generative-ai": "^0.24.1",
     "@googlemaps/markerclusterer": "^2.6.2",
     "csv-parser": "^3.2.0",
@@ -27,5 +28,21 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
-  }
+  },
+  "name": "eki-story",
+  "version": "1.0.0",
+  "description": "-  Liam Persad",
+  "main": "postcss.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liam2503/eki-story.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/liam2503/eki-story/issues"
+  },
+  "homepage": "https://github.com/liam2503/eki-story#readme"
 }
