@@ -1,8 +1,8 @@
 import { auth, db, googleProvider } from './firebase.js';
 import { 
     onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    signInAnonymously, linkWithCredential, EmailAuthProvider,
-    GoogleAuthProvider, signInWithCredential, deleteUser, signOut, sendPasswordResetEmail
+    signInAnonymously, linkWithCredential, linkWithPopup, EmailAuthProvider,
+    GoogleAuthProvider, signInWithCredential, signInWithPopup, deleteUser, signOut, sendPasswordResetEmail
 } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { setCurrentUser, initProfileSync } from './user.js';
@@ -14,6 +14,10 @@ import { playReturnSound, playSlideSound, playOkSound, playConfirm3Sound } from 
 
 let isSignUpMode = false;
 let isInitialLoad = true;
+
+function isIOSBrowser() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !Capacitor.isNativePlatform();
+}
 
 function getGoogleIdTokenViaGIS() {
     return new Promise((resolve, reject) => {
@@ -444,7 +448,7 @@ export function initAuth() {
                 } else {
                     await signInWithCredential(auth, credential);
                 }
-            } else {
+            } else if (isIOSBrowser()) {
                 const idToken = await getGoogleIdTokenViaGIS();
                 const credential = GoogleAuthProvider.credential(idToken);
                 if (auth.currentUser && auth.currentUser.isAnonymous && isSignUpMode) {
@@ -460,6 +464,21 @@ export function initAuth() {
                     }
                 } else {
                     await signInWithCredential(auth, credential);
+                }
+            } else {
+                if (auth.currentUser && auth.currentUser.isAnonymous && isSignUpMode) {
+                    try {
+                        await linkWithPopup(auth.currentUser, googleProvider);
+                        window.location.reload();
+                    } catch (linkErr) {
+                        if (linkErr.code === 'auth/credential-already-in-use') {
+                            throw new Error("This Google account is already registered. To access it, switch to 'Log In' below (your Guest data will be left behind).");
+                        } else {
+                            throw linkErr;
+                        }
+                    }
+                } else {
+                    await signInWithPopup(auth, googleProvider);
                 }
             }
         } catch (err) {
