@@ -1,8 +1,8 @@
 import { auth, db, googleProvider } from './firebase.js';
 import { 
-    onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
-    signInAnonymously, linkWithCredential, linkWithPopup, EmailAuthProvider,
-    GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRedirect, deleteUser, signOut, sendPasswordResetEmail
+    onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    signInAnonymously, linkWithCredential, EmailAuthProvider,
+    GoogleAuthProvider, signInWithCredential, deleteUser, signOut, sendPasswordResetEmail
 } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { setCurrentUser, initProfileSync } from './user.js';
@@ -14,6 +14,31 @@ import { playReturnSound, playSlideSound, playOkSound, playConfirm3Sound } from 
 
 let isSignUpMode = false;
 let isInitialLoad = true;
+
+function getGoogleIdTokenViaGIS() {
+    return new Promise((resolve, reject) => {
+        if (typeof google === 'undefined' || !google.accounts) {
+            reject(new Error('Google sign-in is not available. Please use email/password instead.'));
+            return;
+        }
+        google.accounts.id.initialize({
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+            callback: (response) => {
+                if (response.credential) {
+                    resolve(response.credential);
+                } else {
+                    reject(new Error('Google sign-in failed. Please try again.'));
+                }
+            },
+            cancel_on_tap_outside: false,
+        });
+        google.accounts.id.prompt((notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                reject(new Error('Google sign-in was not displayed. Please try again or use email/password.'));
+            }
+        });
+    });
+}
 
 export function showAuthScreen() {
     const authContainer = document.getElementById('auth-container');
@@ -400,7 +425,7 @@ export function initAuth() {
                 await SocialLogin.initialize({
                     google: {
                         webClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-                        iOSClientId: '30607912305-8sjnev1fl3v0v33vesir7idsqdgfs9bc.apps.googleusercontent.com' 
+                        iOSClientId: '30607912305-8sjnev1fl3v0v33vesir7idsqdgfs9bc.apps.googleusercontent.com'
                     }
                 });
 
@@ -410,7 +435,7 @@ export function initAuth() {
                         scopes: ['profile', 'email']
                     }
                 });
-                
+
                 const credential = GoogleAuthProvider.credential(googleUser.result.idToken);
 
                 if (auth.currentUser && auth.currentUser.isAnonymous && isSignUpMode) {
@@ -420,9 +445,11 @@ export function initAuth() {
                     await signInWithCredential(auth, credential);
                 }
             } else {
+                const idToken = await getGoogleIdTokenViaGIS();
+                const credential = GoogleAuthProvider.credential(idToken);
                 if (auth.currentUser && auth.currentUser.isAnonymous && isSignUpMode) {
                     try {
-                        await linkWithPopup(auth.currentUser, googleProvider);
+                        await linkWithCredential(auth.currentUser, credential);
                         window.location.reload();
                     } catch (linkErr) {
                         if (linkErr.code === 'auth/credential-already-in-use') {
@@ -432,7 +459,7 @@ export function initAuth() {
                         }
                     }
                 } else {
-                    await signInWithPopup(auth, googleProvider);
+                    await signInWithCredential(auth, credential);
                 }
             }
         } catch (err) {
