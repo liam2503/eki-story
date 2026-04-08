@@ -3,6 +3,10 @@ let cameraStream = null;
 export async function startCamera(videoElement, placeholderElement, loadCVCallback) {
     await loadCVCallback();
     try {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+        }
+        
         cameraStream = await navigator.mediaDevices.getUserMedia({ 
             video: { facingMode: 'environment' } 
         });

@@ -18,13 +18,13 @@ export function populatePrefectures() {
     const allPrefs = t('list.allPrefectures');
     
     let html = `<div class="pref-option flex items-center px-6 py-4 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0" data-value="">
-                    <span class="text-base font-black uppercase">${allPrefs}</span>
+                    <span class="text-base font-black uppercase">${escapeHtml(allPrefs)}</span>
                 </div>`;
     state.prefectures.forEach(p => {
         const id = p.pref_id || p.id;
         const name = lang === 'ja' ? (p.pref_name_jp || p.name_jp || p.pref_name_en || p.name_en) : (p.pref_name_en || p.name_en);
-        html += `<div class="pref-option flex items-center px-6 py-4 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0" data-value="${id}" data-name="${name}">
-                    <span class="text-base font-black uppercase">${name}</span>
+        html += `<div class="pref-option flex items-center px-6 py-4 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0" data-value="${id}" data-name="${escapeHtml(name)}">
+                    <span class="text-base font-black uppercase">${escapeHtml(name)}</span>
                 </div>`;
     });
     selectors.prefMenu.innerHTML = html;
@@ -43,14 +43,13 @@ export function populatePrefectures() {
     });
 }
 
-
 export function populateCompanies(filteredCompanies = state.companies) {
     const lang = getLanguage();
     const allComps = t('list.allCompanies');
     
     let html = `<div class="comp-option flex items-center gap-4 px-6 py-4 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0" data-value="">
                     <div class="w-10 h-10 shrink-0"></div>
-                    <span class="text-base font-black uppercase">${allComps}</span>
+                    <span class="text-base font-black uppercase">${escapeHtml(allComps)}</span>
                 </div>`;
     filteredCompanies.forEach(c => {
         const id = c.company_id || c.id;
@@ -60,9 +59,9 @@ export function populateCompanies(filteredCompanies = state.companies) {
             ? `<img src="${c.logo_url}" class="w-10 h-10 object-contain shrink-0" />`
             : `<div class="w-10 h-10 shrink-0"></div>`;
 
-        html += `<div class="comp-option flex items-center gap-4 px-6 py-4 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0" data-value="${id}" data-name="${name}">
+        html += `<div class="comp-option flex items-center gap-4 px-6 py-4 cursor-pointer hover:bg-gray-50 border-b-[2px] border-black last:border-b-0" data-value="${id}" data-name="${escapeHtml(name)}">
                     ${logoHtml}
-                    <span class="text-base font-black uppercase">${name}</span>
+                    <span class="text-base font-black uppercase">${escapeHtml(name)}</span>
                 </div>`;
     });
     selectors.compMenu.innerHTML = html;

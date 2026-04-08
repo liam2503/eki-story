@@ -120,7 +120,6 @@ function setFeedFilter(filter) {
 }
 
 async function loadFeed(filter, reset = false) {
-    // Allow reset loads to supersede in-flight non-reset loads (C2 fix)
     if (isLoadingFeed && !reset) return;
     isLoadingFeed = true;
     const version = ++feedLoadVersion;
@@ -154,34 +153,29 @@ async function loadFeed(filter, reset = false) {
                 q = query(postsRef, orderBy('timestamp', 'desc'), limit(PAGE_SIZE + 1));
             }
             const snapshot = await getDocs(q);
-            if (version !== feedLoadVersion) return; // superseded by a newer load
+            if (version !== feedLoadVersion) return;
             hasMoreAll = snapshot.docs.length > PAGE_SIZE;
             docs = snapshot.docs.slice(0, PAGE_SIZE);
             if (docs.length > 0) lastVisibleAll = docs[docs.length - 1];
         } else {
-            // friends tab — Firestore query with userId in [...friends, self]
             if (IS_ANONYMOUS) { isLoadingFeed = false; return; }
 
             const friendIds = [...currentUserFriends, CURRENT_USER_ID].filter(Boolean);
             const allDocs = [];
 
-            // chunk into groups of 30 (Firestore 'in' operator limit)
-            // pagination uses a timestamp cursor since multiple parallel queries
-            // can't share a single DocumentSnapshot; duplicate-ms skips are
-            // extremely rare given Date.now() granularity
             for (let i = 0; i < friendIds.length; i += 30) {
                 const chunk = friendIds.slice(i, i + 30);
                 let q;
                 if (lastTimestampFriends !== null) {
-                    q = query(postsRef, where('userId', 'in', chunk), orderBy('timestamp', 'desc'), where('timestamp', '<', lastTimestampFriends), limit(PAGE_SIZE + 1));
+                    q = query(postsRef, where('userId', 'in', chunk), orderBy('timestamp', 'desc'), where('timestamp', '<', lastTimestampFriends), limit(50));
                 } else {
-                    q = query(postsRef, where('userId', 'in', chunk), orderBy('timestamp', 'desc'), limit(PAGE_SIZE + 1));
+                    q = query(postsRef, where('userId', 'in', chunk), orderBy('timestamp', 'desc'), limit(50));
                 }
                 const snapshot = await getDocs(q);
                 allDocs.push(...snapshot.docs);
             }
 
-            if (version !== feedLoadVersion) return; // superseded by a newer load
+            if (version !== feedLoadVersion) return; 
             allDocs.sort((a, b) => b.data().timestamp - a.data().timestamp);
             hasMoreFriends = allDocs.length > PAGE_SIZE;
             docs = allDocs.slice(0, PAGE_SIZE);
@@ -202,7 +196,7 @@ async function loadFeed(filter, reset = false) {
             loadMoreBtn.disabled = false;
         }
     } catch (err) {
-        console.error('Failed to load feed:', err);
+        console.error(err);
     } finally {
         if (version === feedLoadVersion) isLoadingFeed = false;
     }
@@ -212,12 +206,20 @@ function handleFeedClick(e) {
     const stationTagBtn = e.target.closest('.station-tag-btn');
     if (stationTagBtn) {
         const stationId = stationTagBtn.dataset.id;
-        if (stationId && window.allStations && window.map) {
+        if (stationId && window.allStations) {
             const targetStation = window.allStations.find(s => String(s.id) === String(stationId) || String(s.station_id) === String(stationId));
             if (targetStation) {
-                if (window.resetUI) window.resetUI();
-                if (window.filterToLine) window.filterToLine(targetStation.line_id);
-                window.map.panTo({ lat: Number(targetStation.lat), lng: Number(targetStation.lon) });
+                const panToTargetStation = () => {
+                    if (window.resetUI) window.resetUI();
+                    if (window.filterToLine) window.filterToLine(targetStation.line_id);
+                    window.map.panTo({ lat: Number(targetStation.lat), lng: Number(targetStation.lon) });
+                };
+
+                if (window.map) {
+                    panToTargetStation();
+                } else {
+                    window.addEventListener('mapInitialized', panToTargetStation, { once: true });
+                }
             }
         }
         return;
@@ -698,13 +700,21 @@ function renderDetailPost() {
     if (stationTagBtn) {
         stationTagBtn.onclick = () => {
             const stationId = stationTagBtn.dataset.id;
-            if (stationId && window.allStations && window.map) {
+            if (stationId && window.allStations) {
                 const targetStation = window.allStations.find(s => String(s.id) === String(stationId) || String(s.station_id) === String(stationId));
                 if (targetStation) {
-                    if (window.resetUI) window.resetUI();
-                    if (window.filterToLine) window.filterToLine(targetStation.line_id);
-                    window.map.panTo({ lat: Number(targetStation.lat), lng: Number(targetStation.lon) });
-                    cont.classList.add('translate-x-full', 'pointer-events-none');
+                    const panToTargetStation = () => {
+                        if (window.resetUI) window.resetUI();
+                        if (window.filterToLine) window.filterToLine(targetStation.line_id);
+                        window.map.panTo({ lat: Number(targetStation.lat), lng: Number(targetStation.lon) });
+                        cont.classList.add('translate-x-full', 'pointer-events-none');
+                    };
+
+                    if (window.map) {
+                        panToTargetStation();
+                    } else {
+                        window.addEventListener('mapInitialized', panToTargetStation, { once: true });
+                    }
                 }
             }
         };

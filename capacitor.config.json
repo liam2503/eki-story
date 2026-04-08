@@ -1,5 +1,5 @@
 {
-  "appId": "com.example.myapp",
+  "appId": "com.liamp.ekistory",
   "appName": "My App",
   "webDir": "www",
   "bundledWebRuntime": false,
@@ -13,7 +13,8 @@
       "forceCodeForRefreshToken": true
     },
     "CapacitorUpdater": {
-      "autoUpdate": true
+      "autoUpdate": true,
+      "appId": "com.liamp.ekistory"
     }
   }
 }

@@ -1,0 +1,35 @@
+name: Build OTA Update Zip
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Dependencies
+        run: npm install
+        
+      - name: Build Web Assets
+        run: npm run build
+        
+      - name: Zip Output
+        # Navigates into the dist folder and zips contents
+        run: |
+          cd dist
+          zip -r ../latest-update.zip *
+          
+      - name: Upload Zip as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ota-update-package
+          path: latest-update.zip

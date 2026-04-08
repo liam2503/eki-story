@@ -43,10 +43,19 @@ export async function showLineDetail(lineId) {
     selectors.detailLineName.onclick = () => {
         playSlideSound();
         window.filterToLine?.(lineId);
-        if (stations?.length && window.map) {
-            const mid = stations[Math.floor(stations.length / 2)];
-            window.map.panTo({ lat: Number(mid.lat || mid.displayLat), lng: Number(mid.lon || mid.displayLon) });
-            window.map.setZoom(line.zoom || 12);
+        
+        const panToMid = () => {
+            if (stations?.length) {
+                const mid = stations[Math.floor(stations.length / 2)];
+                window.map.panTo({ lat: Number(mid.lat || mid.displayLat), lng: Number(mid.lon || mid.displayLon) });
+                window.map.setZoom(line.zoom || 12);
+            }
+        };
+
+        if (window.map) {
+            panToMid();
+        } else {
+            window.addEventListener('mapInitialized', panToMid, { once: true });
         }
         
         const filterPill = document.getElementById('active-filter-pill');
@@ -72,7 +81,7 @@ export async function showLineDetail(lineId) {
         return `<div class="flex items-start gap-6 ml-1 station-item">
             <div class="station-dot w-8 h-8 rounded-full border-[4px] border-black shrink-0 mt-1 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]" style="background-color: ${visited ? '#B2FF59' : '#FFF'}"></div>
             <div class="flex flex-col gap-2 w-full">
-<span class="station-name-click cursor-pointer hover:text-gray-500 transition-colors text-xl font-black uppercase tracking-tight pt-2" data-station-id="${s.id}" data-lat="${s.lat || s.displayLat}" data-lon="${s.lon || s.displayLon}">${stationName}</span>                <button class="add-stamp-btn bg-white border-[3px] border-black px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-max mt-1" data-station-id="${s.id}" data-station-name="${stationName}" data-line-color="${line.color || '#B2FF59'}">+ ${t('camera.newStamp')}</button>
+<span class="station-name-click cursor-pointer hover:text-gray-500 transition-colors text-xl font-black uppercase tracking-tight pt-2" data-station-id="${s.id}" data-lat="${s.lat || s.displayLat}" data-lon="${s.lon || s.displayLon}">${escapeHtml(stationName)}</span>                <button class="add-stamp-btn bg-white border-[3px] border-black px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-max mt-1" data-station-id="${s.id}" data-station-name="${escapeHtml(stationName)}" data-line-color="${line.color || '#B2FF59'}">+ ${t('camera.newStamp')}</button>
                 ${stampHtml}
             </div>
         </div>`;
@@ -128,7 +137,7 @@ function renderModelsList(lineId, line, localizedLineName) {
     
     let html = `
         <div class="flex flex-col gap-4 w-full">
-            <button class="add-model-btn bg-white border-[4px] border-black px-6 py-4 rounded-[20px] text-lg font-black uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-full mb-4" data-line-id="${lineId}" data-line-name="${localizedLineName}" data-line-color="${line.color || '#B2FF59'}">+ ${t('camera.newModel')}</button>
+            <button class="add-model-btn bg-white border-[4px] border-black px-6 py-4 rounded-[20px] text-lg font-black uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all w-full mb-4" data-line-id="${lineId}" data-line-name="${escapeHtml(localizedLineName)}" data-line-color="${line.color || '#B2FF59'}">+ ${t('camera.newModel')}</button>
             <div class="grid grid-cols-2 gap-4">
     `;
     
@@ -236,9 +245,16 @@ export function initStampScanner() {
             const line = state.localLines[currentLineId];
 
             window.filterToLine?.(currentLineId);
-            if (window.map) {
+            
+            const panToStation = () => {
                 window.map.panTo({ lat, lng: lon });
                 window.map.setZoom(15);
+            };
+
+            if (window.map) {
+                panToStation();
+            } else {
+                window.addEventListener('mapInitialized', panToStation, { once: true });
             }
 
             const filterPill = document.getElementById('active-filter-pill');

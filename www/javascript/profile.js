@@ -1,5 +1,6 @@
 import { auth, db } from './firebase.js';
 import { collection, query, where, getDocs, getDoc, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion, orderBy, limit, startAfter } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { showAuthScreen } from './auth.js';
 import { getVisitedStations, userStamps, CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
 import { applyTranslations, t } from './i18n.js';
@@ -55,7 +56,6 @@ export async function initProfileFrame() {
     const friendsContainer = document.getElementById('friends-list-container');
     if (friendsContainer) friendsContainer.classList.add('hidden');
 
-    // Reset pagination state on each frame load
     myPostsLast = null;
     myPostsHasMore = false;
     myPostsLoading = false;
@@ -194,14 +194,15 @@ export async function initProfileFrame() {
                 const btn = e.currentTarget;
                 if (btn.disabled) return;
                 btn.disabled = true;
-                const fromId = data.from;
-                const toId = data.to;
+                
                 try {
-                    await Promise.all([
-                        updateDoc(doc(db, 'users', toId), { friends: arrayUnion(fromId) }),
-                        updateDoc(doc(db, 'users', fromId), { friends: arrayUnion(toId) }),
-                        deleteDoc(doc(db, 'friend_requests', reqDoc.id)),
-                    ]);
+                    const functions = getFunctions();
+                    const acceptRequest = httpsCallable(functions, 'acceptFriendRequest');
+                    await acceptRequest({
+                        requestId: reqDoc.id,
+                        fromId: data.from,
+                        toId: data.to
+                    });
 
                     playConfirm2Sound();
 
@@ -295,7 +296,7 @@ async function loadMyPosts(reset = false) {
             loadMoreBtn.disabled = false;
         }
     } catch (err) {
-        console.error('Failed to load posts:', err);
+        console.error(err);
     } finally {
         myPostsLoading = false;
     }

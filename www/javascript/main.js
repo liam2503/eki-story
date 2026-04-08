@@ -65,6 +65,10 @@ function initAll() {
     if (isInitialized) return;
     isInitialized = true;
 
+    const myUpdateUrl = "https://liam2503.github.io/ekistory.zip";
+    const currentVersion = "1.0.0";
+    checkAndApplyUpdate(myUpdateUrl, currentVersion);
+
     const alertTitle = document.getElementById('generic-alert-title');
     const alertMsg = document.getElementById('generic-alert-message');
     
