@@ -8,7 +8,24 @@ import { initAuth } from './auth.js';
 import { Capacitor } from '@capacitor/core';
 import { initStampBook } from './stamp_book.js';
 import './profile.js';
-import { t } from './i18n.js';
+import { t } from './i18n.js';import { CapacitorUpdater } from '@capgo/capacitor-updater';
+
+CapacitorUpdater.notifyAppReady();
+
+export async function checkAndApplyUpdate(updateUrl, versionString) {
+    try {
+        const bundle = await CapacitorUpdater.download({
+            url: updateUrl,
+            version: versionString
+        });
+        
+        await CapacitorUpdater.set({
+            id: bundle.id
+        });
+    } catch (err) {
+        console.error(err);
+    }
+}
 
 const platform = Capacitor.getPlatform();
 document.documentElement.classList.add(platform);

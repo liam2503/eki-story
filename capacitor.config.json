@@ -1,12 +1,19 @@
 {
-  "appId": "com.lpcmse.ekistory",
-  "appName": "Eki Story",
-  "webDir": "dist",
+  "appId": "com.example.myapp",
+  "appName": "My App",
+  "webDir": "www",
+  "bundledWebRuntime": false,
   "plugins": {
     "GoogleAuth": {
-      "scopes": ["profile", "email"],
+      "scopes": [
+        "profile",
+        "email"
+      ],
       "iosClientId": "30607912305-8sjnev1fl3v0v33vesir7idsqdgfs9bc.apps.googleusercontent.com",
       "forceCodeForRefreshToken": true
+    },
+    "CapacitorUpdater": {
+      "autoUpdate": true
     }
   }
 }
