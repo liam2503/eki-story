@@ -28,7 +28,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && npx @capgo/cli@latest bundle upload --channel production"
   },
   "name": "eki-story",
   "version": "1.0.0",
