@@ -332,7 +332,7 @@ export function initSettingsFrame() {
             <p>This project was developed by Liam Persad, Cassady Mead and Soraha Ebara as a final project for the "CIS 3296 - Software Design" class. The project code is distributed under the MIT License.</p>
         </div>
         <div class="mt-8 text-center text-[12px]">
-            <span id="app-version-display" class="uppercase tracking-widest text-black dark:text-white">Eki Story v1.0.0</span>
+            <span id="app-version-display" class="uppercase tracking-widest text-black dark:text-white">Eki Story</span>
         </div>
     `;
 

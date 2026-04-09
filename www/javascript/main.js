@@ -43,6 +43,27 @@ window.addEventListener('mapInitialized', () => {
     checkAppReady();
 });
 
+async function updateTopBarVersion() {
+    const versionSpan = document.getElementById('app-version-topbar');
+    if (!versionSpan) return;
+    
+    let displayVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0';
+    
+    try {
+        if (Capacitor.isNativePlatform()) {
+            const current = await CapacitorUpdater.current();
+            const version = current.version || current.bundle?.version;
+            if (version) {
+                displayVersion = version;
+            }
+        }
+    } catch (e) {
+        console.error(e);
+    }
+    
+    versionSpan.innerText = `v${displayVersion}`;
+}
+
 function initAll() {
     if (isInitialized) return;
     isInitialized = true;
@@ -59,6 +80,7 @@ function initAll() {
     initAuth(); 
     initStampScanner();
     initStampBook();
+    updateTopBarVersion();
     initModelUI(() => {
         const lineId = getCurrentLineId();
         if (lineId) showLineDetail(lineId);
