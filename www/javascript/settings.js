@@ -199,6 +199,9 @@ export function initSettingsFrame() {
                             } catch (e) {}
                         }
 
+                        if (window.profileUserUnsub) window.profileUserUnsub();
+if (window.profileRequestsUnsub) window.profileRequestsUnsub();
+
                         await signOut(auth);
                         window.location.reload(); 
                     } catch (err) {}

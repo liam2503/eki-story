@@ -1,7 +1,7 @@
 {
   "appId": "com.liamp.ekistory",
-  "appName": "My App",
-  "webDir": "www",
+  "appName": "Eki Story",
+  "webDir": "dist",
   "bundledWebRuntime": false,
   "plugins": {
     "GoogleAuth": {

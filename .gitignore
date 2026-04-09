@@ -38,3 +38,4 @@ Thumbs.db
 *.log
 android/keystore.properties
 android/app/my-release-key.jks
+android/release-key.keystore
