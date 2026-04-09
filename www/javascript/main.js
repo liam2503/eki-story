@@ -8,24 +8,10 @@ import { initAuth } from './auth.js';
 import { Capacitor } from '@capacitor/core';
 import { initStampBook } from './stamp_book.js';
 import './profile.js';
-import { t } from './i18n.js';import { CapacitorUpdater } from '@capgo/capacitor-updater';
+import { t } from './i18n.js';
+import { CapacitorUpdater } from '@capgo/capacitor-updater';
 
 CapacitorUpdater.notifyAppReady();
-
-export async function checkAndApplyUpdate(updateUrl, versionString) {
-    try {
-        const bundle = await CapacitorUpdater.download({
-            url: updateUrl,
-            version: versionString
-        });
-        
-        await CapacitorUpdater.set({
-            id: bundle.id
-        });
-    } catch (err) {
-        console.error(err);
-    }
-}
 
 const platform = Capacitor.getPlatform();
 document.documentElement.classList.add(platform);
@@ -33,10 +19,7 @@ document.documentElement.classList.add(platform);
 window.isVisited = isVisited;
 window.showLineDetail = showLineDetail;
 
-
 let isInitialized = false;
-
-
 let isAuthResolved = false;
 let isMapInitialized = false;
 
@@ -60,14 +43,9 @@ window.addEventListener('mapInitialized', () => {
     checkAppReady();
 });
 
-
 function initAll() {
     if (isInitialized) return;
     isInitialized = true;
-
-    const myUpdateUrl = "https://liam2503.github.io/ekistory.zip";
-    const currentVersion = "1.0.0";
-    checkAndApplyUpdate(myUpdateUrl, currentVersion);
 
     const alertTitle = document.getElementById('generic-alert-title');
     const alertMsg = document.getElementById('generic-alert-message');
@@ -87,10 +65,8 @@ function initAll() {
     });
 }
 
-
 if (document.readyState === 'interactive' || document.readyState === 'complete') {
     initAll();
 } else {
-    
     document.addEventListener("DOMContentLoaded", initAll);
 }

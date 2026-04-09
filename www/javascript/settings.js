@@ -7,6 +7,7 @@ import { showAuthScreen } from './auth.js';
 import { updateUserSetting } from './user.js';
 import { applyTranslations, getLanguage, setLanguage, t } from './i18n.js';
 import { playOkSound, playReturnSound, playInSound, playOutSound } from './audio.js'; 
+import { CapacitorUpdater } from '@capgo/capacitor-updater';
 
 const DARK_MODE_KEY = 'eki-dark-mode';
 const SOUND_KEY = 'eki-sound';
@@ -94,10 +95,6 @@ export function initSettingsFrame() {
     const langEnBtn = document.getElementById('lang-en-btn');
     const langJaBtn = document.getElementById('lang-ja-btn');
 
-    const savedDark = localStorage.getItem(DARK_MODE_KEY) === 'true';
-    const savedSound = localStorage.getItem(SOUND_KEY) !== 'false';
-    const savedDeclineRequests = localStorage.getItem(DECLINE_REQUESTS_KEY) === 'true';
-
     function updateSettingsLangUI(lang) {
         if (lang === 'en') {
             langEnBtn.classList.add('bg-[#B2FF59]', 'text-black');
@@ -134,6 +131,7 @@ export function initSettingsFrame() {
         };
     }
 
+    const savedDark = localStorage.getItem(DARK_MODE_KEY) === 'true';
     if (darkModeToggle) {
         setToggle(darkModeToggle, savedDark);
         darkModeToggle.onclick = async function () {
@@ -148,6 +146,7 @@ export function initSettingsFrame() {
         };
     }
 
+    const savedSound = localStorage.getItem(SOUND_KEY) !== 'false';
     if (soundToggle) {
         setToggle(soundToggle, savedSound);
         soundToggle.onclick = async function () {
@@ -160,6 +159,7 @@ export function initSettingsFrame() {
         };
     }
 
+    const savedDeclineRequests = localStorage.getItem(DECLINE_REQUESTS_KEY) === 'true';
     if (declineRequestsToggle) {
         setToggle(declineRequestsToggle, savedDeclineRequests);
         declineRequestsToggle.onclick = async function () {
@@ -200,7 +200,7 @@ export function initSettingsFrame() {
                         }
 
                         if (window.profileUserUnsub) window.profileUserUnsub();
-if (window.profileRequestsUnsub) window.profileRequestsUnsub();
+                        if (window.profileRequestsUnsub) window.profileRequestsUnsub();
 
                         await signOut(auth);
                         window.location.reload(); 
@@ -331,6 +331,9 @@ if (window.profileRequestsUnsub) window.profileRequestsUnsub();
             <h4 class="uppercase tracking-widest mb-1 text-black dark:text-white">Credits</h4>
             <p>This project was developed by Liam Persad, Cassady Mead and Soraha Ebara as a final project for the "CIS 3296 - Software Design" class. The project code is distributed under the MIT License.</p>
         </div>
+        <div class="mt-8 text-center text-[12px]">
+            <span id="app-version-display" class="uppercase tracking-widest text-black dark:text-white">Eki Story v1.0.0</span>
+        </div>
     `;
 
     const settingsFrame = document.getElementById('settings-frame');
@@ -340,6 +343,29 @@ if (window.profileRequestsUnsub) window.profileRequestsUnsub();
         legalFooter.classList.add('legal-footer');
         settingsFrame.appendChild(legalFooter);
     }
+    
+    async function updateVersionDisplay() {
+        const versionDisplay = document.getElementById('app-version-display');
+        if (!versionDisplay) return;
+        
+        let displayVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0';
+        
+        try {
+            if (Capacitor.isNativePlatform()) {
+                const current = await CapacitorUpdater.current();
+                const version = current.version || current.bundle?.version;
+                if (version) {
+                    displayVersion = version;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        
+        versionDisplay.innerText = `Eki Story v${displayVersion}`;
+    }
+
+    updateVersionDisplay();
 }
 
 window.addEventListener('settingsSynced', () => {
