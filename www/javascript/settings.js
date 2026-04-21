@@ -1,402 +1,468 @@
-import { idbClear } from './idb.js';
-import { auth } from './firebase.js';
-import { signOut, onAuthStateChanged, deleteUser } from 'firebase/auth';
-import { Capacitor } from '@capacitor/core';
-import { SocialLogin } from '@capgo/capacitor-social-login';
-import { showAuthScreen } from './auth.js';
-import { updateUserSetting } from './user.js';
-import { applyTranslations, getLanguage, setLanguage, t } from './i18n.js';
-import { playOkSound, playReturnSound, playInSound, playOutSound } from './audio.js'; 
-import { CapacitorUpdater } from '@capgo/capacitor-updater';
+import { idbClear } from "./idb.js";
+import { auth } from "./firebase.js";
+import { signOut, onAuthStateChanged, deleteUser } from "firebase/auth";
+import { Capacitor } from "@capacitor/core";
+import { SocialLogin } from "@capgo/capacitor-social-login";
+import { showAuthScreen } from "./auth.js";
+import { updateUserSetting } from "./user.js";
+import { applyTranslations, getLanguage, setLanguage, t } from "./i18n.js";
+import {
+  playOkSound,
+  playReturnSound,
+  playInSound,
+  playOutSound,
+} from "./audio.js";
+import { CapacitorUpdater } from "@capgo/capacitor-updater";
 
-const DARK_MODE_KEY = 'eki-dark-mode';
-const SOUND_KEY = 'eki-sound';
-const DECLINE_REQUESTS_KEY = 'eki-decline-requests';
-const LANG_KEY = 'eki-language';
+const DARK_MODE_KEY = "eki-dark-mode";
+const SOUND_KEY = "eki-sound";
+const DECLINE_REQUESTS_KEY = "eki-decline-requests";
+const LANG_KEY = "eki-language";
 
 const LIGHT_STYLES = [
-    { featureType: 'all', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-    { featureType: 'landscape', stylers: [{ color: '#A5D6A7' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#90CAF9' }] },
-    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-    { featureType: 'administrative', stylers: [{ visibility: 'off' }] },
+  {
+    featureType: "all",
+    elementType: "labels",
+    stylers: [{ visibility: "off" }],
+  },
+  { featureType: "landscape", stylers: [{ color: "#A5D6A7" }] },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#90CAF9" }],
+  },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative", stylers: [{ visibility: "off" }] },
 ];
 const DARK_STYLES = [
-    { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
-    { elementType: 'labels', stylers: [{ visibility: 'off' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2d2d44' }] },
-    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3a3a5c' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0d1117' }] },
-    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-    { featureType: 'administrative', stylers: [{ visibility: 'off' }] },
+  { elementType: "geometry", stylers: [{ color: "#1a1a2e" }] },
+  { elementType: "labels", stylers: [{ visibility: "off" }] },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#2d2d44" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [{ color: "#3a3a5c" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#0d1117" }],
+  },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative", stylers: [{ visibility: "off" }] },
 ];
 
 function getMapStyles(isDark) {
-    return isDark ? DARK_STYLES : LIGHT_STYLES;
+  return isDark ? DARK_STYLES : LIGHT_STYLES;
 }
 
-window.getInitialMapStyles = () => getMapStyles(localStorage.getItem(DARK_MODE_KEY) === 'true');
+window.getInitialMapStyles = () =>
+  getMapStyles(localStorage.getItem(DARK_MODE_KEY) === "true");
 
 function applyDarkMode(isDark) {
-    document.documentElement.classList.toggle('dark', isDark);
-    if (window.map && typeof window.map.setOptions === 'function') {
-        window.map.setOptions({ styles: getMapStyles(isDark) });
-    }
+  document.documentElement.classList.toggle("dark", isDark);
+  if (window.map && typeof window.map.setOptions === "function") {
+    window.map.setOptions({ styles: getMapStyles(isDark) });
+  }
 }
 
 function setToggle(btn, isOn) {
-    const knob = btn.querySelector('.toggle-knob');
-    if (isOn) {
-        btn.classList.add('bg-[#B2FF59]');
-        btn.classList.remove('bg-gray-300');
-    } else {
-        btn.classList.remove('bg-[#B2FF59]');
-        btn.classList.add('bg-gray-300');
-    }
-    if (knob) knob.style.transform = isOn ? 'translateX(1.5rem)' : 'translateX(0)';
+  const knob = btn.querySelector(".toggle-knob");
+  if (isOn) {
+    btn.classList.add("bg-[#B2FF59]");
+    btn.classList.remove("bg-gray-300");
+  } else {
+    btn.classList.remove("bg-[#B2FF59]");
+    btn.classList.add("bg-gray-300");
+  }
+  if (knob)
+    knob.style.transform = isOn ? "translateX(1.5rem)" : "translateX(0)";
 }
 
 export function initSettings() {
-    const savedDark = localStorage.getItem(DARK_MODE_KEY) === 'true';
-    applyDarkMode(savedDark);
-    
-    window.getInitialColorScheme = () =>
-        localStorage.getItem(DARK_MODE_KEY) === 'true' ? 'DARK' : 'LIGHT';
+  const savedDark = localStorage.getItem(DARK_MODE_KEY) === "true";
+  applyDarkMode(savedDark);
 
-    const settingsContainer = document.getElementById('settings-container');
-    const settingsBtn = document.getElementById('icon-shell-s');
+  window.getInitialColorScheme = () =>
+    localStorage.getItem(DARK_MODE_KEY) === "true" ? "DARK" : "LIGHT";
 
-    if (settingsBtn) {
-        settingsBtn.onclick = function () {
-            const isOpen = !settingsContainer.classList.contains('-translate-x-full');
-            if (isOpen) {
-                playOutSound(); 
-                settingsContainer.classList.add('-translate-x-full', 'pointer-events-none');
-            } else {
-                playInSound(); 
-                window.resetUI?.();
-                settingsContainer.classList.remove('-translate-x-full', 'pointer-events-none');
-            }
-        };
-    }
+  const settingsContainer = document.getElementById("settings-container");
+  const settingsBtn = document.getElementById("icon-shell-s");
+
+  if (settingsBtn) {
+    settingsBtn.onclick = function () {
+      const isOpen = !settingsContainer.classList.contains("-translate-x-full");
+      if (isOpen) {
+        playOutSound();
+        settingsContainer.classList.add(
+          "-translate-x-full",
+          "pointer-events-none",
+        );
+      } else {
+        playInSound();
+        window.resetUI?.();
+        settingsContainer.classList.remove(
+          "-translate-x-full",
+          "pointer-events-none",
+        );
+      }
+    };
+  }
 }
 
 let authUnsubscribe = null;
 
 export function initSettingsFrame() {
-    applyTranslations();
+  applyTranslations();
 
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    const soundToggle = document.getElementById('sound-toggle');
-    const declineRequestsToggle = document.getElementById('decline-requests-toggle');
-    const refreshBtn = document.getElementById('refresh-db-btn');
-    const langEnBtn = document.getElementById('lang-en-btn');
-    const langJaBtn = document.getElementById('lang-ja-btn');
+  const darkModeToggle = document.getElementById("dark-mode-toggle");
+  const soundToggle = document.getElementById("sound-toggle");
+  const declineRequestsToggle = document.getElementById(
+    "decline-requests-toggle",
+  );
+  const refreshBtn = document.getElementById("refresh-db-btn");
+  const langEnBtn = document.getElementById("lang-en-btn");
+  const langJaBtn = document.getElementById("lang-ja-btn");
 
-    function updateSettingsLangUI(lang) {
-        if (lang === 'en') {
-            langEnBtn.classList.add('bg-[#B2FF59]', 'text-black');
-            langEnBtn.classList.remove('bg-transparent', 'text-gray-600');
-            langJaBtn.classList.add('bg-transparent', 'text-gray-600');
-            langJaBtn.classList.remove('bg-[#B2FF59]', 'text-black');
-        } else {
-            langJaBtn.classList.add('bg-[#B2FF59]', 'text-black');
-            langJaBtn.classList.remove('bg-transparent', 'text-gray-600');
-            langEnBtn.classList.add('bg-transparent', 'text-gray-600');
-            langEnBtn.classList.remove('bg-[#B2FF59]', 'text-black');
-        }
+  function updateSettingsLangUI(lang) {
+    if (lang === "en") {
+      langEnBtn.classList.add("bg-[#B2FF59]", "text-black");
+      langEnBtn.classList.remove("bg-transparent", "text-gray-600");
+      langJaBtn.classList.add("bg-transparent", "text-gray-600");
+      langJaBtn.classList.remove("bg-[#B2FF59]", "text-black");
+    } else {
+      langJaBtn.classList.add("bg-[#B2FF59]", "text-black");
+      langJaBtn.classList.remove("bg-transparent", "text-gray-600");
+      langEnBtn.classList.add("bg-transparent", "text-gray-600");
+      langEnBtn.classList.remove("bg-[#B2FF59]", "text-black");
     }
+  }
 
-    if (langEnBtn && langJaBtn) {
-        updateSettingsLangUI(getLanguage());
-        
-        langEnBtn.onclick = async function() {
-            if (getLanguage() !== 'en') {
-                playOkSound();
-                setLanguage('en');
-                await updateUserSetting('language', 'en');
-                window.location.reload();
-            }
-        };
-        
-        langJaBtn.onclick = async function() {
-            if (getLanguage() !== 'ja') {
-                playOkSound();
-                setLanguage('ja');
-                await updateUserSetting('language', 'ja');
-                window.location.reload();
-            }
-        };
-    }
+  if (langEnBtn && langJaBtn) {
+    updateSettingsLangUI(getLanguage());
 
-    const savedDark = localStorage.getItem(DARK_MODE_KEY) === 'true';
-    if (darkModeToggle) {
-        setToggle(darkModeToggle, savedDark);
-        darkModeToggle.onclick = async function () {
-            const isDark = darkModeToggle.classList.contains('bg-gray-300');
-            if (isDark) playOkSound(); else playReturnSound();
-            
-            applyDarkMode(isDark);
-            localStorage.setItem(DARK_MODE_KEY, isDark);
-            setToggle(darkModeToggle, isDark);
-            await updateUserSetting(DARK_MODE_KEY, isDark);
-            window.location.reload();
-        };
-    }
-
-    const savedSound = localStorage.getItem(SOUND_KEY) !== 'false';
-    if (soundToggle) {
-        setToggle(soundToggle, savedSound);
-        soundToggle.onclick = async function () {
-            const willBeOn = soundToggle.classList.contains('bg-gray-300');
-            if (willBeOn) playOkSound(); else playReturnSound();
-
-            setToggle(soundToggle, willBeOn);
-            localStorage.setItem(SOUND_KEY, willBeOn);
-            await updateUserSetting(SOUND_KEY, willBeOn);
-        };
-    }
-
-    const savedDeclineRequests = localStorage.getItem(DECLINE_REQUESTS_KEY) === 'true';
-    if (declineRequestsToggle) {
-        setToggle(declineRequestsToggle, savedDeclineRequests);
-        declineRequestsToggle.onclick = async function () {
-            const willBeOn = declineRequestsToggle.classList.contains('bg-gray-300');
-            if (willBeOn) playOkSound(); else playReturnSound();
-
-            setToggle(declineRequestsToggle, willBeOn);
-            localStorage.setItem(DECLINE_REQUESTS_KEY, willBeOn);
-            await updateUserSetting(DECLINE_REQUESTS_KEY, willBeOn);
-        };
-    }
-
-    const updateAuthBtnUI = (user) => {
-        const currentSignOutBtn = document.getElementById('sign-out-btn');
-        const currentDeleteBtn = document.getElementById('delete-account-btn');
-
-        if (currentSignOutBtn) {
-            if (!user || user.isAnonymous) {
-                currentSignOutBtn.innerText = t('settings.loginOrSignUp') || "Sign In / Create An Account";
-                currentSignOutBtn.onclick = () => {
-                    window.resetUI?.();
-                    showAuthScreen();
-                };
-            } else {
-                currentSignOutBtn.innerText = t('settings.signOut') || "Sign Out";
-                currentSignOutBtn.onclick = async () => {
-                    playReturnSound();
-                    try {
-                        localStorage.clear();
-                        sessionStorage.clear();
-                        const { idbClear } = await import('./idb.js');
-                        await idbClear();
-                        
-                        if (Capacitor.isNativePlatform()) {
-                            try {
-                                await SocialLogin.logout();
-                            } catch (e) {}
-                        }
-
-                        if (window.profileUserUnsub) window.profileUserUnsub();
-                        if (window.profileRequestsUnsub) window.profileRequestsUnsub();
-
-                        await signOut(auth);
-                        window.location.reload(); 
-                    } catch (err) {}
-                };
-            }
-        }
-
-        if (currentDeleteBtn) {
-            if (user) {
-                currentDeleteBtn.classList.remove('hidden');
-                currentDeleteBtn.onclick = () => {
-                    playReturnSound();
-                    const confirmModal = document.getElementById('generic-confirm-modal');
-                    const confirmBox = document.getElementById('generic-confirm-box');
-                    
-                    document.getElementById('generic-confirm-title').innerText = t('settings.deleteAccountTitle');
-                    document.getElementById('generic-confirm-message').innerText = t('settings.deleteAccountMessage');
-                    
-                    confirmModal.classList.remove('opacity-0', 'pointer-events-none');
-                    confirmBox.classList.remove('scale-95');
-                    confirmBox.classList.add('scale-100');
-
-                    document.getElementById('generic-confirm-cancel').onclick = () => {
-                        playReturnSound();
-                        confirmModal.classList.add('opacity-0', 'pointer-events-none');
-                        confirmBox.classList.add('scale-95');
-                        confirmBox.classList.remove('scale-100');
-                    };
-
-                    document.getElementById('generic-confirm-ok').onclick = async () => {
-                        playOkSound();
-                        confirmModal.classList.add('opacity-0', 'pointer-events-none');
-                        confirmBox.classList.add('scale-95');
-                        confirmBox.classList.remove('scale-100');
-                        
-                        try {
-                            await deleteUser(user);
-                            localStorage.clear();
-                            sessionStorage.clear();
-                            const { idbClear } = await import('./idb.js');
-                            await idbClear();
-                            window.location.reload();
-                        } catch (err) {
-                            const alertModal = document.getElementById('generic-alert-modal');
-                            const alertBox = document.getElementById('generic-alert-box');
-                            document.getElementById('generic-alert-title').innerText = t('settings.actionFailedTitle') || "Action Failed";
-                            document.getElementById('generic-alert-message').innerText = t('settings.actionFailedMessage') || "Failed to delete account. You may need to sign out and sign back in to verify your identity before deleting.";
-                            
-                            alertModal.classList.remove('opacity-0', 'pointer-events-none');
-                            alertBox.classList.remove('scale-95');
-                            alertBox.classList.add('scale-100');
-
-                            document.getElementById('generic-alert-btn').onclick = () => {
-                                alertModal.classList.add('opacity-0', 'pointer-events-none');
-                                alertBox.classList.add('scale-95');
-                                alertBox.classList.remove('scale-100');
-                            };
-                        }
-                    };
-                };
-            } else {
-                currentDeleteBtn.classList.add('hidden');
-            }
-        }
+    langEnBtn.onclick = async function () {
+      if (getLanguage() !== "en") {
+        playOkSound();
+        setLanguage("en");
+        await updateUserSetting("language", "en");
+        window.location.reload();
+      }
     };
 
-    if (authUnsubscribe) authUnsubscribe();
-    updateAuthBtnUI(auth.currentUser);
-    authUnsubscribe = onAuthStateChanged(auth, updateAuthBtnUI);
+    langJaBtn.onclick = async function () {
+      if (getLanguage() !== "ja") {
+        playOkSound();
+        setLanguage("ja");
+        await updateUserSetting("language", "ja");
+        window.location.reload();
+      }
+    };
+  }
 
-    if (refreshBtn) {
-        refreshBtn.onclick = function(e) {
-            e.preventDefault();
-            playOkSound();
-            
-            const loadingOverlay = document.getElementById('app-loading-overlay');
-            if (loadingOverlay) {
-                loadingOverlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-                loadingOverlay.classList.add('opacity-100');
-                loadingOverlay.style.zIndex = '9999';
-            }
-            
-            setTimeout(async () => {
-                try {
-                    const lang = localStorage.getItem(LANG_KEY);
-                    const dark = localStorage.getItem(DARK_MODE_KEY);
-                    const sound = localStorage.getItem(SOUND_KEY);
-                    const decline = localStorage.getItem(DECLINE_REQUESTS_KEY);
+  const savedDark = localStorage.getItem(DARK_MODE_KEY) === "true";
+  if (darkModeToggle) {
+    setToggle(darkModeToggle, savedDark);
+    darkModeToggle.onclick = async function () {
+      const isDark = darkModeToggle.classList.contains("bg-gray-300");
+      if (isDark) playOkSound();
+      else playReturnSound();
 
-                    const firebaseEntries = {};
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const key = localStorage.key(i);
-                        if (key && key.startsWith('firebase:')) {
-                            firebaseEntries[key] = localStorage.getItem(key);
-                        }
-                    }
+      applyDarkMode(isDark);
+      localStorage.setItem(DARK_MODE_KEY, isDark);
+      setToggle(darkModeToggle, isDark);
+      await updateUserSetting(DARK_MODE_KEY, isDark);
+      window.location.reload();
+    };
+  }
 
-                    localStorage.clear();
+  const savedSound = localStorage.getItem(SOUND_KEY) !== "false";
+  if (soundToggle) {
+    setToggle(soundToggle, savedSound);
+    soundToggle.onclick = async function () {
+      const willBeOn = soundToggle.classList.contains("bg-gray-300");
+      if (willBeOn) playOkSound();
+      else playReturnSound();
 
-                    if (lang) localStorage.setItem(LANG_KEY, lang);
-                    if (dark) localStorage.setItem(DARK_MODE_KEY, dark);
-                    if (sound) localStorage.setItem(SOUND_KEY, sound);
-                    if (decline) localStorage.setItem(DECLINE_REQUESTS_KEY, decline);
-                    for (const [key, val] of Object.entries(firebaseEntries)) {
-                        localStorage.setItem(key, val);
-                    }
+      setToggle(soundToggle, willBeOn);
+      localStorage.setItem(SOUND_KEY, willBeOn);
+      await updateUserSetting(SOUND_KEY, willBeOn);
+    };
+  }
 
-                    await idbClear();
-                } catch (err) {}
-                window.location.reload();
-            }, 150);
+  const savedDeclineRequests =
+    localStorage.getItem(DECLINE_REQUESTS_KEY) === "true";
+  if (declineRequestsToggle) {
+    setToggle(declineRequestsToggle, savedDeclineRequests);
+    declineRequestsToggle.onclick = async function () {
+      const willBeOn = declineRequestsToggle.classList.contains("bg-gray-300");
+      if (willBeOn) playOkSound();
+      else playReturnSound();
+
+      setToggle(declineRequestsToggle, willBeOn);
+      localStorage.setItem(DECLINE_REQUESTS_KEY, willBeOn);
+      await updateUserSetting(DECLINE_REQUESTS_KEY, willBeOn);
+    };
+  }
+
+  const updateAuthBtnUI = (user) => {
+    const currentSignOutBtn = document.getElementById("sign-out-btn");
+    const currentDeleteBtn = document.getElementById("delete-account-btn");
+
+    if (currentSignOutBtn) {
+      if (!user || user.isAnonymous) {
+        currentSignOutBtn.innerText =
+          t("settings.loginOrSignUp") || "Sign In / Create An Account";
+        currentSignOutBtn.onclick = () => {
+          window.resetUI?.();
+          showAuthScreen();
         };
+      } else {
+        currentSignOutBtn.innerText = t("settings.signOut") || "Sign Out";
+        currentSignOutBtn.onclick = async () => {
+          playReturnSound();
+          try {
+            localStorage.clear();
+            sessionStorage.clear();
+            const { idbClear } = await import("./idb.js");
+            await idbClear();
+
+            if (Capacitor.isNativePlatform()) {
+              try {
+                await SocialLogin.logout();
+              } catch (e) {}
+            }
+
+            if (window.profileUserUnsub) window.profileUserUnsub();
+            if (window.profileRequestsUnsub) window.profileRequestsUnsub();
+
+            await signOut(auth);
+            window.location.reload();
+          } catch (err) {}
+        };
+      }
     }
 
-    const legalFooter = document.createElement('div');
-    legalFooter.className = "mt-12 px-6 pb-8 text-[10px] text-gray-400 dark:text-gray-500 font-bold leading-relaxed border-t-[2px] border-black/5 dark:border-white/5 pt-6";
-    legalFooter.innerHTML = `
+    if (currentDeleteBtn) {
+      if (user) {
+        currentDeleteBtn.classList.remove("hidden");
+        currentDeleteBtn.onclick = () => {
+          playReturnSound();
+          const confirmModal = document.getElementById("generic-confirm-modal");
+          const confirmBox = document.getElementById("generic-confirm-box");
+
+          document.getElementById("generic-confirm-title").innerText = t(
+            "settings.deleteAccountTitle",
+          );
+          document.getElementById("generic-confirm-message").innerText = t(
+            "settings.deleteAccountMessage",
+          );
+
+          confirmModal.classList.remove("opacity-0", "pointer-events-none");
+          confirmBox.classList.remove("scale-95");
+          confirmBox.classList.add("scale-100");
+
+          document.getElementById("generic-confirm-cancel").onclick = () => {
+            playReturnSound();
+            confirmModal.classList.add("opacity-0", "pointer-events-none");
+            confirmBox.classList.add("scale-95");
+            confirmBox.classList.remove("scale-100");
+          };
+
+          document.getElementById("generic-confirm-ok").onclick = async () => {
+            playOkSound();
+            confirmModal.classList.add("opacity-0", "pointer-events-none");
+            confirmBox.classList.add("scale-95");
+            confirmBox.classList.remove("scale-100");
+
+            try {
+              await deleteUser(user);
+              localStorage.clear();
+              sessionStorage.clear();
+              const { idbClear } = await import("./idb.js");
+              await idbClear();
+              window.location.reload();
+            } catch (err) {
+              const alertModal = document.getElementById("generic-alert-modal");
+              const alertBox = document.getElementById("generic-alert-box");
+              document.getElementById("generic-alert-title").innerText =
+                t("settings.actionFailedTitle") || "Action Failed";
+              document.getElementById("generic-alert-message").innerText =
+                t("settings.actionFailedMessage") ||
+                "Failed to delete account. You may need to sign out and sign back in to verify your identity before deleting.";
+
+              alertModal.classList.remove("opacity-0", "pointer-events-none");
+              alertBox.classList.remove("scale-95");
+              alertBox.classList.add("scale-100");
+
+              document.getElementById("generic-alert-btn").onclick = () => {
+                alertModal.classList.add("opacity-0", "pointer-events-none");
+                alertBox.classList.add("scale-95");
+                alertBox.classList.remove("scale-100");
+              };
+            }
+          };
+        };
+      } else {
+        currentDeleteBtn.classList.add("hidden");
+      }
+    }
+  };
+
+  if (authUnsubscribe) authUnsubscribe();
+  updateAuthBtnUI(auth.currentUser);
+  authUnsubscribe = onAuthStateChanged(auth, updateAuthBtnUI);
+
+  if (refreshBtn) {
+    refreshBtn.onclick = function (e) {
+      e.preventDefault();
+      playOkSound();
+
+      const loadingOverlay = document.getElementById("app-loading-overlay");
+      if (loadingOverlay) {
+        loadingOverlay.classList.remove(
+          "hidden",
+          "opacity-0",
+          "pointer-events-none",
+        );
+        loadingOverlay.classList.add("opacity-100");
+        loadingOverlay.style.zIndex = "9999";
+      }
+
+      setTimeout(async () => {
+        try {
+          const lang = localStorage.getItem(LANG_KEY);
+          const dark = localStorage.getItem(DARK_MODE_KEY);
+          const sound = localStorage.getItem(SOUND_KEY);
+          const decline = localStorage.getItem(DECLINE_REQUESTS_KEY);
+
+          const firebaseEntries = {};
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("firebase:")) {
+              firebaseEntries[key] = localStorage.getItem(key);
+            }
+          }
+
+          localStorage.clear();
+
+          if (lang) localStorage.setItem(LANG_KEY, lang);
+          if (dark) localStorage.setItem(DARK_MODE_KEY, dark);
+          if (sound) localStorage.setItem(SOUND_KEY, sound);
+          if (decline) localStorage.setItem(DECLINE_REQUESTS_KEY, decline);
+          for (const [key, val] of Object.entries(firebaseEntries)) {
+            localStorage.setItem(key, val);
+          }
+
+          await idbClear();
+        } catch (err) {}
+        window.location.reload();
+      }, 150);
+    };
+  }
+
+  const legalFooter = document.createElement("div");
+  legalFooter.className =
+    "mt-12 px-6 pb-8 text-[10px] text-gray-400 dark:text-gray-500 font-bold leading-relaxed border-t-[2px] border-black/5 dark:border-white/5 pt-6";
+  legalFooter.innerHTML = `
         <div class="mb-4">
-            <h4 class="uppercase tracking-widest mb-1 text-black dark:text-white">Privacy Policy</h4>
+            <h4 class=" tracking-widest mb-1 text-black dark:text-white">Privacy Policy</h4>
             <p>This app uses location data for navigation and station tracking. User content is stored securely via Google Firebase and is never sold. Use is subject to Google’s Privacy Policy. You may delete your account and data at any time in Settings.</p>
         </div>
         <div class="mb-4">
-            <h4 class="uppercase tracking-widest mb-1 text-black dark:text-white">Terms of Use</h4>
+            <h4 class=" tracking-widest mb-1 text-black dark:text-white">Terms of Use</h4>
             <p>Provided "as-is" for entertainment. This is an independent project and is not affiliated with any railway operator. Station data is sourced from Eki-Data. All railway logos and trademarks are the property and copyright of their respective owners. Use at your own risk; always remain aware of your physical surroundings.</p>
         </div>
         <div class="mb-4">
-            <h4 class="uppercase tracking-widest mb-1 text-black dark:text-white">Credits</h4>
+            <h4 class=" tracking-widest mb-1 text-black dark:text-white">Credits</h4>
             <p>This project was developed by Liam Persad, Cassady Mead and Soraha Ebara as a final project for the "CIS 3296 - Software Design" class. The project code is distributed under the MIT License.</p>
         </div>
         <div class="mt-8 text-center text-[12px]">
-            <span id="app-version-display" class="uppercase tracking-widest text-black dark:text-white">Eki Story</span>
+            <span id="app-version-display" class=" tracking-widest text-black dark:text-white">Eki Story</span>
         </div>
     `;
 
-    const settingsFrame = document.getElementById('settings-frame');
-    if (settingsFrame) {
-        const existingFooter = settingsFrame.querySelector('.legal-footer');
-        if (existingFooter) existingFooter.remove();
-        legalFooter.classList.add('legal-footer');
-        settingsFrame.appendChild(legalFooter);
-    }
-    
-    async function updateVersionDisplay() {
-        const versionDisplay = document.getElementById('app-version-display');
-        if (!versionDisplay) return;
-        
-        let displayVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0';
-        
-        try {
-            if (Capacitor.isNativePlatform()) {
-                const current = await CapacitorUpdater.current();
-                const version = current.version || current.bundle?.version;
-                if (version) {
-                    displayVersion = version;
-                }
-            }
-        } catch (e) {
-            console.error(e);
+  const settingsFrame = document.getElementById("settings-frame");
+  if (settingsFrame) {
+    const existingFooter = settingsFrame.querySelector(".legal-footer");
+    if (existingFooter) existingFooter.remove();
+    legalFooter.classList.add("legal-footer");
+    settingsFrame.appendChild(legalFooter);
+  }
+
+  async function updateVersionDisplay() {
+    const versionDisplay = document.getElementById("app-version-display");
+    if (!versionDisplay) return;
+
+    let displayVersion =
+      typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "1.0.0";
+
+    try {
+      if (Capacitor.isNativePlatform()) {
+        const current = await CapacitorUpdater.current();
+        const version = current.version || current.bundle?.version;
+        if (version) {
+          displayVersion = version;
         }
-        
-        versionDisplay.innerText = `Eki Story v${displayVersion}`;
+      }
+    } catch (e) {
+      console.error(e);
     }
 
-    updateVersionDisplay();
+    versionDisplay.innerText = `Eki Story v${displayVersion}`;
+  }
+
+  updateVersionDisplay();
 }
 
-window.addEventListener('settingsSynced', () => {
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    const soundToggle = document.getElementById('sound-toggle');
-    const declineRequestsToggle = document.getElementById('decline-requests-toggle');
-    
-    if (darkModeToggle) setToggle(darkModeToggle, localStorage.getItem(DARK_MODE_KEY) === 'true');
-    if (soundToggle) setToggle(soundToggle, localStorage.getItem(SOUND_KEY) !== 'false');
-    if (declineRequestsToggle) setToggle(declineRequestsToggle, localStorage.getItem(DECLINE_REQUESTS_KEY) === 'true');
+window.addEventListener("settingsSynced", () => {
+  const darkModeToggle = document.getElementById("dark-mode-toggle");
+  const soundToggle = document.getElementById("sound-toggle");
+  const declineRequestsToggle = document.getElementById(
+    "decline-requests-toggle",
+  );
+
+  if (darkModeToggle)
+    setToggle(darkModeToggle, localStorage.getItem(DARK_MODE_KEY) === "true");
+  if (soundToggle)
+    setToggle(soundToggle, localStorage.getItem(SOUND_KEY) !== "false");
+  if (declineRequestsToggle)
+    setToggle(
+      declineRequestsToggle,
+      localStorage.getItem(DECLINE_REQUESTS_KEY) === "true",
+    );
 });
 
 let settingsFrameInitialized = false;
 
 function checkAndInitSettings() {
-    if (settingsFrameInitialized) return;
-    if (document.getElementById('dark-mode-toggle')) {
-        settingsFrameInitialized = true;
-        initSettingsFrame();
-    }
+  if (settingsFrameInitialized) return;
+  if (document.getElementById("dark-mode-toggle")) {
+    settingsFrameInitialized = true;
+    initSettingsFrame();
+  }
 }
 
-document.addEventListener('turbo:frame-load', (e) => {
-    if (e.target.id === 'settings-frame') {
-        settingsFrameInitialized = false;
-        checkAndInitSettings();
-    }
+document.addEventListener("turbo:frame-load", (e) => {
+  if (e.target.id === "settings-frame") {
+    settingsFrameInitialized = false;
+    checkAndInitSettings();
+  }
 });
 
-if (document.readyState === 'interactive' || document.readyState === 'complete') {
-    setTimeout(checkAndInitSettings, 100);
+if (
+  document.readyState === "interactive" ||
+  document.readyState === "complete"
+) {
+  setTimeout(checkAndInitSettings, 100);
 } else {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(checkAndInitSettings, 100));
+  document.addEventListener("DOMContentLoaded", () =>
+    setTimeout(checkAndInitSettings, 100),
+  );
 }

@@ -1,183 +1,217 @@
-import { auth, db } from './firebase.js';
-import { collection, query, where, getDocs, getDoc, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion, orderBy, limit, startAfter } from 'firebase/firestore';
+import { auth, db } from "./firebase.js";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  getDoc,
+  addDoc,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
+  arrayUnion,
+  orderBy,
+  limit,
+  startAfter,
+} from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { showAuthScreen } from './auth.js';
-import { getVisitedStations, userStamps, CURRENT_USER_ID, CURRENT_USERNAME, IS_ANONYMOUS } from './user.js';
-import { applyTranslations, t } from './i18n.js';
-import { playConfirm1Sound, playReturnSound, playOkSound, playConfirm2Sound } from './audio.js';
+import { showAuthScreen } from "./auth.js";
+import {
+  getVisitedStations,
+  userStamps,
+  CURRENT_USER_ID,
+  CURRENT_USERNAME,
+  IS_ANONYMOUS,
+} from "./user.js";
+import { applyTranslations, t } from "./i18n.js";
+import {
+  playConfirm1Sound,
+  playReturnSound,
+  playOkSound,
+  playConfirm2Sound,
+} from "./audio.js";
 
 export function updateProfileCounts() {
-    const stationsCount = document.getElementById('profile-stations-count');
-    const stampsCount = document.getElementById('profile-stamps-count');
-    
-    if (stationsCount) {
-        const visited = getVisitedStations();
-        stationsCount.innerText = visited ? visited.length : 0;
-    }
-    
-    if (stampsCount) {
-        stampsCount.innerText = Object.keys(userStamps).length || 0;
-    }
+  const stationsCount = document.getElementById("profile-stations-count");
+  const stampsCount = document.getElementById("profile-stamps-count");
+
+  if (stationsCount) {
+    const visited = getVisitedStations();
+    stationsCount.innerText = visited ? visited.length : 0;
+  }
+
+  if (stampsCount) {
+    stampsCount.innerText = Object.keys(userStamps).length || 0;
+  }
 }
 
-window.addEventListener('visitedDataUpdated', updateProfileCounts);
+window.addEventListener("visitedDataUpdated", updateProfileCounts);
 
 export async function initProfileFrame() {
-    applyTranslations();
+  applyTranslations();
 
-    const profileContainer = document.getElementById('profile-container');
-    const closeBtn = document.getElementById('close-profile-btn');
-    
-    if (closeBtn && profileContainer) {
-        closeBtn.onclick = () => {
-            playReturnSound();
-            profileContainer.classList.add('translate-x-full', 'pointer-events-none');
-            window.resetUI?.();
-        };
+  const profileContainer = document.getElementById("profile-container");
+  const closeBtn = document.getElementById("close-profile-btn");
+
+  if (closeBtn && profileContainer) {
+    closeBtn.onclick = () => {
+      playReturnSound();
+      profileContainer.classList.add("translate-x-full", "pointer-events-none");
+      window.resetUI?.();
+    };
+  }
+
+  const usernameEl = document.getElementById("profile-username");
+  const guestOverlay = document.getElementById("friend-guest-overlay");
+  const searchInput = document.getElementById("friend-search-input");
+  const sendBtn = document.getElementById("send-friend-request-btn");
+  const messageEl = document.getElementById("friend-message");
+  const requestsList = document.getElementById("friend-requests-list");
+  const noRequestsMsg = document.getElementById("no-requests-msg");
+
+  updateProfileCounts();
+
+  if (window.profileUserUnsub) {
+    window.profileUserUnsub();
+    window.profileUserUnsub = null;
+  }
+  if (window.profileRequestsUnsub) {
+    window.profileRequestsUnsub();
+  }
+  const friendsContainer = document.getElementById("friends-list-container");
+  if (friendsContainer) friendsContainer.classList.add("hidden");
+
+  myPostsLast = null;
+  myPostsHasMore = false;
+  myPostsLoading = false;
+
+  if (IS_ANONYMOUS || !CURRENT_USER_ID) {
+    if (usernameEl) usernameEl.innerText = t("profile.guest");
+    if (guestOverlay) {
+      guestOverlay.classList.remove("hidden");
+      guestOverlay.onclick = () => {
+        playOkSound();
+        if (profileContainer)
+          profileContainer.classList.add(
+            "translate-x-full",
+            "pointer-events-none",
+          );
+        showAuthScreen();
+      };
     }
+    return;
+  }
 
-    const usernameEl = document.getElementById('profile-username');
-    const guestOverlay = document.getElementById('friend-guest-overlay');
-    const searchInput = document.getElementById('friend-search-input');
-    const sendBtn = document.getElementById('send-friend-request-btn');
-    const messageEl = document.getElementById('friend-message');
-    const requestsList = document.getElementById('friend-requests-list');
-    const noRequestsMsg = document.getElementById('no-requests-msg');
+  if (guestOverlay) guestOverlay.classList.add("hidden");
+  if (usernameEl) usernameEl.innerText = CURRENT_USERNAME;
 
-    updateProfileCounts();
+  if (sendBtn) {
+    sendBtn.onclick = async () => {
+      const targetUsername = searchInput.value.trim();
+      if (!targetUsername) return;
 
-    if (window.profileUserUnsub) {
-        window.profileUserUnsub();
-        window.profileUserUnsub = null;
-    }
-    if (window.profileRequestsUnsub) {
-        window.profileRequestsUnsub();
-    }
-    const friendsContainer = document.getElementById('friends-list-container');
-    if (friendsContainer) friendsContainer.classList.add('hidden');
+      messageEl.classList.remove("hidden", "text-[#FF5252]", "text-[#B2FF59]");
+      messageEl.classList.add("text-gray-500");
+      messageEl.innerText = t("common.searching");
 
-    myPostsLast = null;
-    myPostsHasMore = false;
-    myPostsLoading = false;
-
-    if (IS_ANONYMOUS || !CURRENT_USER_ID) {
-        if (usernameEl) usernameEl.innerText = t('profile.guest');
-        if (guestOverlay) {
-            guestOverlay.classList.remove('hidden');
-            guestOverlay.onclick = () => {
-                playOkSound();
-                if (profileContainer) profileContainer.classList.add('translate-x-full', 'pointer-events-none');
-                showAuthScreen();
-            };
+      try {
+        if (CURRENT_USERNAME === targetUsername) {
+          throw new Error(t("profile.errorCannotAddSelf"));
         }
-        return; 
-    }
 
-    if (guestOverlay) guestOverlay.classList.add('hidden');
-    if (usernameEl) usernameEl.innerText = CURRENT_USERNAME;
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("username", "==", targetUsername));
+        const snapshot = await getDocs(q);
 
-    if (sendBtn) {
-        sendBtn.onclick = async () => {
-            const targetUsername = searchInput.value.trim();
-            if (!targetUsername) return;
-
-            messageEl.classList.remove('hidden', 'text-[#FF5252]', 'text-[#B2FF59]');
-            messageEl.classList.add('text-gray-500');
-            messageEl.innerText = t('common.searching');
-
-            try {
-                if (CURRENT_USERNAME === targetUsername) {
-                    throw new Error(t('profile.errorCannotAddSelf'));
-                }
-
-                const usersRef = collection(db, 'users');
-                const q = query(usersRef, where("username", "==", targetUsername));
-                const snapshot = await getDocs(q);
-
-                if (snapshot.empty) {
-                    throw new Error(t('profile.errorUserNotFound'));
-                }
-
-                const targetUser = snapshot.docs[0];
-                const targetUserId = targetUser.id;
-
-                const reqQuery = query(collection(db, 'friend_requests'), 
-                    where("from", "==", CURRENT_USER_ID), 
-                    where("to", "==", targetUserId)
-                );
-                const reqSnapshot = await getDocs(reqQuery);
-                if (!reqSnapshot.empty) {
-                    throw new Error(t('profile.errorRequestSent'));
-                }
-
-                await addDoc(collection(db, 'friend_requests'), {
-                    from: CURRENT_USER_ID,
-                    fromUsername: CURRENT_USERNAME,
-                    to: targetUserId,
-                    status: 'pending',
-                    timestamp: new Date()
-                });
-
-                playConfirm1Sound();
-
-                messageEl.classList.remove('text-gray-500');
-                messageEl.classList.add('text-[#B2FF59]');
-                messageEl.innerText = t('profile.requestSent');
-                searchInput.value = '';
-                
-                setTimeout(() => messageEl.classList.add('hidden'), 3000);
-
-            } catch (err) {
-                messageEl.classList.remove('text-gray-500');
-                messageEl.classList.add('text-[#FF5252]');
-                messageEl.innerText = err.message;
-            }
-        };
-    }
-
-    let lastFriendIdsJson = null;
-    let renderSeq = 0;
-
-    window.profileUserUnsub = onSnapshot(doc(db, 'users', CURRENT_USER_ID), async (userSnap) => {
-        const friendIds = userSnap.exists() ? (userSnap.data().friends || []) : [];
-        const friendIdsJson = JSON.stringify(friendIds);
-        if (friendIdsJson === lastFriendIdsJson) return;
-        lastFriendIdsJson = friendIdsJson;
-
-        const seq = ++renderSeq;
-        await renderFriendsList(friendIds, seq, () => renderSeq);
-    });
-
-    const incomingQuery = query(
-        collection(db, 'friend_requests'),
-        where("to", "==", CURRENT_USER_ID),
-        where("status", "==", "pending")
-    );
-
-    if (window.profileRequestsUnsub) {
-        window.profileRequestsUnsub();
-    }
-
-    window.profileRequestsUnsub = onSnapshot(incomingQuery, (snapshot) => {
-        if (requestsList) requestsList.innerHTML = '';
-        
         if (snapshot.empty) {
-            if (noRequestsMsg) noRequestsMsg.classList.remove('hidden');
-            return;
+          throw new Error(t("profile.errorUserNotFound"));
         }
 
-        if (noRequestsMsg) noRequestsMsg.classList.add('hidden');
+        const targetUser = snapshot.docs[0];
+        const targetUserId = targetUser.id;
 
-        snapshot.forEach((reqDoc) => {
-            const data = reqDoc.data();
-            const reqEl = document.createElement('div');
-            reqEl.className = "flex items-center justify-between bg-gray-100 border-[3px] border-black rounded-xl p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]";
-            reqEl.innerHTML = `
+        const reqQuery = query(
+          collection(db, "friend_requests"),
+          where("from", "==", CURRENT_USER_ID),
+          where("to", "==", targetUserId),
+        );
+        const reqSnapshot = await getDocs(reqQuery);
+        if (!reqSnapshot.empty) {
+          throw new Error(t("profile.errorRequestSent"));
+        }
+
+        await addDoc(collection(db, "friend_requests"), {
+          from: CURRENT_USER_ID,
+          fromUsername: CURRENT_USERNAME,
+          to: targetUserId,
+          status: "pending",
+          timestamp: new Date(),
+        });
+
+        playConfirm1Sound();
+
+        messageEl.classList.remove("text-gray-500");
+        messageEl.classList.add("text-[#B2FF59]");
+        messageEl.innerText = t("profile.requestSent");
+        searchInput.value = "";
+
+        setTimeout(() => messageEl.classList.add("hidden"), 3000);
+      } catch (err) {
+        messageEl.classList.remove("text-gray-500");
+        messageEl.classList.add("text-[#FF5252]");
+        messageEl.innerText = err.message;
+      }
+    };
+  }
+
+  let lastFriendIdsJson = null;
+  let renderSeq = 0;
+
+  window.profileUserUnsub = onSnapshot(
+    doc(db, "users", CURRENT_USER_ID),
+    async (userSnap) => {
+      const friendIds = userSnap.exists() ? userSnap.data().friends || [] : [];
+      const friendIdsJson = JSON.stringify(friendIds);
+      if (friendIdsJson === lastFriendIdsJson) return;
+      lastFriendIdsJson = friendIdsJson;
+
+      const seq = ++renderSeq;
+      await renderFriendsList(friendIds, seq, () => renderSeq);
+    },
+  );
+
+  const incomingQuery = query(
+    collection(db, "friend_requests"),
+    where("to", "==", CURRENT_USER_ID),
+    where("status", "==", "pending"),
+  );
+
+  if (window.profileRequestsUnsub) {
+    window.profileRequestsUnsub();
+  }
+
+  window.profileRequestsUnsub = onSnapshot(incomingQuery, (snapshot) => {
+    if (requestsList) requestsList.innerHTML = "";
+
+    if (snapshot.empty) {
+      if (noRequestsMsg) noRequestsMsg.classList.remove("hidden");
+      return;
+    }
+
+    if (noRequestsMsg) noRequestsMsg.classList.add("hidden");
+
+    snapshot.forEach((reqDoc) => {
+      const data = reqDoc.data();
+      const reqEl = document.createElement("div");
+      reqEl.className =
+        "flex items-center justify-between bg-gray-100 border-[3px] border-black rounded-xl p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]";
+      reqEl.innerHTML = `
                 <div class="flex items-center gap-3 truncate mr-2">
                     <div class="w-8 h-8 bg-[#40C4FF] border-[2px] border-black rounded-full shrink-0 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="3"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </div>
-                    <span class="font-black uppercase tracking-tighter truncate text-sm"></span>
+                    <span class="font-black  tracking-tighter truncate text-sm"></span>
                 </div>
                 <div class="flex gap-2 shrink-0">
                     <button class="accept-btn w-8 h-8 bg-[#B2FF59] border-[2px] border-black rounded-lg flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all">
@@ -188,53 +222,55 @@ export async function initProfileFrame() {
                     </button>
                 </div>
             `;
-            reqEl.querySelector('span').textContent = data.fromUsername || t('common.unknown');
+      reqEl.querySelector("span").textContent =
+        data.fromUsername || t("common.unknown");
 
-            reqEl.querySelector('.accept-btn').onclick = async (e) => {
-                const btn = e.currentTarget;
-                if (btn.disabled) return;
-                btn.disabled = true;
-                
-                try {
-                    const functions = getFunctions();
-                    const acceptRequest = httpsCallable(functions, 'acceptFriendRequest');
-                    await acceptRequest({
-                        requestId: reqDoc.id,
-                        fromId: data.from,
-                        toId: data.to
-                    });
-
-                    playConfirm2Sound();
-
-                    if (messageEl) {
-                        messageEl.innerText = '';
-                        messageEl.classList.add('hidden');
-                    }
-                } catch (err) {
-                    btn.disabled = false;
-                    if (messageEl) {
-                        messageEl.innerText = 'Failed to accept request. Please try again.';
-                        messageEl.classList.remove('hidden');
-                    }
-                }
-            };
-
-            reqEl.querySelector('.decline-btn').onclick = async () => {
-                await deleteDoc(doc(db, 'friend_requests', reqDoc.id));
-                playReturnSound();
-            };
-
-            if (requestsList) requestsList.appendChild(reqEl);
+      reqEl.querySelector('.accept-btn').onclick = async (e) => {
+    const btn = e.currentTarget;
+    if (btn.disabled) return;
+    btn.disabled = true;
+    
+    try {
+        await updateDoc(doc(db, 'users', data.from), {
+            friends: arrayUnion(data.to)
         });
-    });
+        await updateDoc(doc(db, 'users', data.to), {
+            friends: arrayUnion(data.from)
+        });
+        
+        await deleteDoc(doc(db, 'friend_requests', reqDoc.id));
 
-    const postsSection = document.getElementById('profile-posts-section');
-    if (postsSection) {
-        postsSection.classList.remove('hidden');
-        const loadMoreBtn = document.getElementById('profile-posts-load-more');
-        if (loadMoreBtn) loadMoreBtn.onclick = () => loadMyPosts(false);
-        await loadMyPosts(true);
+        playConfirm2Sound();
+
+        if (messageEl) {
+            messageEl.innerText = '';
+            messageEl.classList.add('hidden');
+        }
+    } catch (err) {
+        btn.disabled = false;
+        if (messageEl) {
+            messageEl.innerText = 'Failed to accept request. Please try again.';
+            messageEl.classList.remove('hidden');
+        }
     }
+};
+
+      reqEl.querySelector(".decline-btn").onclick = async () => {
+        await deleteDoc(doc(db, "friend_requests", reqDoc.id));
+        playReturnSound();
+      };
+
+      if (requestsList) requestsList.appendChild(reqEl);
+    });
+  });
+
+  const postsSection = document.getElementById("profile-posts-section");
+  if (postsSection) {
+    postsSection.classList.remove("hidden");
+    const loadMoreBtn = document.getElementById("profile-posts-load-more");
+    if (loadMoreBtn) loadMoreBtn.onclick = () => loadMyPosts(false);
+    await loadMyPosts(true);
+  }
 }
 
 const MY_POSTS_PAGE_SIZE = 15;
@@ -243,128 +279,147 @@ let myPostsHasMore = false;
 let myPostsLoading = false;
 
 async function loadMyPosts(reset = false) {
-    if (myPostsLoading || !CURRENT_USER_ID) return;
-    myPostsLoading = true;
+  if (myPostsLoading || !CURRENT_USER_ID) return;
+  myPostsLoading = true;
 
-    const list = document.getElementById('profile-posts-list');
-    const loadMoreBtn = document.getElementById('profile-posts-load-more');
-    if (!list) { myPostsLoading = false; return; }
+  const list = document.getElementById("profile-posts-list");
+  const loadMoreBtn = document.getElementById("profile-posts-load-more");
+  if (!list) {
+    myPostsLoading = false;
+    return;
+  }
 
-    if (reset) {
-        list.innerHTML = '';
-        myPostsLast = null;
-        myPostsHasMore = false;
+  if (reset) {
+    list.innerHTML = "";
+    myPostsLast = null;
+    myPostsHasMore = false;
+  }
+
+  if (loadMoreBtn) {
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.classList.add("hidden");
+  }
+
+  try {
+    const postsRef = collection(db, "posts");
+    let q;
+    if (myPostsLast) {
+      q = query(
+        postsRef,
+        where("userId", "==", CURRENT_USER_ID),
+        orderBy("timestamp", "desc"),
+        startAfter(myPostsLast),
+        limit(MY_POSTS_PAGE_SIZE + 1),
+      );
+    } else {
+      q = query(
+        postsRef,
+        where("userId", "==", CURRENT_USER_ID),
+        orderBy("timestamp", "desc"),
+        limit(MY_POSTS_PAGE_SIZE + 1),
+      );
+    }
+    const snapshot = await getDocs(q);
+    myPostsHasMore = snapshot.docs.length > MY_POSTS_PAGE_SIZE;
+    const docs = snapshot.docs.slice(0, MY_POSTS_PAGE_SIZE);
+    if (docs.length > 0) myPostsLast = docs[docs.length - 1];
+
+    if (docs.length === 0 && reset) {
+      list.innerHTML = `<div class="text-center text-gray-400 font-bold text-xs  mt-4 tracking-widest">${t("feed.noPosts")}</div>`;
+    } else {
+      docs.forEach((docSnap) => {
+        const data = docSnap.data();
+        const el = document.createElement("div");
+        el.className =
+          "bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-2xl p-4 flex flex-col gap-2";
+        const img = data.imageUrl || data.image;
+        el.innerHTML = `
+                    ${img ? `<div class="w-full aspect-square bg-gray-200 dark:bg-slate-600 border-[2px] border-black dark:border-slate-500 overflow-hidden rounded-xl mb-1"><img src="${escapeHtml(img)}" loading="lazy" class="w-full h-full object-cover"></div>` : ""}
+                    <p class="text-sm font-bold dark:text-gray-200 leading-snug">${escapeHtml(data.caption || "")}</p>
+                    <span class="text-[9px] font-black text-gray-400  tracking-widest">${new Date(data.timestamp).toLocaleString()}</span>
+                `;
+        list.appendChild(el);
+      });
     }
 
     if (loadMoreBtn) {
-        loadMoreBtn.disabled = true;
-        loadMoreBtn.classList.add('hidden');
+      loadMoreBtn.classList.toggle("hidden", !myPostsHasMore);
+      loadMoreBtn.disabled = false;
     }
-
-    try {
-        const postsRef = collection(db, 'posts');
-        let q;
-        if (myPostsLast) {
-            q = query(postsRef, where('userId', '==', CURRENT_USER_ID), orderBy('timestamp', 'desc'), startAfter(myPostsLast), limit(MY_POSTS_PAGE_SIZE + 1));
-        } else {
-            q = query(postsRef, where('userId', '==', CURRENT_USER_ID), orderBy('timestamp', 'desc'), limit(MY_POSTS_PAGE_SIZE + 1));
-        }
-        const snapshot = await getDocs(q);
-        myPostsHasMore = snapshot.docs.length > MY_POSTS_PAGE_SIZE;
-        const docs = snapshot.docs.slice(0, MY_POSTS_PAGE_SIZE);
-        if (docs.length > 0) myPostsLast = docs[docs.length - 1];
-
-        if (docs.length === 0 && reset) {
-            list.innerHTML = `<div class="text-center text-gray-400 font-bold text-xs uppercase mt-4 tracking-widest">${t('feed.noPosts')}</div>`;
-        } else {
-            docs.forEach(docSnap => {
-                const data = docSnap.data();
-                const el = document.createElement('div');
-                el.className = 'bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-2xl p-4 flex flex-col gap-2';
-                const img = data.imageUrl || data.image;
-                el.innerHTML = `
-                    ${img ? `<div class="w-full aspect-square bg-gray-200 dark:bg-slate-600 border-[2px] border-black dark:border-slate-500 overflow-hidden rounded-xl mb-1"><img src="${escapeHtml(img)}" loading="lazy" class="w-full h-full object-cover"></div>` : ''}
-                    <p class="text-sm font-bold dark:text-gray-200 leading-snug">${escapeHtml(data.caption || '')}</p>
-                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">${new Date(data.timestamp).toLocaleString()}</span>
-                `;
-                list.appendChild(el);
-            });
-        }
-
-        if (loadMoreBtn) {
-            loadMoreBtn.classList.toggle('hidden', !myPostsHasMore);
-            loadMoreBtn.disabled = false;
-        }
-    } catch (err) {
-        console.error(err);
-    } finally {
-        myPostsLoading = false;
-    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    myPostsLoading = false;
+  }
 }
 
 function escapeHtml(str) {
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 async function renderFriendsList(friendIds, seq, getSeq) {
-    const container = document.getElementById('friends-list-container');
-    const list = document.getElementById('friends-list');
-    const noMsg = document.getElementById('no-friends-msg');
+  const container = document.getElementById("friends-list-container");
+  const list = document.getElementById("friends-list");
+  const noMsg = document.getElementById("no-friends-msg");
 
-    if (!container || !list) return;
-    container.classList.remove('hidden');
-    list.innerHTML = '';
+  if (!container || !list) return;
+  container.classList.remove("hidden");
+  list.innerHTML = "";
 
-    if (friendIds.length === 0) {
-        if (noMsg) noMsg.classList.remove('hidden');
-        return;
+  if (friendIds.length === 0) {
+    if (noMsg) noMsg.classList.remove("hidden");
+    return;
+  }
+  if (noMsg) noMsg.classList.add("hidden");
+
+  try {
+    const results = await Promise.allSettled(
+      friendIds.map((id) => getDoc(doc(db, "users", id))),
+    );
+
+    if (seq !== getSeq()) return;
+
+    const friendDocs = results
+      .filter((r) => r.status === "fulfilled")
+      .map((r) => r.value);
+
+    if (friendDocs.length === 0) {
+      if (noMsg) noMsg.classList.remove("hidden");
+      return;
     }
-    if (noMsg) noMsg.classList.add('hidden');
 
-    try {
-        const results = await Promise.allSettled(friendIds.map(id => getDoc(doc(db, 'users', id))));
-
-        if (seq !== getSeq()) return;
-
-        const friendDocs = results
-            .filter(r => r.status === 'fulfilled')
-            .map(r => r.value);
-
-        if (friendDocs.length === 0) {
-            if (noMsg) noMsg.classList.remove('hidden');
-            return;
-        }
-
-        friendDocs.forEach(friendSnap => {
-            if (!friendSnap.exists()) return;
-            const data = friendSnap.data();
-            const el = document.createElement('div');
-            el.className = "flex items-center gap-3 bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-xl p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]";
-            el.innerHTML = `
+    friendDocs.forEach((friendSnap) => {
+      if (!friendSnap.exists()) return;
+      const data = friendSnap.data();
+      const el = document.createElement("div");
+      el.className =
+        "flex items-center gap-3 bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-xl p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]";
+      el.innerHTML = `
                 <div class="w-8 h-8 bg-[#B2FF59] border-[2px] border-black dark:border-slate-500 rounded-full shrink-0 flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" stroke="black" viewBox="0 0 24 24" stroke-width="3"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
-                <span class="font-black uppercase tracking-tighter truncate text-sm dark:text-white"></span>
+                <span class="font-black  tracking-tighter truncate text-sm dark:text-white"></span>
             `;
-            el.querySelector('span').textContent = data.username || t('common.unknown');
-            list.appendChild(el);
-        });
-    } catch (err) {
-        if (noMsg) noMsg.classList.remove('hidden');
-    }
+      el.querySelector("span").textContent =
+        data.username || t("common.unknown");
+      list.appendChild(el);
+    });
+  } catch (err) {
+    if (noMsg) noMsg.classList.remove("hidden");
+  }
 }
 
-document.addEventListener('turbo:frame-load', (e) => {
-    if (e.target.id === 'profile-frame') {
-        initProfileFrame();
-    }
+document.addEventListener("turbo:frame-load", (e) => {
+  if (e.target.id === "profile-frame") {
+    initProfileFrame();
+  }
 });
 
-window.addEventListener('authResolved', () => {
-    initProfileFrame();
+window.addEventListener("authResolved", () => {
+  initProfileFrame();
 });

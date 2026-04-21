@@ -1,80 +1,184 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quantico:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-</head>
-<body>
-<turbo-frame id="profile-frame" class="block px-6 pb-32">
-    
-    <h2 data-i18n="profile.title" class="text-black dark:text-[#B2FF59] font-black text-4xl uppercase tracking-tighter mb-6 mt-8">Profile</h2>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quantico:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <turbo-frame id="profile-frame" class="block px-6 pb-32">
+      <h2
+        data-i18n="profile.title"
+        class="text-black dark:text-[#B2FF59] font-black text-4xl tracking-tighter mb-6 mt-8"
+      >
+        Profile
+      </h2>
 
-    <div class="flex flex-col gap-6 w-full max-w-md mx-auto">
-        
-        <div class="bg-white dark:bg-slate-800 border-[5px] border-black dark:border-slate-600 rounded-[32px] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-4 relative overflow-hidden">
-            <div class="flex items-center gap-4">
-                <div class="w-20 h-20 bg-[#40C4FF] border-[4px] border-black dark:border-slate-600 rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] shrink-0">
-                    <svg class="w-10 h-10 text-black dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
-                <div class="flex flex-col flex-1 min-w-0 justify-center">
-                    <h3 id="profile-username" class="text-2xl font-black uppercase tracking-tighter truncate w-full dark:text-white">Guest</h3>
-                </div>
+      <div class="flex flex-col gap-6 w-full max-w-md mx-auto">
+        <div
+          class="bg-white dark:bg-slate-800 border-[5px] border-black dark:border-slate-600 rounded-[32px] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-4 relative overflow-hidden"
+        >
+          <div class="flex items-center gap-4">
+            <div
+              class="w-20 h-20 bg-[#40C4FF] border-[4px] border-black dark:border-slate-600 rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] shrink-0"
+            >
+              <svg
+                class="w-10 h-10 text-black dark:text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="3"
+              >
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </div>
-            
-            <div class="grid grid-cols-2 gap-3 mt-2">
-                <div class="bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <span id="profile-stations-count" class="text-2xl font-black tracking-tighter dark:text-white">0</span>
-                    <span data-i18n="profile.stations" class="text-[9px] font-black uppercase text-gray-500 dark:text-gray-400 tracking-widest">Stations</span>
-                </div>
-                <div class="bg-[#FF80AB] border-[3px] border-black dark:border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <span id="profile-stamps-count" class="text-2xl font-black tracking-tighter text-black dark:text-white">0</span>
-                    <span data-i18n="profile.stamps" class="text-[9px] font-black uppercase text-black dark:text-white tracking-widest">Stamps</span>
-                </div>
+            <div class="flex flex-col flex-1 min-w-0 justify-center">
+              <h3
+                id="profile-username"
+                class="text-2xl font-black tracking-tighter truncate w-full dark:text-white"
+              >
+                Guest
+              </h3>
             </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mt-2">
+            <div
+              class="bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+            >
+              <span
+                id="profile-stations-count"
+                class="text-2xl font-black tracking-tighter dark:text-white"
+                >0</span
+              >
+              <span
+                data-i18n="profile.stations"
+                class="text-[9px] font-black text-gray-500 dark:text-gray-400 tracking-widest"
+                >Stations</span
+              >
+            </div>
+            <div
+              class="bg-[#FF80AB] border-[3px] border-black dark:border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+            >
+              <span
+                id="profile-stamps-count"
+                class="text-2xl font-black tracking-tighter text-black dark:text-white"
+                >0</span
+              >
+              <span
+                data-i18n="profile.stamps"
+                class="text-[9px] font-black text-black dark:text-white tracking-widest"
+                >Stamps</span
+              >
+            </div>
+          </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 border-[5px] border-black dark:border-slate-600 rounded-[32px] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-4 relative">
-            <h3 data-i18n="profile.friendsList" class="text-xl font-black uppercase tracking-tighter dark:text-white">Friends List</h3>
-            
-            <div class="flex gap-2 relative">
-                <input type="text" id="friend-search-input" data-i18n="profile.searchPlaceholder" placeholder="Add by username" class="flex-1 bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-black uppercase placeholder-gray-400 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-slate-600 transition-colors" />
-                <button id="send-friend-request-btn" data-i18n="profile.addFriend" class="bg-[#B2FF59] border-[3px] border-black dark:border-slate-600 rounded-xl px-4 py-3 text-black font-black text-sm uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all shrink-0 flex items-center justify-center">
-                    Add
-                </button>
-                
-                <div id="friend-guest-overlay" class="absolute inset-0 z-10 cursor-pointer hidden rounded-xl"></div>
-            </div>
-            
-            <p id="friend-message" class="text-xs font-bold uppercase tracking-widest hidden dark:text-gray-300"></p>
+        <div
+          class="bg-white dark:bg-slate-800 border-[5px] border-black dark:border-slate-600 rounded-[32px] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-4 relative"
+        >
+          <h3
+            data-i18n="profile.friendsList"
+            class="text-xl font-black tracking-tighter dark:text-white"
+          >
+            Friends List
+          </h3>
 
-            <div id="friends-list-container" class="flex flex-col gap-3 hidden">
-                <h4 data-i18n="profile.yourFriends" class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Friends</h4>
-                <div id="friends-list" class="flex flex-col gap-3"></div>
-                <p id="no-friends-msg" data-i18n="profile.noFriends" class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center py-2 hidden">No friends yet</p>
-            </div>
+          <div class="flex gap-2 relative">
+            <input
+              type="text"
+              id="friend-search-input"
+              data-i18n="profile.searchPlaceholder"
+              placeholder="Add by username"
+              class="flex-1 bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-black placeholder-gray-400 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-slate-600 transition-colors"
+            />
+            <button
+              id="send-friend-request-btn"
+              data-i18n="profile.addFriend"
+              class="bg-[#B2FF59] border-[3px] border-black dark:border-slate-600 rounded-xl px-4 py-3 text-black font-black text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all shrink-0 flex items-center justify-center"
+            >
+              Add
+            </button>
 
-            <div class="w-full h-[4px] bg-black dark:bg-slate-600 my-2"></div>
+            <div
+              id="friend-guest-overlay"
+              class="absolute inset-0 z-10 cursor-pointer hidden rounded-xl"
+            ></div>
+          </div>
 
-            <div class="flex flex-col gap-4">
-                <h4 data-i18n="profile.requests" class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Requests</h4>
-                <div id="friend-requests-list" class="flex flex-col gap-3 empty:hidden"></div>
-                <div id="no-requests-msg" data-i18n="profile.noRequests" class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center py-4">No pending requests</div>
+          <p
+            id="friend-message"
+            class="text-xs font-bold tracking-widest hidden dark:text-gray-300"
+          ></p>
+
+          <div id="friends-list-container" class="flex flex-col gap-3 hidden">
+            <h4
+              data-i18n="profile.yourFriends"
+              class="text-sm font-black tracking-widest text-gray-500 dark:text-gray-400"
+            >
+              Friends
+            </h4>
+            <div id="friends-list" class="flex flex-col gap-3"></div>
+            <p
+              id="no-friends-msg"
+              data-i18n="profile.noFriends"
+              class="text-[10px] font-black text-gray-400 tracking-widest text-center py-2 hidden"
+            >
+              No friends yet
+            </p>
+          </div>
+
+          <div class="w-full h-[4px] bg-black dark:bg-slate-600 my-2"></div>
+
+          <div class="flex flex-col gap-4">
+            <h4
+              data-i18n="profile.requests"
+              class="text-sm font-black tracking-widest text-gray-500 dark:text-gray-400"
+            >
+              Requests
+            </h4>
+            <div
+              id="friend-requests-list"
+              class="flex flex-col gap-3 empty:hidden"
+            ></div>
+            <div
+              id="no-requests-msg"
+              data-i18n="profile.noRequests"
+              class="text-[10px] font-black text-gray-400 tracking-widest text-center py-4"
+            >
+              No pending requests
             </div>
+          </div>
         </div>
-        <div id="profile-posts-section" class="bg-white dark:bg-slate-800 border-[5px] border-black dark:border-slate-600 rounded-[32px] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-4 hidden">
-            <h3 data-i18n="feed.myPosts" class="text-xl font-black uppercase tracking-tighter dark:text-white">My Posts</h3>
-            <div id="profile-posts-list" class="flex flex-col gap-6"></div>
-            <div class="flex justify-center mt-2">
-                <button id="profile-posts-load-more" data-i18n="feed.loadMore" class="hidden bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-xl px-6 py-2.5 font-black uppercase text-sm tracking-tighter shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-[3px] active:translate-x-[3px] transition-all dark:text-white disabled:opacity-50">
-                    Load More
-                </button>
-            </div>
+        <div
+          id="profile-posts-section"
+          class="bg-white dark:bg-slate-800 border-[5px] border-black dark:border-slate-600 rounded-[32px] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-4 hidden"
+        >
+          <h3
+            data-i18n="feed.myPosts"
+            class="text-xl font-black tracking-tighter dark:text-white"
+          >
+            My Posts
+          </h3>
+          <div id="profile-posts-list" class="flex flex-col gap-6"></div>
+          <div class="flex justify-center mt-2">
+            <button
+              id="profile-posts-load-more"
+              data-i18n="feed.loadMore"
+              class="hidden bg-gray-100 dark:bg-slate-700 border-[3px] border-black dark:border-slate-600 rounded-xl px-6 py-2.5 font-black text-sm tracking-tighter shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-[3px] active:translate-x-[3px] transition-all dark:text-white disabled:opacity-50"
+            >
+              Load More
+            </button>
+          </div>
         </div>
-    </div>
-</turbo-frame>
-</body>
+      </div>
+    </turbo-frame>
+  </body>
 </html>
