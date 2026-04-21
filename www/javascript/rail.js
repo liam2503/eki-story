@@ -98,7 +98,7 @@ window.initMap = async function () {
           l.name_jp &&
           /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]/.test(l.name_jp),
       );
-    if (!stations || !lines || !joins || !hasJapaneseLineNames) {
+    if (!stations || stations.length === 0 || !lines || Object.keys(lines).length === 0 || !joins || joins.length === 0 || !hasJapaneseLineNames) {
       await new Promise((resolve) => {
         if (auth.currentUser) return resolve();
         const unsubscribe = auth.onAuthStateChanged((user) => {

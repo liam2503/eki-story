@@ -4,9 +4,9 @@ export let polylines = [];
 export const polylinesByLine = {};
 
 export function renderPolylines(map, allJoins, stationLookup, lineColors, showTooltip) {
-    const currentZoom = map.getZoom();
-    const lineStroke = Math.max(6, currentZoom * 0.6);
-    const hoverStroke = lineStroke * 1.5;
+    const currentZoom = map.getZoom() || 14.8;
+    const lineStroke = Math.round(Math.max(6, currentZoom * 0.6));
+    const hoverStroke = Math.round(lineStroke * 1.5);
 
     const segmentGroups = {};
 
@@ -72,8 +72,8 @@ export function renderPolylines(map, allJoins, stationLookup, lineColors, showTo
             polyline.addListener('mouseover', () => polyline.setOptions({ strokeWeight: hoverStroke, zIndex: 99999 }));
             
             polyline.addListener('mouseout', () => {
-                const activeZoom = map.getZoom();
-                polyline.setOptions({ strokeWeight: Math.max(6, activeZoom * 0.6), zIndex: index + 10 });
+                const activeZoom = map.getZoom() || 14.8;
+                polyline.setOptions({ strokeWeight: Math.round(Math.max(6, activeZoom * 0.6)), zIndex: index + 10 });
             });
             
             polyline.addListener('click', (e) => {
